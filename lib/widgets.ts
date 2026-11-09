@@ -1,5 +1,5 @@
 import { assertPublicUrl } from "./safeFetch";
-import { db, insertRow, listIds, listRowsNewestFirst, newId, readJson, writeJson } from "./store";
+import { insertRow, listIds, listRowsNewestFirst, newId, readJson, writeJson } from "./store";
 import { mailConfigured, sendMail } from "./mail";
 import type { AuditResult } from "./types";
 
@@ -82,14 +82,10 @@ export async function listWidgets(): Promise<Widget[]> {
 type WidgetLeadRow = { id: string; widget_id: string; email: string; name: string | null; url: string; score: number; created_at: string };
 
 export async function listWidgetLeads(widgetId?: string): Promise<WidgetLead[]> {
-  if (db()) {
-    const rows = await listRowsNewestFirst<WidgetLeadRow>("widget_leads");
-    return rows
-      .filter((r) => !widgetId || r.widget_id === widgetId)
-      .map((r) => ({ id: r.id, widgetId: r.widget_id, email: r.email, name: r.name ?? undefined, url: r.url, score: r.score, createdAt: r.created_at }));
-  }
-  const all = await Promise.all((await listIds("widget-leads")).map((id) => readJson<WidgetLead>("widget-leads", id)));
-  return all.filter((l): l is WidgetLead => !!l && (!widgetId || l.widgetId === widgetId)).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const rows = await listRowsNewestFirst<WidgetLeadRow>("widget_leads");
+  return rows
+    .filter((r) => !widgetId || r.widget_id === widgetId)
+    .map((r) => ({ id: r.id, widgetId: r.widget_id, email: r.email, name: r.name ?? undefined, url: r.url, score: r.score, createdAt: r.created_at }));
 }
 
 /** The short report the widget shows: scores and the top issues. */
@@ -104,11 +100,7 @@ export function widgetSummary(r: AuditResult) {
 
 export async function saveWidgetLead(w: Widget, lead: Omit<WidgetLead, "id" | "createdAt" | "widgetId">, summary: ReturnType<typeof widgetSummary>): Promise<void> {
   const l: WidgetLead = { ...lead, id: newId(14), widgetId: w.id, createdAt: new Date().toISOString() };
-  if (db()) {
-    await insertRow("widget_leads", { id: l.id, widget_id: l.widgetId, email: l.email, name: l.name, url: l.url, score: Math.round(l.score), created_at: l.createdAt });
-  } else {
-    await writeJson("widget-leads", l.id, l);
-  }
+  await insertRow("widget_leads", { id: l.id, widget_id: l.widgetId, email: l.email, name: l.name, url: l.url, score: Math.round(l.score), created_at: l.createdAt });
   const payload = { event: "lead.created", widget: { id: w.id, agency: w.agency }, lead: l, report: summary };
   if (w.webhookUrl) {
     // Re-check at send time: DNS could have changed since the widget was saved.

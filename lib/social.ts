@@ -141,7 +141,7 @@ export async function writeSocialPosts(opts: { url: string; title: string; descr
 Use only facts from the page info given. No fake statistics. Include the URL where the network allows links.
 Reply ONLY with JSON: {"posts":[{"network":string,"text":string,"hashtags":string[],"tip":string}]}`,
     user: `Brand: ${opts.brand}\nURL: ${opts.url}\nTitle: ${opts.title}\nDescription: ${opts.description}\nPage excerpt: ${opts.excerpt.slice(0, 2500)}`,
-    maxTokens: 3000,
+    maxTokens: 12000,
   });
   const j = parseJsonLoose<SocialPosts>(r.text);
   return { posts: Array.isArray(j.posts) ? j.posts : [] };

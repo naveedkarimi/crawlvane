@@ -57,7 +57,7 @@ const engines: Engine[] = [
     name: "Claude",
     enabled: () => !!process.env.ANTHROPIC_API_KEY,
     ask: async (q) => {
-      const r = await callClaude({ system: SYSTEM_USER, user: q, maxTokens: 1500, webSearch: 3, feature: "visibility" });
+      const r = await callClaude({ system: SYSTEM_USER, user: q, maxTokens: 8000, webSearch: 3, feature: "visibility" });
       return { text: r.text, urls: r.citations };
     },
   },
@@ -117,7 +117,7 @@ export async function suggestPrompts(brand: string, domain: string, summary: str
     system:
       'You write realistic questions that potential customers type into ChatGPT or Perplexity when looking for a business like this one. Do NOT include the brand name. Mix "best X in Y", comparisons, how-to and problem questions. Reply ONLY with JSON: {"prompts": string[]}',
     user: `Brand: ${brand}\nDomain: ${domain}\nWhat the site is about: ${summary.slice(0, 1500)}\nWrite ${n} questions.`,
-    maxTokens: 800,
+    maxTokens: 4000,
   });
   const j = parseJsonLoose<{ prompts: string[] }>(r.text);
   return (j.prompts ?? []).map(String).filter(Boolean).slice(0, n);

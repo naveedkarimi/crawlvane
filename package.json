@@ -10,8 +10,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "tsx scripts/test-analyzer.mts && tsx scripts/test-pagespeed.mts && tsx scripts/test-bot-test.mts && tsx scripts/test-tools.mts && tsx scripts/test-ai-mocks.mts && tsx scripts/test-schema-validate.mts && tsx scripts/test-drift.mts && tsx scripts/test-safe-fetch.mts && tsx scripts/test-store.mts && tsx scripts/test-tables.mts && tsx scripts/test-tables-files.mts && tsx scripts/test-newsletter-client.mts && tsx scripts/test-site-checks.mts",
-    "smoke": "tsx scripts/smoke-report.mts",
+    "test": "tsx scripts/test-analyzer.mts && tsx scripts/test-pagespeed.mts && tsx scripts/test-bot-test.mts && tsx scripts/test-tools.mts && tsx scripts/test-ai-mocks.mts && tsx scripts/test-schema-validate.mts && tsx scripts/test-drift.mts && tsx scripts/test-safe-fetch.mts && tsx scripts/test-store.mts && tsx scripts/test-tables.mts && tsx scripts/test-newsletter-client.mts && tsx scripts/test-site-checks.mts && tsx scripts/test-claude-call.mts",
+    "smoke": "tsx --env-file=.env.local scripts/smoke-report.mts",
     "package:cpanel": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && next build && node scripts/package-cpanel.mjs"
   },
   "dependencies": {

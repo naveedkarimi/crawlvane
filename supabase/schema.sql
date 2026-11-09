@@ -2,7 +2,7 @@
 -- Safe to run more than once.
 --
 -- Row level security is on with no policies, so the public key can read and write
--- nothing in these tables. Its only access is the two newsletter functions below.
+-- nothing in these tables. Its only access is the three form functions below.
 
 -- Reports, monitors, widgets, API keys, badges and counters, stored as JSON.
 create table if not exists public.documents (
@@ -66,7 +66,7 @@ declare
   v_email text := lower(trim(coalesce(p_email, '')));
 begin
   if length(v_email) > 254 or v_email !~ '^[^[:space:]@<>()\[\]\\,;:"]+@[^[:space:]@<>()\[\]\\,;:"]+\.[a-z]{2,}$' then
-    raise exception 'invalid email' using errcode = '22023';
+    raise exception 'Please enter a valid email address.' using errcode = '22023';
   end if;
   -- The browser can't be rate limited per visitor, so cap sign-ups for the whole list.
   if (select count(*) from public.newsletter_subscribers where created_at > now() - interval '1 minute') >= 30 then
@@ -92,6 +92,53 @@ begin
   return v_deleted > 0;
 end;
 $$;
+
+-- Called from the browser with the public key: waitlist, quote requests and contact form.
+create or replace function public.submit_lead(
+  p_kind text,
+  p_email text,
+  p_name text default null,
+  p_url text default null,
+  p_message text default null,
+  p_source text default null
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_email text := lower(trim(coalesce(p_email, '')));
+  v_message text := nullif(left(trim(coalesce(p_message, '')), 4000), '');
+begin
+  if p_kind is null or p_kind not in ('waitlist', 'fix', 'contact') then
+    raise exception 'Unknown form.' using errcode = '22023';
+  end if;
+  if length(v_email) > 254 or v_email !~ '^[^[:space:]@<>()\[\]\\,;:"]+@[^[:space:]@<>()\[\]\\,;:"]+\.[a-z]{2,}$' then
+    raise exception 'Please enter a valid email address.' using errcode = '22023';
+  end if;
+  if p_kind = 'contact' and v_message is null then
+    raise exception 'Please write a message.' using errcode = '22023';
+  end if;
+  -- The browser can't be rate limited per visitor, so cap submissions for the whole site.
+  if (select count(*) from public.leads where created_at > now() - interval '1 minute') >= 30 then
+    raise exception 'too many submissions';
+  end if;
+  insert into public.leads (id, kind, email, name, url, message, source)
+  values (
+    replace(gen_random_uuid()::text, '-', ''),
+    p_kind,
+    v_email,
+    nullif(left(trim(p_name), 120), ''),
+    nullif(left(trim(p_url), 2048), ''),
+    v_message,
+    nullif(left(trim(p_source), 300), '')
+  );
+end;
+$$;
+
+revoke all on function public.submit_lead(text, text, text, text, text, text) from public, anon, authenticated;
+grant execute on function public.submit_lead(text, text, text, text, text, text) to anon, authenticated;
 
 revoke all on function public.subscribe_newsletter(text, text) from public, anon, authenticated;
 revoke all on function public.unsubscribe_newsletter(text) from public, anon, authenticated;

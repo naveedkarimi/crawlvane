@@ -15,7 +15,15 @@ type Day = Record<string, Tally>; // key: "provider:feature"
 const day = (d = new Date()) => d.toISOString().slice(0, 10);
 const empty = (): Tally => ({ calls: 0, input: 0, output: 0, searches: 0 });
 
-export async function recordUsage(provider: Provider, feature: string, u: Partial<Tally>): Promise<void> {
+// One save at a time, otherwise simultaneous AI calls overwrite each other's counts.
+let queue: Promise<void> = Promise.resolve();
+
+export function recordUsage(provider: Provider, feature: string, u: Partial<Tally>): Promise<void> {
+  queue = queue.then(() => saveUsage(provider, feature, u));
+  return queue;
+}
+
+async function saveUsage(provider: Provider, feature: string, u: Partial<Tally>): Promise<void> {
   try {
     const id = "d" + day().replace(/-/g, "");
     const d = (await readJson<Day>("usage", id)) ?? {};

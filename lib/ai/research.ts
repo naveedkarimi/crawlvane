@@ -24,7 +24,7 @@ export async function runResearch(opts: { url: string; title: string; descriptio
     feature: "research",
     system: SYSTEM,
     user: `Website: ${opts.url}\nTitle: ${opts.title}\nDescription: ${opts.description}\n\nExisting pages:\n${pageList || "- (homepage only)"}`,
-    maxTokens: 6000,
+    maxTokens: 16000,
     webSearch: 8,
     timeoutMs: 240000,
   });

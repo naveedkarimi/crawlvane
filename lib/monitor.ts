@@ -7,7 +7,7 @@ import { buildSiteAudit, crawlSite } from "./crawl";
 import { diffBaseline, nextBaseline, renderChanges, snapshotsFromCrawl, type Baseline } from "./drift";
 import { LIMITS, SITE_URL } from "./config";
 import { mailConfigured, sendMail } from "./mail";
-import { listIds, newId, pruneOlderThan, readJson, removeJson, writeJson } from "./store";
+import { listIds, newId, readJson, removeJson, writeJson } from "./store";
 
 export interface Monitor {
   id: string;
@@ -124,6 +124,5 @@ export async function runDueMonitors(limit = 5) {
       await writeJson(C, m.id, m);
     }
   }
-  const pruned = await pruneOlderThan("reports", LIMITS.reportTtlDays);
-  return { ran, errors, pruned };
+  return { ran, errors };
 }

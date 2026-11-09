@@ -92,9 +92,9 @@ Tick items as you go (`- [x]`).
 
 ### Before launch (added 2026-11-06)
 
-- [ ] Add `PAGESPEED_API_KEY` (free from Google Cloud); without it Core Web Vitals and the "What AI sees" screenshot fail
+- [x] Add `PAGESPEED_API_KEY` (free from Google Cloud); without it Core Web Vitals and the "What AI sees" screenshot fail
 - [ ] Set a monthly spend limit in the Anthropic console
-- [ ] Pick the final name and domain (all "Findable" domains are taken; see `FEATURES.md` section 12), then set `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_APP_NAME`
+- [ ] Buy crawlvane.com (the name is chosen), then set `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_APP_NAME`
 - [ ] Have a lawyer review `/privacy` and `/terms`, and add a governing-law clause for where you're based
 - [ ] Schedule `/api/cron` (cPanel cron job) so 30-day report deletion, promised in the privacy policy, actually runs
 
@@ -111,7 +111,7 @@ Tick items as you go (`- [x]`).
 ### Infrastructure
 
 - [ ] Move hosting off shared cPanel to Vercel or a small VPS (background crawls, cron jobs and headless Chrome don't fit cPanel well)
-- [ ] Postgres database (for example Supabase) to replace the JSON files in `data/`
+- [ ] Finish moving to Supabase: leads, widget leads, newsletter and site statistics have their own tables; reports and monitors are still JSON in `documents`
   - [ ] Tables: users, projects, reports, monitors, ai_visibility_runs, leads
 - [ ] A job queue for crawls and AI runs (for example Inngest, Trigger.dev or a database-backed queue)
 - [ ] Keep rate limits in a shared store (Redis or the database) instead of per server process
@@ -232,7 +232,7 @@ Tick items as you go (`- [x]`).
 ## Needs you (nothing more to build until these are done)
 
 - Deploy, DNS, final name and domain (Phase 0 and Brand)
-- Keys: `PAGESPEED_API_KEY`, `ANTHROPIC_API_KEY` with a spend limit, SMTP and `LEADS_NOTIFY_EMAIL`, Plausible account
+- Keys: `PAGESPEED_API_KEY`, `ANTHROPIC_API_KEY` with a spend limit, SMTP, Plausible account
 - Decide hosting (Vercel or VPS), database (for example Supabase) and auth provider; then accounts, Stripe and the Phase 2 database move can be built
 - Lawyer review of `/privacy` and `/terms`; testimonials
 - Free tool 15 ("How does AI describe my business?") waits for the Anthropic key, an email gate and a daily cap

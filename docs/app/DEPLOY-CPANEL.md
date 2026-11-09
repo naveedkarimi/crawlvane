@@ -1,6 +1,6 @@
 # Deploying to cPanel (crawlvane.com)
 
-The app runs on cPanel's **Setup Node.js App** (Phusion Passenger). Data is saved in Supabase when `SUPABASE_URL` and `SUPABASE_SECRET_KEY` are set. Without them, reports and monitors are saved as files in `data/`.
+The app runs on cPanel's **Setup Node.js App** (Phusion Passenger). All data is saved in Supabase, so run `supabase/schema.sql` in the Supabase SQL Editor and set `SUPABASE_URL` and `SUPABASE_SECRET_KEY` before starting it.
 
 ## 0. Requirements
 
@@ -20,8 +20,7 @@ In cPanel, go to **Domains → Create a new domain** (or **Subdomains**) and add
    - `ANTHROPIC_API_KEY`: needed for the AI fix plan
    - `ADMIN_KEY`: a long random password, used to preview hidden features
    - `CRON_SECRET`: another random string, used by the hourly cron job
-   - `LEADS_NOTIFY_EMAIL` (with the SMTP settings): where new waitlist, contact and "fix it for me" messages are emailed. They're also saved in the Supabase `leads` table (or `data/leads/` without Supabase); download them as CSV from `/api/leads?format=csv` with the `x-admin-key` header
-   - `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`: the newsletter form sends sign-ups straight to Supabase. Use the public key only. They're read at build time, so set them before `npm run build`
+   - `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`: the newsletter, waitlist, quote and contact forms send submissions straight to Supabase. Use the public key only. They're read at build time, so set them before `npm run build`
    - `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` (optional): turns on cookie-free analytics. It's read at build time, so set it before `npm run build`
 
 ## 3. Create the Node.js app
@@ -80,7 +79,7 @@ To hide a live feature, set it to `0`, e.g. `FEATURE_COMPETITORS=0`.
 ## 8. Updating
 
 1. On your computer, run `npm install`, then `npm run package:cpanel`. This creates `dist/seo-app-cpanel.zip`.
-2. Upload and extract it over `~/seo-app`. Your `.env` and `data/` are kept because the zip doesn't contain them.
+2. Upload and extract it over `~/seo-app`. Your `.env` is kept because the zip doesn't contain them.
 3. **Setup Node.js App → Restart**.
 
 ## Shared hosting notes

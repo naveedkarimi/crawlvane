@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
-import { api } from "@/lib/client";
-import { subscribeNewsletter } from "@/lib/newsletterClient";
+import { submitLead, subscribeNewsletter } from "@/lib/supabasePublic";
 import { track } from "@/lib/track";
 
 type Kind = "waitlist" | "fix" | "contact" | "newsletter";
@@ -53,13 +52,10 @@ export default function LeadForm({ kind, url, compact = false, cta }: { kind: Ki
         setBusy(true);
         setErr("");
         try {
-          if (kind === "newsletter") {
-            if (!hp) await subscribeNewsletter(email, window.location.pathname);
-          } else {
-            await api("/api/leads", {
-              method: "POST",
-              body: JSON.stringify({ kind, email, name, message, url: site || url, website: hp, source: window.location.pathname }),
-            });
+          // Bots fill the hidden field, so pretend it worked and save nothing.
+          if (!hp) {
+            if (kind === "newsletter") await subscribeNewsletter(email, window.location.pathname);
+            else await submitLead({ kind, email, name, message, url: site || url, source: window.location.pathname });
           }
           track(kind === "newsletter" ? "Newsletter joined" : kind === "waitlist" ? "Waitlist joined" : kind === "fix" ? "Fix requested" : "Contact sent");
           setDone(true);

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/terms" },
 };
 
-const UPDATED = "2026-11-06";
+const UPDATED = "2026-11-08";
 
 const body = `
 These terms apply when you use ${BRAND.host}, including the audit, the free tools and the blog. By using the site you agree to them.
@@ -27,12 +27,16 @@ Generated files and code (robots.txt, llms.txt, schema and others) are suggestio
 
 You agree not to:
 
-- Use ${BRAND.name} to overload, attack or disrupt any website, including running checks in bulk or in a loop
-- Get around our rate limits or other protections, or use automated scripts against the site without our permission
+- Use ${BRAND.name} to overload, attack or disrupt any website, including running more checks than the bulk tool or your API key allows
+- Get around our rate limits or other protections, or run automated scripts against the site other than through our API
 - Use the AI Bot Checker on a site you don't own or manage. It sends requests with search and AI crawler user-agents, and some site owners consider that unwelcome on their site
 - Use the service for anything illegal
 
 We may limit or block access that breaks these rules or puts the service at risk.
+
+## API
+
+API keys are for you or your organisation only, so don't share them. Each key has an hourly limit. We may change limits or revoke a key that breaks these terms or puts the service at risk.
 
 ## Shared reports
 
@@ -58,7 +62,7 @@ We may update these terms. The date at the top shows the latest version. If a ch
 
 ## Contact
 
-Questions about these terms? [Contact us](${BRAND.contactUrl}).
+Questions about these terms? [Contact us](${BRAND.contactUrl}).${BRAND.legalName ? ` ${BRAND.name} is run by ${BRAND.legalName}${BRAND.legalAddress ? `, ${BRAND.legalAddress}` : ""}.` : ""}
 `;
 
 export default function Page() {

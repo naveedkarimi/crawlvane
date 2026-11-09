@@ -169,6 +169,7 @@ export function auditFetched(requestedUrl: string, page: FetchedResource, ctx: S
 /** Full single-page audit (used by the quick check). */
 export async function runAudit(rawUrl: string, opts: { render?: boolean } = {}): Promise<AuditResult> {
   const page = await fetchPage(rawUrl, opts);
+  if (page.status >= 400) throw new Error(httpErrorMessage(page.status));
   const [ctx, networkChecks] = await Promise.all([loadSiteContext(new URL(page.url).origin), brokenSchemaImages(page)]);
   return auditFetched(page.url, page, ctx, networkChecks);
 }

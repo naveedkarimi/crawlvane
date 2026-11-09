@@ -85,7 +85,7 @@ export default function PreviewTool() {
             <h3>What to fix</h3>
             <CheckList checks={p.checks} />
             <p className="muted tiny">
-              Previews are close approximations; each platform changes its layout from time to time and caches old previews.
+              Previews are close approximations; each platform changes its layout from time to time and caches old previews. Images load straight from the site you check, so that site can see your IP address.
             </p>
           </div>
         </div>

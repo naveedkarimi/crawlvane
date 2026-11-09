@@ -12,14 +12,14 @@ Effort is a rough guess. "You" means only you can do it (accounts, money, decisi
 |---|---|---|---|---|
 | 1 | Create a private GitHub repo and push this project | You approve, Claude does it | 10 min | The code is no longer only on this laptop |
 | 2 | Name chosen: Crawlvane. Check social handles and trademark, then buy crawlvane.com | You | 1 to 2 days | Domain bought |
-| 3 | Choose hosting. Recommended: a small VPS. Reports run as long background jobs and save to files, so it works as it is today. cPanel can stop idle apps, and Vercel would need the database first | You | 1 hour | Server ordered |
+| 3 | Choose hosting. Recommended: a small VPS. Reports run as long background jobs, and cPanel can stop idle apps | You | 1 hour | Server ordered |
 
 ## Stage 1: Go live (week 1)
 
 | # | Task | Who | Effort | Done when |
 |---|---|---|---|---|
-| 4 | Get `PAGESPEED_API_KEY`, `ANTHROPIC_API_KEY` with a monthly spend limit, a mailbox for SMTP, and a Plausible account | You | 1 hour | Keys ready |
-| 5 | Set the name and domain, `ADMIN_KEY`, `CRON_SECRET`, `LEADS_NOTIFY_EMAIL` and `AI_DAILY_TOKEN_CAP` | Claude | 30 min | Production settings complete |
+| 4 | `PAGESPEED_API_KEY` is done. Get `ANTHROPIC_API_KEY` with a monthly spend limit, a mailbox for SMTP, and a Plausible account | You | 1 hour | Keys ready |
+| 5 | Set the name and domain, `ADMIN_KEY`, `CRON_SECRET` and `AI_DAILY_TOKEN_CAP` | Claude | 30 min | Production settings complete |
 | 6 | Write VPS deployment steps and deploy (Node 20.18.1 or newer, HTTPS, automatic restart) | Claude, with your server access | Half a day | Site opens on the real domain |
 | 7 | Schedule `/api/cron` hourly. The privacy policy promises 30-day report deletion | Claude | 15 min | Old reports really get deleted |
 | 8 | Add Sentry error tracking | Claude | 1 hour | A test error shows up |
@@ -45,7 +45,7 @@ Effort is a rough guess. "You" means only you can do it (accounts, money, decisi
 
 | # | Task | Who | Effort | Done when |
 |---|---|---|---|---|
-| 21 | Postgres, with existing JSON data moved over (users, projects, reports, monitors, AI visibility runs, leads) | Claude | 3 days | JSON store retired |
+| 21 | Supabase is connected, and leads, widget leads, newsletter sign-ups and site statistics have their own tables. Move reports and monitors out of the `documents` JSON table, and add users, projects and AI visibility runs | Claude | 3 days | JSON store retired |
 | 22 | Job queue, shared rate limits and system scheduled jobs | Claude | 2 days | Survives a restart mid-report |
 | 23 | Sign-up and login, saved sites, report history, dashboard with score trends | Claude | 1 week | `FEATURE_ACCOUNTS` on |
 | 24 | Confirm plans on competitor pages: Free, about $39 one-off report, Pro $29 to 49, Agency $49 to 79 and up, done-for-you quote | You | 2 hours | Prices fixed |

@@ -95,3 +95,9 @@ console.log("✓ store prunes old documents");
 await removeJson("reports", "newone01");
 assert.deepEqual(rows.map((r) => r.id), ["oldlead1"]);
 console.log("✓ store removes one document");
+
+// Simultaneous AI calls must all be counted
+const { recordUsage, usageReport } = await import("../lib/usage");
+await Promise.all(Array.from({ length: 25 }, () => recordUsage("anthropic", "plan", { input: 1 })));
+assert.equal((await usageReport(1)).rows[0].calls, 25);
+console.log("✓ simultaneous usage records are all counted");
