@@ -1,10 +1,10 @@
-import { db, insertRow } from "./store";
+import { insertRow } from "./store";
 
 /**
  * Product statistics: which websites and pages get checked, with which tool, and what
  * failed. Saves the domain and path only, never the query string, IP address, email or
  * anything else that links a check to a person (the privacy policy promises this).
- * Needs Supabase; without it nothing is recorded. Deleted after 12 months by /api/cron.
+ * Deleted after 12 months by /api/cron.
  */
 interface SiteCheck {
   url: string;
@@ -41,13 +41,12 @@ const failedIds = (checks: SiteCheck["checks"]) => (checks ?? []).filter((c) => 
 
 export async function saveSiteCheck({ url, tool, scores, checks }: SiteCheck): Promise<void> {
   const domain = domainOf(url);
-  if (!domain || !db()) return;
+  if (!domain) return;
   await insertRow("site_checks", { domain, path: pathOf(url), tool, scores, failed_checks: failedIds(checks) });
 }
 
 /** One row for every page a full site report crawled, sent together. */
 export async function saveSitePages(pages: SitePage[]): Promise<void> {
-  if (!db()) return;
   const rows = pages.flatMap((p) => {
     const domain = domainOf(p.url);
     return domain ? [{ domain, path: pathOf(p.url), tool: "full-report", scores: p.scores, failed_checks: p.fails }] : [];

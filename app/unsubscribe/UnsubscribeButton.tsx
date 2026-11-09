@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { unsubscribeNewsletter } from "@/lib/newsletterClient";
+import { unsubscribeNewsletter } from "@/lib/supabasePublic";
 
 /** A button rather than automatic, so email scanners opening the link can't unsubscribe anyone. */
 export default function UnsubscribeButton() {

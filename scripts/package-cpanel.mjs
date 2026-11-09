@@ -1,5 +1,5 @@
 // Builds dist/seo-app (upload this folder to cPanel) and dist/seo-app-cpanel.zip
-import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync, copyFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, rmSync, copyFileSync } from "node:fs";
 import { execSync } from "node:child_process";
 import path from "node:path";
 
@@ -22,9 +22,5 @@ rmSync(path.join(out, ".env.local"), { force: true });
 copyFileSync(path.join(root, "cpanel-app.js"), path.join(out, "app.js"));
 copyFileSync(path.join(root, ".env.example"), path.join(out, ".env.example"));
 copyFileSync(path.join(root, "docs", "app", "DEPLOY-CPANEL.md"), path.join(out, "DEPLOY-CPANEL.md"));
-mkdirSync(path.join(out, "data"), { recursive: true });
-writeFileSync(path.join(out, "data", ".keep"), "");
-// Protect data/ if the app folder is ever inside public_html
-writeFileSync(path.join(out, "data", ".htaccess"), "Require all denied\n");
 execSync(`cd dist && zip -qr seo-app-cpanel.zip seo-app`, { stdio: "inherit" });
 console.log("✓ dist/seo-app-cpanel.zip ready — see DEPLOY-CPANEL.md");

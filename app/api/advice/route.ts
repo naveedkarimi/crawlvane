@@ -5,7 +5,7 @@ import type { AuditResult } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 90;
+export const maxDuration = 190;
 
 export async function POST(req: Request) {
   if (!featureEnabled("aiPlan", req)) return Response.json({ error: "Not available." }, { status: 404 });

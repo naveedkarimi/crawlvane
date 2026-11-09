@@ -36,7 +36,7 @@ export function pageFindingsText(audit: AuditResult): string {
 }
 
 export async function pagePlan(audit: AuditResult): Promise<FixPlan> {
-  const r = await callClaude({ system: SYSTEM, user: pageFindingsText(audit), maxTokens: 3000, feature: "plan" });
+  const r = await callClaude({ system: SYSTEM, user: pageFindingsText(audit), maxTokens: 12000, feature: "plan" });
   return normalize(r.text);
 }
 
@@ -60,7 +60,7 @@ export async function sitePlan(home: AuditResult, site: SiteAudit, gaps: Competi
     issues || "- none",
     gapText ? "\nCOMPETITOR GAPS (competitors pass, this site doesn't)\n" + gapText : "",
   ].join("\n");
-  const r = await callClaude({ system: SYSTEM, user, maxTokens: 4000, feature: "plan" });
+  const r = await callClaude({ system: SYSTEM, user, maxTokens: 16000, feature: "plan" });
   return normalize(r.text);
 }
 

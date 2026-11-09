@@ -5,7 +5,7 @@ import { BRAND } from "./brand";
 
 /**
  * "Crawlvane score" badge sites can embed. Each site's score is cached for a day in
- * data/badges/, so a busy page showing the badge doesn't trigger an audit per view.
+ * Supabase, so a busy page showing the badge doesn't trigger an audit per view.
  */
 const DAY = 86400_000;
 export interface BadgeData { host: string; score: number; at: string }

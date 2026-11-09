@@ -20,6 +20,10 @@ export const BRAND = {
   /** Domain without protocol, for display ("yourbrand.com"). */
   host: siteUrl.replace(/^https?:\/\//, ""),
   contactUrl: "/contact",
+  /** Who legally runs the site, for the privacy and terms pages. */
+  legalName: process.env.NEXT_PUBLIC_LEGAL_NAME?.trim() || "",
+  legalAddress: process.env.NEXT_PUBLIC_LEGAL_ADDRESS?.trim() || "",
+  privacyEmail: process.env.NEXT_PUBLIC_PRIVACY_EMAIL?.trim() || "",
   themeColor: "#156064",
   /** Bump when page copy changes; used for dateModified and the sitemap. */
   updated: "2026-11-06",

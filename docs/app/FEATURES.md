@@ -114,7 +114,7 @@ An all-in-one website audit for the AI-search era. It checks a site for **search
 **Answer:** we already have one. "Run Core Web Vitals" uses the same Google PageSpeed API and shows performance, SEO, accessibility and best-practices scores, lab LCP, CLS, TBT, FCP and Speed Index, and real-user LCP, INP and CLS. Do not clone Google's free tool; improve ours where pagespeed.web.dev is better and keep our edge (plain-English fixes and everything in one report).
 
 **Must do before launch:**
-- [ ] **Add `PAGESPEED_API_KEY`** (free from Google Cloud, about 25,000 requests a day). Without it, requests share Google's tiny anonymous quota; during testing it was already used up, which breaks Core Web Vitals and the "What people see" screenshot. The app now shows a clear message when this happens.
+- [x] **Add `PAGESPEED_API_KEY`** (free from Google Cloud, about 25,000 requests a day). Without it, requests share Google's tiny anonymous quota; during testing it was already used up, which breaks Core Web Vitals and the "What people see" screenshot. The app now shows a clear message when this happens.
 
 **Improvements:**
 - [x] Mobile / desktop toggle (the API route already supports `strategy=desktop`; the screen only shows mobile).
@@ -159,7 +159,7 @@ The app's own analyzer run against its pages (production build).
 
 - [ ] More concrete numbers in the copy (GEO "facts and numbers" warning).
 - [ ] Longer pricing page (286 words): add a plan comparison table.
-- [ ] Privacy and Terms pages.
+- [x] Privacy and Terms pages.
 - [ ] Deploy, run the live audit, submit the sitemap in Search Console and Bing Webmaster Tools.
 
 ---
@@ -408,10 +408,10 @@ MAX_CONCURRENT_JOBS=2
 ### Pre-launch checklist
 
 - [ ] Choose and register the domain (section 12); set `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_APP_NAME`; rebuild.
-- [ ] `PAGESPEED_API_KEY` set.
+- [x] `PAGESPEED_API_KEY` set.
 - [ ] Monthly spend limit in the Anthropic console (the AI fix plan is public).
-- [ ] Privacy and Terms pages.
-- [ ] Email capture.
+- [x] Privacy and Terms pages.
+- [x] Email capture.
 - [ ] Analytics (Plausible or GA4) and error tracking.
 - [ ] Search Console and Bing Webmaster Tools; submit the sitemap.
 - [ ] Run the live audit on the deployed site.

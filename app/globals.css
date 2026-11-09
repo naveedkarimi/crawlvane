@@ -626,6 +626,11 @@ table.mini td:first-child { color: var(--muted); }
 .report-head { border-top: 4px solid var(--signal); }
 .wl { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; color: var(--muted); font-size: 0.875rem; }
 .wl img { max-height: 32px; }
+.not-found-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px; margin-top: 48px; }
+.not-found-columns h2 { font-size: 1.25rem; margin-bottom: 12px; }
+.not-found-columns ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.not-found-note { margin-top: 40px; text-align: center; }
+@media (max-width: 720px) { .not-found-columns { grid-template-columns: 1fr; } }
 .progress-card { max-width: 720px; margin: 40px auto; display: grid; gap: 14px; }
 .progress-card h2 { font-size: 1.4rem; }
 .progress-stages { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 0.92rem; }

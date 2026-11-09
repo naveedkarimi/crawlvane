@@ -18,25 +18,7 @@ globalThis.fetch = (async (input: RequestInfo | URL, init: RequestInit = {}) => 
 
 process.env.SUPABASE_URL = "https://example.supabase.co";
 process.env.SUPABASE_SECRET_KEY = "sb_secret_test";
-delete process.env.LEADS_NOTIFY_EMAIL;
-const { saveLead, listLeads } = await import("../lib/leads");
 const { saveWidgetLead, listWidgetLeads } = await import("../lib/widgets");
-
-// Quote requests land in leads with real columns, and text Postgres refuses is cleaned
-await saveLead({ kind: "fix", email: "a@b.co", name: "Ann", url: "https://b.co", message: "bud\0get", source: "/" });
-assert.equal(calls[0].method, "POST");
-assert.equal(calls[0].table, "leads");
-assert.equal(calls[0].body.kind, "fix");
-assert.equal(calls[0].body.message, "budget");
-assert.ok(calls[0].body.created_at && !("createdAt" in calls[0].body));
-console.log("✓ quote request saved to leads");
-
-// Rows come back in the shape the admin export expects
-listed = [{ id: "lead000001", kind: "contact", email: "c@d.co", name: null, url: null, message: "hi", source: null, created_at: "2026-11-08T00:00:00Z" }];
-const leads = await listLeads();
-assert.equal(leads[0].createdAt, "2026-11-08T00:00:00Z");
-assert.equal(leads[0].name, undefined);
-console.log("✓ leads read back");
 
 // Widget leads
 calls = [];

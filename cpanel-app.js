@@ -17,7 +17,6 @@ if (fs.existsSync(envFile)) {
   }
 }
 process.env.NODE_ENV = "production";
-process.env.DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
 // Passenger provides the port; fall back to 3000 when run directly (node app.js)
 process.env.PORT = process.env.PORT || "3000";
 
