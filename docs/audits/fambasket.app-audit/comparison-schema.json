@@ -1,0 +1,101 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://fambasket.app/comparisons/fambasket-vs-bring#webpage",
+      "url": "https://fambasket.app/comparisons/fambasket-vs-bring",
+      "name": "FamBasket vs Bring!: Which Shared Grocery List App Is Better for Families? (2026)",
+      "description": "A sourced comparison of FamBasket and Bring! for shared grocery lists, family shopping, pantry tracking, recipes, offers, devices, and pricing.",
+      "dateModified": "2026-08-24",
+      "isPartOf": {
+        "@id": "https://fambasket.app/#website"
+      },
+      "about": [
+        {
+          "@id": "https://fambasket.app/comparisons/fambasket-vs-bring#fambasket"
+        },
+        {
+          "@id": "https://fambasket.app/comparisons/fambasket-vs-bring#bring"
+        }
+      ],
+      "breadcrumb": {
+        "@id": "https://fambasket.app/comparisons/fambasket-vs-bring#breadcrumb"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://fambasket.app/comparisons/fambasket-vs-bring#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://fambasket.app/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Comparisons",
+          "item": "https://fambasket.app/comparisons"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "FamBasket vs Bring!"
+        }
+      ]
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://fambasket.app/comparisons/fambasket-vs-bring#fambasket",
+      "name": "FamBasket",
+      "url": "https://fambasket.app/",
+      "description": "A shared grocery list and household app for families, with real-time item claiming, pantry tracking, geofence alerts, offline access, and a 10-second undo for deletions.",
+      "applicationCategory": "ShoppingApplication",
+      "operatingSystem": "Not publicly specified",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "description": "Free for up to 2 members according to the public homepage; verify current limits before publishing."
+      }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://fambasket.app/comparisons/fambasket-vs-bring#bring",
+      "name": "Bring!",
+      "url": "https://getbring.com/",
+      "description": "A shared shopping-list app with recipes, retailer offers, real-time synchronization, and documented support for iOS, Android, tablets, Apple Watch, Siri, and Alexa.",
+      "applicationCategory": "ShoppingApplication",
+      "operatingSystem": "iOS, Android, tablet, Apple Watch",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "description": "Core features are described as free in Bring!'s official FAQ; premium pricing was not publicly available in the reviewed page content as of 2026-08-24."
+      }
+    },
+    {
+      "@type": "ItemList",
+      "@id": "https://fambasket.app/comparisons/fambasket-vs-bring#comparison",
+      "name": "FamBasket vs Bring! comparison",
+      "itemListOrder": "https://schema.org/ItemListOrderUnordered",
+      "numberOfItems": 2,
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "FamBasket",
+          "url": "https://fambasket.app/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Bring!",
+          "url": "https://getbring.com/"
+        }
+      ]
+    }
+  ]
+}

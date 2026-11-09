@@ -1,0 +1,31 @@
+{
+  "summary": {
+    "health_score": 78,
+    "business_type": "SaaS / consumer household shopping application",
+    "top_findings": [
+      "Canonical apex intermittently returns LiteSpeed 403 to crawler-like and direct requests",
+      "SoftwareApplication schema references a hero PNG while rendered page uses WebP",
+      "Sitemap currently contains only the homepage",
+      "No PageSpeed, CrUX, GSC, or GA4 data was available",
+      "Rendered copy contains the minor typo 'stuffyou'"
+    ],
+    "quick_wins": [
+      "Fix crawler/origin access rules",
+      "Correct schema image URL",
+      "Fix 'stuffyou' spacing",
+      "Validate all sitemap URLs",
+      "Measure CWV on the stable canonical response"
+    ]
+  },
+  "categories": [
+    {"name":"Technical SEO","score":55,"what_works":["HTTPS and HSTS","Canonical and sitemap directives","Security headers"],"findings":[{"title":"Inconsistent canonical-origin access","severity":"High","description":"A prescribed crawler request and intermittent direct requests received LiteSpeed 403, while a browser-compatible session received 200 application HTML.","recommendation":"Review WAF/LiteSpeed rules and verify stable 200 delivery for users and approved crawlers."},{"title":"Sitemap has one URL","severity":"Medium","description":"The valid sitemap contains only the homepage.","recommendation":"Add all intended indexable public URLs and validate their status."}]},
+    {"name":"Content Quality","score":86,"what_works":["Specific product positioning","Founder/about context","Privacy, accessibility, and pricing explanations"],"findings":[{"title":"Claims need supporting proof","severity":"Medium","description":"The page makes strong first-party claims around privacy, geofencing, offline mode, and accessibility.","recommendation":"Add documentation, attributable proof, or independent validation."}]},
+    {"name":"On-Page SEO","score":88,"what_works":["Specific title and description","One clear H1","Logical H2 hierarchy","Strong internal section navigation"],"findings":[{"title":"Minor rendered text defect","severity":"Low","description":"One H2 renders 'stuffyou' without a space.","recommendation":"Correct the source copy and recheck rendered extraction."}]},
+    {"name":"Schema / Structured Data","score":92,"what_works":["Organization, WebSite, SoftwareApplication, Offer, and FAQPage markup","Stable @id relationships","FAQ parity with visible content"],"findings":[{"title":"Schema image URL mismatch","severity":"High","description":"SoftwareApplication schema references hero-light.png while the rendered page uses hero-light.webp.","recommendation":"Use an existing canonical asset or publish the referenced image."}]},
+    {"name":"Performance (CWV)","score":75,"what_works":["Explicit image dimensions","Lazy loading below fold","Responsive visual layout"],"findings":[{"title":"Field and lab CWV unavailable","severity":"Medium","description":"No Google credentials were configured and the crawler renderer was denied.","recommendation":"Run Lighthouse/PageSpeed against the stable canonical response and optimize based on LCP, INP, and CLS."}]},
+    {"name":"AI Search Readiness","score":72,"what_works":["Explicit AI crawler allowances","Extractable definitions and FAQ","Entity JSON-LD"],"findings":[{"title":"Robots allowance does not guarantee retrieval","severity":"High","description":"robots.txt allows major AI crawlers, but observed origin 403 responses can prevent access.","recommendation":"Test named agents and fix origin/WAF parity."}]},
+    {"name":"Images","score":90,"what_works":["Descriptive alt text","Intrinsic dimensions","Open Graph image","Lazy loading"],"findings":[{"title":"Verify hero payload and theme variants","severity":"Medium","description":"High-resolution hero assets are prominent and light/dark variants are present.","recommendation":"Use responsive formats and ensure only the active variant downloads."}]}
+  ],
+  "action_plan": {"phases":[{"name":"Phase 1: Critical Fixes","timeframe":"Week 1","items":["Resolve canonical-origin 403 responses","Test crawler parity","Fix schema hero image URL"]},{"name":"Phase 2: High-Impact Improvements","timeframe":"Weeks 2-3","items":["Measure CWV","Optimize hero images","Expand and validate sitemap","Fix copy typo"]},{"name":"Phase 3: Content & Authority","timeframe":"Month 2","items":["Create supporting intent pages","Add attributable proof","Strengthen internal links"]},{"name":"Phase 4: Monitoring & Iteration","timeframe":"Ongoing","items":["Monitor crawler responses","Set up GSC and CrUX","Capture and compare drift baseline"]}]},
+  "artifacts": {"findings_dir":"findings/","screenshots_dir":"screenshots/"}
+}

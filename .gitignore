@@ -1,0 +1,25 @@
+# Secrets
+.env
+.env.*
+!.env.example
+supabase/.env
+supabase/.env.*
+client_secret*.json
+oauth-token.json
+service_account*.json
+
+# Dependencies and builds
+node_modules/
+.next/
+dist/
+ms-playwright/
+__pycache__/
+*.pyc
+tsconfig.tsbuildinfo
+next-env.d.ts
+
+# Local app data: reports and form submissions can include personal details
+data/
+
+# System files
+.DS_Store

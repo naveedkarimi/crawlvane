@@ -1,0 +1,29 @@
+{
+  "summary": {
+    "health_score": null,
+    "business_type": "Undetermined: homepage returned HTTP 403",
+    "status": "partial_audit_blocked_by_origin_access",
+    "top_findings": [
+      "HTTPS homepage returns HTTP 403",
+      "www homepage also returns HTTP 403",
+      "sitemap.xml returns HTTP 403 while robots.txt returns HTTP 200"
+    ],
+    "quick_wins": [
+      "Review Cloudflare and LiteSpeed access rules",
+      "Allow stable 200 delivery to approved crawlers",
+      "Restore sitemap.xml with valid XML and HTTP 200",
+      "Re-run the full audit after access is fixed"
+    ]
+  },
+  "categories": [
+    {"name":"Technical SEO","score":null,"status":"blocked","findings":[{"title":"Canonical homepage inaccessible","severity":"Critical","description":"HTTPS apex and www homepage requests returned HTTP 403.","recommendation":"Fix WAF/origin rules and verify stable 200 crawler delivery."}]},
+    {"name":"Content Quality","score":null,"status":"not_assessed","findings":[{"title":"Homepage content unavailable","severity":"Info","description":"No indexable homepage HTML was available for content assessment.","recommendation":"Re-run after the origin returns HTTP 200."}]},
+    {"name":"On-Page SEO","score":null,"status":"not_assessed","findings":[{"title":"On-page elements unavailable","severity":"Info","description":"Title, meta description, headings, canonical, and links could not be verified.","recommendation":"Re-run after access is restored."}]},
+    {"name":"Schema / Structured Data","score":null,"status":"not_assessed","findings":[{"title":"Structured data unavailable","severity":"Info","description":"No valid homepage HTML or JSON-LD was retrieved.","recommendation":"Validate JSON-LD after a stable 200 response."}]},
+    {"name":"Performance (CWV)","score":null,"status":"not_assessed","findings":[{"title":"Performance unavailable","severity":"Info","description":"The renderer stopped at the HTTP 403 response; no LCP, INP, or CLS data was collected.","recommendation":"Run lab and field performance checks after access is fixed."}]},
+    {"name":"AI Search Readiness","score":null,"status":"not_assessed","findings":[{"title":"Crawler retrieval blocked","severity":"High","description":"AI/search crawlers may receive the same HTTP 403 as the audit renderer.","recommendation":"Test named crawlers and compare their HTML with a browser response after the WAF fix."}]},
+    {"name":"Images","score":null,"status":"not_assessed","findings":[{"title":"Images unavailable","severity":"Info","description":"No indexable homepage content was retrieved for image analysis.","recommendation":"Re-run image analysis after access is restored."}]}
+  ],
+  "action_plan": {"phases":[{"name":"Phase 1: Critical Fixes","timeframe":"Immediately","items":["Resolve HTTPS homepage 403","Restore sitemap.xml HTTP 200","Verify apex/www canonical behavior"]},{"name":"Phase 2: High-Impact Improvements","timeframe":"Week 1 after access fix","items":["Re-run full crawl","Measure LCP, INP, and CLS","Validate metadata and structured data"]},{"name":"Phase 3: Content & Authority","timeframe":"After crawl","items":["Create recommendations from verified content and business signals"]},{"name":"Phase 4: Monitoring & Iteration","timeframe":"Ongoing","items":["Monitor crawler status and sitemap availability","Capture drift baseline after stable delivery"]}]},
+  "artifacts": {"findings_dir":"findings/","screenshots_dir":"screenshots/"}
+}
