@@ -3,6 +3,7 @@ import { ArrowRight, Check } from "lucide-react";
 import { BRAND, contactLink } from "@/lib/brand";
 import LeadForm from "@/components/LeadForm";
 import { plans } from "@/lib/plans";
+import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
   title: "Pricing",
@@ -19,13 +20,9 @@ const faqs = [
 export default function PricingPage() {
   return (
     <main>
-      <section className="page-hero">
-        <div className="container">
-          <div className="kicker">Pricing</div>
-          <h1>Free while we launch.</h1>
-          <p className="lead">Use every live feature today at no cost. Paid plans for monitoring, AI visibility tracking and agencies are on the way.</p>
-        </div>
-      </section>
+      <PageHero kicker="Pricing" title={<>Free while we launch.</>}>
+        <p className="hero-sub">Use every live feature today at no cost. Paid plans for monitoring, AI visibility tracking and agencies are on the way.</p>
+      </PageHero>
 
       <section className="section section-tight">
         <div className="container">

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { BRAND } from "@/lib/brand";
 import { posts } from "@/lib/blog";
 import PostCard from "@/components/PostCard";
+import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
   title: "Blog: SEO, answer engines and AI search, explained",
@@ -13,13 +14,9 @@ export default function BlogIndex() {
   const [lead, ...rest] = posts;
   return (
     <main>
-      <section className="page-hero">
-        <div className="container">
-          <div className="kicker kicker-center">Blog</div>
-          <h1>Get found by search and AI.</h1>
-          <p className="lead">Plain-English guides to SEO, answer engines and AI search, with checks you can run on your own site.</p>
-        </div>
-      </section>
+      <PageHero kicker="Blog" title={<>Get found by search and AI.</>}>
+        <p className="hero-sub">Plain-English guides to SEO, answer engines and AI search, with checks you can run on your own site.</p>
+      </PageHero>
 
       <section className="section section-tight">
         <div className="container">

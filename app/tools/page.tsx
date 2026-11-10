@@ -25,7 +25,7 @@ export default function Page() {
           </p>
         </div>
       </section>
-      <section className="section">
+      <section className="section section-tight">
         <div className="container">
           {TOOL_GROUPS.map((g) => (
             <div key={g.key} className="tool-group">

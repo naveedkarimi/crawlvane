@@ -566,3 +566,28 @@ Status as of 2026-11-06. ✅ done · 🔨 building now · ⏳ next.
 | 2026-11-06 | Header and motion inspired by a reference template (ideas only, no code or assets copied): floating header with mega menus, scroll fade-ins, back-to-top, blog photo cards. |
 | 2026-11-06 | Palette kept brown but refined: white and light cream, espresso text and buttons, chestnut as a small accent. Section review: 4-column features grid, sticky example screenshot, count-up scores, FAQ help card, calmer disabled button. |
 | 2026-11-06 | Switched to the "Tropical Fusion" palette (Stormy Teal, Mint Leaf, Straw Gold). Home hero made dark teal with a faint grid; Features redesigned as a bento grid with two illustrated cards. Product screenshots on the home page still show the old brown UI and need re-capturing. |
+
+
+## App Check: App Store and Google Play (added 2026-11-09)
+
+SEO for apps: check any App Store or Google Play listing, in any country, and get a score out of 100 with what to fix. Page: `/tools/app-store-checker`. It's also the first link in the header (with a "New" badge), in the footer, and the first free tool on the tools page. A home page hero tab was tried and removed on 2026-11-09; `AppCheck` still supports `redirect` if it comes back.
+
+**Data sources**
+
+| Store | Source | Key | Notes |
+|---|---|---|---|
+| App Store | Apple's public lookup and search services | None | Full listing, ratings, languages, release notes. The subtitle is read from the public App Store page because the lookup doesn't include it |
+| App Store reviews | Apple's customer reviews feed | None | 50 per page; we read 2 pages. Old feed, could be switched off |
+| Google Play | SerpApi (`google_play_product`, `google_play`) | `SERPAPI_KEY` | Free plan: 250 searches a month. No full description, version or feature graphic in the data |
+
+Google has no public listing API, and reading Play pages directly risks breaking its terms, so Play needs SerpApi.
+
+**Free checks (about 15):** name length, subtitle (Apple), opening of the description, screenshots, iPad screenshots, video, average rating, number of ratings, rating of the latest version (Apple), last update, release notes, languages (Apple), data safety (Google). Scores weight each check 1 to 3, like the website audit.
+
+**Premium (`FEATURE_APP_PREMIUM`, needs `ANTHROPIC_API_KEY`):** AI listing rewrite (names, subtitle or short description, opening, keywords, screenshot captions), review analysis (complaints, praise, requests from up to 120 recent reviews, reviewer names left out), and comparison with up to 3 competitors in either store. Shown as "Coming soon" until switched on; preview with the admin key.
+
+**Website app checks** (in the site audit, only when a page links to an app): iPhone Smart App Banner, iOS Universal Links file, Android App Links file, and app structured data.
+
+**Not built yet:** weekly app monitoring with email alerts. It needs the monitoring feature (`FEATURE_MONITORING`) switched on first.
+
+**Stored:** `app_checks` table (store, app, country, score, failed checks), deleted after 12 months.

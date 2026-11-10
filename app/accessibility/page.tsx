@@ -43,5 +43,5 @@ If something on ${BRAND.name} is hard to use, [contact us](${BRAND.contactUrl}) 
 `;
 
 export default function Page() {
-  return <DocPage title="Accessibility statement" dek={`How ${BRAND.name} works toward WCAG 2.2 AA, and how to tell us about a problem.`} updated={UPDATED} body={body} />;
+  return <DocPage kicker="Accessibility" title="Accessibility statement" dek={`How ${BRAND.name} works toward WCAG 2.2 AA, and how to tell us about a problem.`} updated={UPDATED} body={body} />;
 }

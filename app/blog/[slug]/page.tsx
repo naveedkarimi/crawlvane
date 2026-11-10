@@ -6,6 +6,7 @@ import { CTAS, getPost, posts, readMinutes, relatedPosts, type Post } from "@/li
 import { renderMarkdown } from "@/lib/blog/markdown";
 import { postImage } from "@/lib/blog/images";
 import PostCard from "@/components/PostCard";
+import PageHero from "@/components/PageHero";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -54,17 +55,17 @@ export default async function PostPage({ params }: Params) {
   return (
     <main>
       <article className="post">
-        <header className="post-hero">
-          <div className="container post-container">
-            <nav className="crumbs" aria-label="Breadcrumb"><a href="/blog">Blog</a> <span aria-hidden="true">/</span> {post.tags[0]}</nav>
-            <h1>{post.title}</h1>
-            <p className="post-dek">{post.description}</p>
+        <PageHero
+          className="hero-post"
+          kicker={<nav aria-label="Breadcrumb"><a href="/blog">Blog</a> <span aria-hidden="true">/</span> {post.tags[0]}</nav>}
+          title={post.title}
+        >
+            <p className="hero-sub">{post.description}</p>
             <p className="post-meta">
               By {BRAND.name} · <time dateTime={post.date}>{fmt(post.date)}</time>
               {post.updated && <> · Updated <time dateTime={post.updated}>{fmt(post.updated)}</time></>} · {readMinutes(post)} min read
             </p>
-          </div>
-        </header>
+        </PageHero>
         {cover && (
           <div className="container post-container">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -92,7 +93,7 @@ export default async function PostPage({ params }: Params) {
         </div>
       </article>
 
-      <section className="section section-muted">
+      <section className="section">
         <div className="container">
           <div className="section-head left"><h2>Keep reading</h2></div>
           <div className="post-grid">

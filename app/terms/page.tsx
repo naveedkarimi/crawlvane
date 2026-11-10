@@ -66,5 +66,5 @@ Questions about these terms? [Contact us](${BRAND.contactUrl}).${BRAND.legalName
 `;
 
 export default function Page() {
-  return <DocPage title="Terms of use" dek={`The rules for using ${BRAND.name}, in plain English.`} updated={UPDATED} body={body} />;
+  return <DocPage kicker="Legal" title="Terms of use" dek={`The rules for using ${BRAND.name}, in plain English.`} updated={UPDATED} body={body} />;
 }

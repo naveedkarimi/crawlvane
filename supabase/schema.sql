@@ -161,6 +161,21 @@ create index if not exists site_checks_domain_idx on public.site_checks (domain)
 alter table public.site_checks add column if not exists path text;
 alter table public.site_checks enable row level security;
 
+-- App store checks: which app, store and country, and the score. Nothing about the visitor.
+create table if not exists public.app_checks (
+  id bigint generated always as identity primary key,
+  store text not null check (store in ('apple', 'google')),
+  app_id text not null,
+  country text not null,
+  title text,
+  score integer,
+  failed_checks text[] not null default '{}',
+  created_at timestamptz not null default now()
+);
+create index if not exists app_checks_created_at_idx on public.app_checks (created_at desc);
+create index if not exists app_checks_app_idx on public.app_checks (store, app_id);
+alter table public.app_checks enable row level security;
+
 -- Bring across anything already saved in documents.
 insert into public.leads (id, kind, email, name, url, message, source, created_at)
 select id, data->>'kind', data->>'email', data->>'name', data->>'url', data->>'message', data->>'source',

@@ -48,6 +48,12 @@ Add an entry whenever something surprises you, wastes time, or breaks in a way t
 - **The browser can't be rate limited per visitor.** Newsletter sign-ups and other forms each have a cap of 30 per minute across the whole site instead. A flood can block real sign-ups for a minute. (2026-11-08)
 - **`site_checks` saves in the background.** If saving fails, the check still works and the error only appears in the server log. (2026-11-08)
 
+## App store checker
+
+- **Apple's lookup service has no subtitle.** The subtitle is read from the public App Store page, which can change its markup. When it can't be read, the check says so instead of failing. (2026-11-09)
+- **Google Play needs a provider.** Google has no public listing API, and reading Play pages directly risks breaking its terms. Without `SERPAPI_KEY`, Play checks show a clear message. SerpApi's data has no full description, version or feature graphic, so those checks are skipped for Play. (2026-11-09)
+- **Apple doesn't use the description for search.** It ranks on the name, subtitle and a hidden keywords field. Don't tell people to stuff keywords into an App Store description. Google Play does use it. (2026-11-09)
+
 ## Data and retention
 
 - **Deletion doesn't rely on cron alone.** `lib/retention.ts` runs at server start and every 6 hours in production, and from `/api/cron`. Add new retention periods there. It doesn't run under `npm run dev`. (2026-11-08)
@@ -65,6 +71,8 @@ Add an entry whenever something surprises you, wastes time, or breaks in a way t
 ## Next.js and the browser
 
 - **LastPass can cause a hydration error.** If the diff shows `data-lastpass-icon-root`, the extension changed the page before React loaded. It's harmless, and it doesn't happen in a private window with extensions off. Email-only fields carry `data-lpignore` to reduce it. (2026-11-08)
+- **Don't vertically centre a hero whose content changes height.** The home hero was centred, so switching between Page check, Full site report and App Check moved the headline up and down. It's now top-aligned with a minimum height for the form area. (2026-11-09)
+- **Keep tab text the same weight when selected.** A bold selected tab changes every tab's width, so the row shifts sideways. Show selection with background or the underline instead. (2026-11-09)
 - **Use a real 404, not a redirect.** Sending missing pages to the homepage counts as a soft 404. `app/not-found.tsx` returns status 404 with noindex, no canonical and no schema, and links back into the site. (2026-11-08)
 
 ## Testing here

@@ -1,8 +1,9 @@
-import { Accessibility, BarChart3, ScrollText, Bot, Braces, Eye, FileCode2, FileText, Gauge, ListTree, Lock, MessageCircleQuestion, Network, Share2, ShieldCheck, Waypoints } from "lucide-react";
+import { Smartphone, Accessibility, BarChart3, ScrollText, Bot, Braces, Eye, FileCode2, FileText, Gauge, ListTree, Lock, MessageCircleQuestion, Network, Share2, ShieldCheck, Waypoints } from "lucide-react";
 import type { ToolIcon } from "@/lib/tools";
 
 /** Icon per free tool. Kept apart from ToolPage so client components (the header menu) can import it. */
 export const TOOL_ICONS: Record<ToolIcon, typeof Eye> = {
+  phone: Smartphone,
   eye: Eye,
   shield: ShieldCheck,
   file: FileText,

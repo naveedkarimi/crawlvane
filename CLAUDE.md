@@ -27,6 +27,7 @@ Run the type check and `npm test` after every change. Tests use a fake Supabase.
 | `lib/store.ts` | Server access to Supabase: JSON documents and the dedicated tables. There is no local file storage |
 | `lib/supabasePublic.ts` | Forms that go straight from the browser to Supabase |
 | `lib/ai/` | Claude and other AI providers |
+| `lib/appStore.ts`, `lib/appPremium.ts` | App store checker: listings from Apple and SerpApi, scoring, and the premium AI features |
 | `lib/retention.ts` | Deletes old data on the schedule the privacy policy promises |
 | `lib/config.ts` | Feature flags and limits |
 | `lib/brand.ts` | Product name, domain and legal details |

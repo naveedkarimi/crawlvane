@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BRAND, contactLink } from "@/lib/brand";
+import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
   title: `${BRAND.name} API`,
@@ -28,13 +29,9 @@ const sample = `{
 export default function Page() {
   return (
     <main>
-      <section className="page-hero">
-        <div className="container">
-          <div className="kicker">Developers</div>
-          <h1>The {BRAND.name} API.</h1>
-          <p className="lead">Run the same page audit as the website from your own scripts, dashboards or client reports.</p>
-        </div>
-      </section>
+      <PageHero kicker="Developers" title={<>The {BRAND.name} API.</>}>
+        <p className="hero-sub">Run the same page audit as the website from your own scripts, dashboards or client reports.</p>
+      </PageHero>
       <section className="section section-tight">
         <div className="container post-container doc-body api-doc">
           <h2>Get a key</h2>

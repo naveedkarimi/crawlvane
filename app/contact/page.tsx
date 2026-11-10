@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Clock, FileSearch, Wrench } from "lucide-react";
 import LeadForm from "@/components/LeadForm";
 import { BRAND } from "@/lib/brand";
+import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
   title: `Contact ${BRAND.name}`,
@@ -18,13 +19,9 @@ const reasons = [
 export default function ContactPage() {
   return (
     <main>
-      <section className="page-hero">
-        <div className="container">
-          <div className="kicker">Contact</div>
-          <h1>Talk to a person.</h1>
-          <p className="lead">Messages go straight to the team behind {BRAND.name}, and you&apos;ll get a reply within two working days.</p>
-        </div>
-      </section>
+      <PageHero kicker="Contact" title={<>Talk to a person.</>}>
+        <p className="hero-sub">Messages go straight to the team behind {BRAND.name}, and you&apos;ll get a reply within two working days.</p>
+      </PageHero>
       <section className="section section-tight">
         <div className="container contact-grid">
           <div className="card contact-card">

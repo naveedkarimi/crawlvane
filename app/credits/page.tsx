@@ -71,5 +71,5 @@ If we've used your work and haven't credited it properly, please [tell us](${BRA
 `;
 
 export default function Page() {
-  return <DocPage title="Credits" dek={`The photos, software, fonts and research ${BRAND.name} is built on.`} updated={UPDATED} body={body} />;
+  return <DocPage kicker="Credits" title="Credits" dek={`The photos, software, fonts and research ${BRAND.name} is built on.`} updated={UPDATED} body={body} />;
 }

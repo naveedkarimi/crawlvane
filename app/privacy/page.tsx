@@ -40,6 +40,8 @@ ${BRAND.legalName ? `${BRAND.name} is run by ${BRAND.legalName}${BRAND.legalAddr
 
 **Link preview tool.** This tool shows images straight from the website you check, so that website can see your IP address.
 
+**App store checker.** When you check an app, we send the app link, ID or name you entered and the country to Apple (for the App Store) or SerpApi (for Google Play) to read the public store listing. We record the store, the app, the country, its score and which checks failed, with nothing about you. App icons load straight from Apple's or Google's servers, so they can see your IP address.
+
 **Tools that run in your browser.** The schema generator and the robots.txt builder work in your browser. What you type there isn't sent to us.
 
 ## What we don't do
@@ -55,7 +57,7 @@ Some features need another service. They receive only what the feature needs:
 | Service | When | What they receive |
 |---|---|---|
 | Google PageSpeed Insights | Speed test and screenshots | The URL being tested |
-| Anthropic (Claude) | AI fix plan and AI research features, when you use them | The URL and a summary of the audit findings |
+| Anthropic (Claude) | AI fix plan, AI research and AI app features, when you use them | The URL and a summary of the audit findings |
 | Our email provider | Monitoring alerts and replies, when available | Your email address and the message |
 | Plausible Analytics (if enabled) | Page views and events such as "audit started" | The page address, referrer, browser type and country, without cookies or IP storage |
 | Our hosting provider | Always | Requests to this site, as with any website |
@@ -64,6 +66,8 @@ Some features need another service. They receive only what the feature needs:
 | Browserless | Only when JavaScript rendering is on | The URL being checked |
 | The agency that runs a widget | Only when you use an agency's widget | Your email address, name, the website and its results |
 | The website you check | Only in the link preview tool | Your IP address, when its images load |
+| Apple (App Store) | When you check an App Store app | The app link, ID or name and the country |
+| SerpApi (Google Play data) | When you check a Google Play app | The app link, ID or name and the country |
 
 Each service handles data under its own privacy policy.
 
@@ -80,11 +84,11 @@ Each service handles data under its own privacy policy.
 
 ## Where data is processed
 
-Some services we use are based in the United States, including Anthropic and Google, and OpenAI, Perplexity and Browserless when those features are on. Our hosting and database providers may also process data outside your country. Where the law requires a safeguard for these transfers, we rely on the EU-US Data Privacy Framework if the provider is certified, or on Standard Contractual Clauses (and the UK Addendum) if not.
+Some services we use are based in the United States, including Anthropic, Google, Apple and SerpApi, and OpenAI, Perplexity and Browserless when those features are on. Our hosting and database providers may also process data outside your country. Where the law requires a safeguard for these transfers, we rely on the EU-US Data Privacy Framework if the provider is certified, or on Standard Contractual Clauses (and the UK Addendum) if not.
 
 ## How long we keep data
 
-Full site reports are deleted automatically after ${LIMITS.reportTtlDays} days, or sooner if you ask. Monitors are kept until you stop them using the link in any alert email. Messages and waitlist sign-ups are kept until you ask us to delete them, and for no more than 24 months. Newsletter sign-ups are kept until you unsubscribe, which deletes them. Usage statistics and our copy of widget leads are deleted after 12 months. Cached results for the free tools are kept in memory for about 15 minutes.
+Full site reports are deleted automatically after ${LIMITS.reportTtlDays} days, or sooner if you ask. Monitors are kept until you stop them using the link in any alert email. Messages and waitlist sign-ups are kept until you ask us to delete them, and for no more than 24 months. Newsletter sign-ups are kept until you unsubscribe, which deletes them. Usage statistics, app check statistics and our copy of widget leads are deleted after 12 months. Cached results for the free tools are kept in memory for about 15 minutes.
 
 ## Your choices and rights
 
@@ -102,5 +106,5 @@ If we change how we handle data, we'll update this page and the date at the top.
 `;
 
 export default function Page() {
-  return <DocPage title="Privacy policy" dek={`What ${BRAND.name} collects, why, and what you can ask us to do.`} updated={UPDATED} body={body} />;
+  return <DocPage kicker="Legal" title="Privacy policy" dek={`What ${BRAND.name} collects, why, and what you can ask us to do.`} updated={UPDATED} body={body} />;
 }

@@ -23,6 +23,12 @@ export interface BotAccess {
   matchedGroup: string;
 }
 
+/** Files that link a website to its mobile app. */
+export interface AppFiles {
+  aasa: FetchedResource | null;
+  assetlinks: FetchedResource | null;
+}
+
 export interface FetchedResource {
   url: string;
   ok: boolean;

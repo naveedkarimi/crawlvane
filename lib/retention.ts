@@ -22,5 +22,6 @@ export async function runRetention() {
   await safely("widget leads", () => pruneOlderThan("widget-leads", 365));
   await safely("widget leads", () => pruneRows("widget_leads", 365));
   await safely("site checks", () => pruneRows("site_checks", 365));
+  await safely("app checks", () => pruneRows("app_checks", 365));
   return { reports, leads };
 }

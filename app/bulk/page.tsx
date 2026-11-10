@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import BulkAudit from "./BulkAudit";
+import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
   title: "Bulk audit: check up to 20 pages at once",
@@ -10,13 +11,9 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <main>
-      <section className="page-hero">
-        <div className="container">
-          <div className="kicker">Bulk audit</div>
-          <h1>Check many pages at once.</h1>
-          <p className="lead">Paste up to 20 URLs, from your own site or your clients&apos;. Each one gets the same page check as the main audit.</p>
-        </div>
-      </section>
+      <PageHero kicker="Bulk audit" title={<>Check many pages at once.</>}>
+        <p className="hero-sub">Paste up to 20 URLs, from your own site or your clients&apos;. Each one gets the same page check as the main audit.</p>
+      </PageHero>
       <section className="section section-tight">
         <div className="container"><BulkAudit /></div>
       </section>
