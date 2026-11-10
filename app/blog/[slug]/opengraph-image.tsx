@@ -19,10 +19,9 @@ export default async function Image({ params }: { params: Promise<{ slug: string
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "64px 72px", background: "linear-gradient(180deg, #fbfefd 0%, #e3f5ef 100%)", color: "#0f2f31" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <svg width="56" height="56" viewBox="0 0 32 32" fill="none">
-            <rect width="32" height="32" rx="8" fill="#156064" />
-            <circle cx="14" cy="15" r="6.5" stroke="#00C49A" strokeWidth="2.6" />
-            <path d="M19 20l5 5" stroke="#00C49A" strokeWidth="2.6" strokeLinecap="round" />
-            <path d="M24.5 4.5l1.05 2.45L28 8l-2.45 1.05L24.5 11.5l-1.05-2.45L21 8l2.45-1.05z" fill="#F8E16C" />
+            <rect width="32" height="32" rx="7" fill="#0C3B3E" />
+            <path fill="#F2FAF7" d="M26.29 15.82A10.29 10.29 0 1 1 16.18 5.71L16.09 10.58A5.42 5.42 0 1 0 21.42 15.91Z" />
+            <path fill="#00C49A" d="M24.81 7.19L19.26 17.72L14.85 17.15L14.28 12.74Z" />
           </svg>
           <div style={{ fontSize: 38, fontWeight: 700 }}>{BRAND.name}</div>
           <div style={{ fontSize: 26, color: "#00765d", marginLeft: 12 }}>Blog</div>

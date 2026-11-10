@@ -1,13 +1,15 @@
 import { BRAND } from "@/lib/brand";
 
-/** Lens + spark mark: "found by search, seen by AI". Same drawing as public/icon.svg. */
+/**
+ * The C-Vane: an open ring that forms the C and echoes the score ring, with a needle
+ * pointing up and to the right. Drawn from design/Design system planning/logo/crawlvane-mark.svg.
+ * The ring is Stormy Teal on light backgrounds; set --logo-ring for dark ones.
+ */
 export function LogoMark({ size = 30 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true" className="logo-mark">
-      <rect width="32" height="32" rx="8" fill="#156064" />
-      <circle cx="14" cy="15" r="6.5" stroke="#00C49A" strokeWidth="2.6" />
-      <path d="M19 20l5 5" stroke="#00C49A" strokeWidth="2.6" strokeLinecap="round" />
-      <path d="M24.5 4.5l1.05 2.45L28 8l-2.45 1.05L24.5 11.5l-1.05-2.45L21 8l2.45-1.05z" fill="#F8E16C" />
+    <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true" className="logo-mark">
+      <path className="logo-ring" d="M42.93 22.34A19 19 0 1 1 25.66 5.07L25.05 12.05A12 12 0 1 0 35.95 22.95Z" />
+      <path className="logo-needle" d="M39.91 8.09L28.95 26.83L21.17 26.83L21.17 19.05Z" />
     </svg>
   );
 }

@@ -74,6 +74,15 @@ Add an entry whenever something surprises you, wastes time, or breaks in a way t
 - **zsh differs from bash.** A command stored in a variable isn't split into words, and `$PIPESTATUS` is empty. Use functions, and check `$?` on commands without a pipe. (2026-11-08)
 - **Don't run parallel shell commands that use `cd`.** They can race and run in the wrong folder. (2026-11-08)
 
+## Design
+
+- **The design token file uses `--surface` differently.** In `crawlvane-tokens.css`, `--surface` is white and `--surface-2` is the alternate section colour. The app uses `--surface` for alternate sections, so copying the file over turns those sections white. Map by role, not by name. (2026-11-09)
+- **Don't redefine `--font-mono`, `--font-sans` or `--font-display`.** `next/font` sets those to load the fonts. Alias them instead (`--font-head: var(--display)`). (2026-11-09)
+- **Apple touch icons need square corners and PNG format.** iOS rounds the corners itself, and transparent corners show as black. (2026-11-09)
+
+- **Check visual changes with headless Chrome screenshots.** Take before and after shots of the running dev server (`Google Chrome --headless=new --screenshot=... --window-size=1366,2200`). Headless Chrome won't go narrower than about 500 px, so check phone layouts in a real browser. (2026-11-09)
+- **Don't recolour the link preview tool.** Its `.lp-*` styles copy Google, Facebook and WhatsApp on purpose. (2026-11-09)
+
 ## Repo
 
 - **There's no git history yet.** Deleted or overwritten files can't be restored until the first commit, and plugin folders once disappeared with no way to recover them. Make the first commit soon. (2026-11-08)

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Figtree:wght@500;600;700;800&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="crawlvane-tokens.css">
+<style>body{margin:0;background:#E4EBEA;color:#0F2F31;font-family:'DM Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}a{color:#156064}a:hover{color:#0F4C50}</style>
+</helmet>
+<div style="width:1200px;margin:40px auto;background:#fff;box-shadow:0 10px 40px rgba(12,59,62,.12);display:flex;flex-direction:column">
+
+<div style="background:var(--ink);color:#EAF4F2;padding:56px 64px;display:grid;grid-template-columns:1fr 420px;gap:48px;align-items:end">
+<div style="display:flex;flex-direction:column;gap:28px"><img src="logo/crawlvane-lockup-dark-bg.svg" alt="Crawlvane" style="height:48px;align-self:flex-start"><div style="display:flex;flex-direction:column;gap:10px"><span style="font:600 13px/16px var(--font-head);letter-spacing:.08em;text-transform:uppercase;color:var(--signal)">Brand guide · v1.0 · November 2026</span><h1 style="margin:0;font:800 48px/54px var(--font-head);letter-spacing:-.02em;color:#fff">Get found on Google. Get cited by AI.</h1></div></div>
+<p style="margin:0;font-size:17px;line-height:27px;color:#B7CFCC">Crawlvane checks whether search engines, answer engines and AI assistants can read and trust a website. It gives a score from 0 to 100 and fixes you can paste. The brand should feel like a weather vane: calm, exact, and pointing somewhere useful.</p>
+</div>
+
+<div style="padding:48px 64px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:40px;border-bottom:1px solid var(--line)">
+<div style="display:flex;flex-direction:column;gap:14px"><span style="font:600 12px/16px var(--font-head);letter-spacing:.08em;text-transform:uppercase;color:var(--signal-2)">Logo</span>
+<div style="display:flex;gap:16px;align-items:center"><img src="logo/crawlvane-mark.svg" alt="Mark" style="width:56px"><img src="logo/app-icon.svg" alt="App icon" style="width:56px;border-radius:12px"><img src="logo/favicon-32.svg" alt="Favicon" style="width:32px"></div>
+<span style="font-size:14px;line-height:21px;color:var(--text-2)">The C-Vane: an open ring that forms the C and echoes the score ring, with a needle pointing up and to the right. Clear space is half the mark height. Minimum sizes are 20 px for the mark and 96 px for the lockup.</span></div>
+<div style="display:flex;flex-direction:column;gap:14px"><span style="font:600 12px/16px var(--font-head);letter-spacing:.08em;text-transform:uppercase;color:var(--signal-2)">Colour</span>
+<div style="display:grid;grid-template-columns:2fr 1.4fr 1fr 1fr .6fr;height:56px;border-radius:var(--r);overflow:hidden;border:1px solid var(--line)"><div style="background:#156064"></div><div style="background:#0C3B3E"></div><div style="background:#F2FAF7"></div><div style="background:#00C49A"></div><div style="background:#F8E16C"></div></div>
+<span style="font-size:14px;line-height:21px;color:var(--text-2)">Stormy Teal is for action and Deep Teal for weight. Mint is an accent, and as text it uses <span style="font-family:var(--font-mono)">--signal-2</span>. Gold is for small highlights only. Status colours belong to audit results alone, and each one always comes with an icon and a word.</span></div>
+<div style="display:flex;flex-direction:column;gap:14px"><span style="font:600 12px/16px var(--font-head);letter-spacing:.08em;text-transform:uppercase;color:var(--signal-2)">Type</span>
+<div style="display:flex;flex-direction:column;gap:2px"><span style="font:800 28px/32px var(--font-head)">Figtree for headings</span><span style="font:400 18px/26px var(--font-body)">DM Sans for reading and UI</span><span style="font:400 15px/24px var(--font-mono);color:var(--signal-2)">Geist Mono for GPTBot</span></div>
+<span style="font-size:14px;line-height:21px;color:var(--text-2)">Body text is 16 px minimum, labels 14 px, and nothing goes below 12 px. Scores use tabular figures.</span></div>
+</div>
+
+<div style="padding:48px 64px;display:flex;flex-direction:column;gap:24px;border-bottom:1px solid var(--line)">
+<h2 style="margin:0;font:700 28px/34px var(--font-head)">Logo: do and don't</h2>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+<sc-for list="{{ logoDos }}" as="d" hint-placeholder-count="8">
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="{{ d.tile }}"><img src="{{ d.src }}" alt="" style="{{ d.img }}"><sc-if value="{{ d.fake }}" hint-placeholder-val="{{ false }}"><span style="display:flex;align-items:center;gap:10px"><img src="logo/crawlvane-mark.svg" alt="" style="width:36px"><span style="font:italic 400 30px Georgia,serif">Crawlvane</span></span></sc-if></div>
+<span style="{{ d.cap }}">{{ d.icon }}<span style="color:var(--text);font-weight:400;line-height:20px"><strong>{{ d.verdict }}</strong> {{ d.text }}</span></span>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="padding:48px 64px;display:grid;grid-template-columns:1fr 1fr;gap:48px;border-bottom:1px solid var(--line)">
+<div style="display:flex;flex-direction:column;gap:20px">
+<h2 style="margin:0;font:700 28px/34px var(--font-head)">Colour and status</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<div style="border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:10px"><span style="font-weight:700;color:var(--signal-2)">3 fixes ready</span><span style="display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:18px;color:var(--good);font-weight:600">{{ i16.pass }}<span style="color:var(--text);font-weight:400"><strong>Do.</strong> Mint text uses --signal-2 (5.5:1).</span></span></div>
+<div style="border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:10px"><span style="font-weight:700;color:#00C49A">3 fixes ready</span><span style="display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:18px;color:var(--bad);font-weight:600">{{ i16.fail }}<span style="color:var(--text);font-weight:400"><strong>Don't.</strong> Use raw Mint as text on white (2.2:1).</span></span></div>
+<div style="border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:10px"><span style="display:inline-flex;align-self:flex-start;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:999px;background:var(--good-bg);color:var(--good);font:600 13px/1 var(--font-body)">{{ i16.pass }}Pass</span><span style="display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:18px;color:var(--good);font-weight:600">{{ i16.pass }}<span style="color:var(--text);font-weight:400"><strong>Do.</strong> Pair status with an icon and a word, in status green.</span></span></div>
+<div style="border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:10px"><span style="display:flex;align-items:center;gap:8px"><span style="width:12px;height:12px;border-radius:999px;background:#00C49A"></span><span style="width:12px;height:12px;border-radius:999px;background:#E58A00"></span><span style="width:12px;height:12px;border-radius:999px;background:#D7372A"></span></span><span style="display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:18px;color:var(--bad);font-weight:600">{{ i16.fail }}<span style="color:var(--text);font-weight:400"><strong>Don't.</strong> Use colour dots alone, or brand Mint for pass.</span></span></div>
+<div style="border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:10px"><span style="font-weight:700"><span style="background:linear-gradient(transparent 60%,#F8E16C 60%)">Get cited by AI.</span></span><span style="display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:18px;color:var(--good);font-weight:600">{{ i16.pass }}<span style="color:var(--text);font-weight:400"><strong>Do.</strong> Use Gold as a small highlight behind dark text.</span></span></div>
+<div style="border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:10px"><span style="height:24px;border-radius:6px;background:linear-gradient(90deg,#7B4DFF,#00C49A)"></span><span style="display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:18px;color:var(--bad);font-weight:600">{{ i16.fail }}<span style="color:var(--text);font-weight:400"><strong>Don't.</strong> Use purple gradients, glows or orbs.</span></span></div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px">
+<h2 style="margin:0;font:700 28px/34px var(--font-head)">Voice</h2>
+<span style="color:var(--text-2);line-height:24px">Plain, confident, practical. Use short sentences. Say what is wrong, why it matters and what to change. Never promise rankings or AI citations.</span>
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{ voice }}" as="v" hint-placeholder-count="4">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<div style="background:var(--good-bg);border-radius:var(--r);padding:12px 14px;display:flex;gap:8px;align-items:flex-start;color:var(--good)">{{ i16.pass }}<span style="color:var(--text);font-size:14px;line-height:20px">{{ v.do }}</span></div>
+<div style="background:var(--bad-bg);border-radius:var(--r);padding:12px 14px;display:flex;gap:8px;align-items:flex-start;color:var(--bad)">{{ i16.fail }}<span style="color:var(--text);font-size:14px;line-height:20px;text-decoration:line-through;text-decoration-color:rgba(180,35,24,.5)">{{ v.dont }}</span></div>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+
+<div style="padding:40px 64px;display:grid;grid-template-columns:repeat(4,1fr);gap:32px;background:var(--surface-2)">
+<div style="display:flex;flex-direction:column;gap:6px"><strong style="font:700 16px var(--font-head)">Imagery</strong><span style="font-size:14px;line-height:21px;color:var(--text-2)">Show the product with example data. No stock photos, robots, brains or sparkles.</span></div>
+<div style="display:flex;flex-direction:column;gap:6px"><strong style="font:700 16px var(--font-head)">Icons</strong><span style="font-size:14px;line-height:21px;color:var(--text-2)">Lucide outline icons with a 2 px stroke and currentColor. Each status has one fixed icon.</span></div>
+<div style="display:flex;flex-direction:column;gap:6px"><strong style="font:700 16px var(--font-head)">Accessibility</strong><span style="font-size:14px;line-height:21px;color:var(--text-2)">Meet WCAG AA, with a visible 2 px focus ring, 44 px targets and reduced-motion support.</span></div>
+<div style="display:flex;flex-direction:column;gap:6px"><strong style="font:700 16px var(--font-head)">Proof</strong><span style="font-size:14px;line-height:21px;color:var(--text-2)">Don't use fake testimonials, logos, usage numbers or awards. Use yourbusiness.com in examples.</span></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  sty(s){return Object.fromEntries(s.split(';').filter(Boolean).map(p=>{const i=p.indexOf(':');return [p.slice(0,i).trim().replace(/-([a-z])/g,(m,c)=>c.toUpperCase()),p.slice(i+1).trim()];}));}
+  icon(paths,size){const e=React.createElement;return e('svg',{width:size,height:size,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:2,strokeLinecap:'round',strokeLinejoin:'round','aria-hidden':true,style:{flexShrink:0,display:'block',marginTop:2}},paths.map((p,i)=>p[0]==='c'?e('circle',{key:i,cx:p[1],cy:p[2],r:p[3]}):e('path',{key:i,d:p})));}
+  renderVals(){
+    const i16={pass:this.icon([['c',12,12,10],'m9 12 2 2 4-4'],16),fail:this.icon([['c',12,12,10],'m15 9-6 6','m9 9 6 6'],16)};
+    const L=[[1,'logo/crawlvane-lockup.svg','#fff','','Use the full-colour lockup on white or Pale Mint.'],[1,'logo/crawlvane-lockup-dark-bg.svg','#0C3B3E','','Use the dark-background version on Deep Teal.'],[1,'logo/crawlvane-lockup-mono.svg','#F4F7F7','','Use one colour when printing is limited.'],[1,'logo/crawlvane-mark.svg','#fff','width:72px','Use the mark alone where space is tight.'],
+      [0,'logo/crawlvane-lockup.svg','#fff','transform:scaleX(1.35)','Stretch or squash the logo.'],[0,'logo/crawlvane-mark.svg','#fff','width:72px;transform:rotate(135deg)','Rotate the mark. The needle always points up-right.'],[0,'logo/crawlvane-lockup.svg','#00C49A','','Place it on Mint or other low-contrast colours.'],[0,'logo/crawlvane-lockup.svg','#fff','filter:hue-rotate(110deg) drop-shadow(0 0 10px #7B4DFF)','Recolour it or add glows and effects.']];
+    const logoDos=L.map(([ok,src,bg,img,text])=>({src,verdict:ok?'Do.':'Don\'t.',text,fake:false,icon:ok?i16.pass:i16.fail,
+      tile:this.sty(`height:132px;border-radius:var(--r);display:grid;place-items:center;background:${bg};border:1px solid var(--line)`),
+      img:this.sty(`width:180px;${img}`),cap:this.sty(`display:flex;gap:6px;align-items:flex-start;font-size:13px;color:${ok?'var(--good)':'var(--bad)'};font-weight:600`)}));
+    const voice=[['GPTBot is blocked. Change these two lines in robots.txt.','Your AI visibility is in danger! Act now.'],['We check whether AI assistants can read your site.','Guaranteed to get you cited by ChatGPT.'],['Your score is 72. Three fixes will make the biggest difference.','Skyrocket your rankings with AI-powered magic.'],['This check is optional. Some AI tools use llms.txt.','You MUST add llms.txt or you will be invisible.']].map(([d,n])=>({do:d,dont:n}));
+    return {i16,logoDos,voice};
+  }
+}
+</script>
+</body>
+</html>

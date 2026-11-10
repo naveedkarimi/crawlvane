@@ -33,7 +33,7 @@ const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
 /** Flat two-part badge in the brand colours: label on teal, score on a status colour. */
 export function badgeSvg(score: number | null, label = `${BRAND.name} score`): string {
   const value = score === null ? "n/a" : `${score}/100`;
-  const color = score === null ? "#5a7372" : score >= 85 ? "#00765d" : score >= 60 ? "#9a6b00" : "#b42318";
+  const color = score === null ? "#566b6d" : score >= 85 ? "#2e7a30" : score >= 60 ? "#a35400" : "#b42318";
   const w = (t: string) => Math.round(t.length * 6.6 + 16);
   const lw = w(label);
   const vw = w(value);

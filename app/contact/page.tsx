@@ -36,7 +36,7 @@ export default function ContactPage() {
             <ul>
               {reasons.map((r) => (
                 <li key={r.title}>
-                  <span className="feature-list-icon" aria-hidden="true"><r.icon size={20} strokeWidth={1.6} /></span>
+                  <span className="feature-list-icon" aria-hidden="true"><r.icon size={20} strokeWidth={2} /></span>
                   <div>
                     <h3>{r.title}</h3>
                     <p>{r.text}</p>

@@ -42,7 +42,7 @@ const jsonLd = {
       "@id": `${BRAND.url}/#org`,
       name: BRAND.name,
       url: BRAND.url,
-      logo: `${BRAND.url}/icon.svg`,
+      logo: `${BRAND.url}/icon-512.png`,
       description: BRAND.description,
     },
     {
@@ -74,7 +74,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${sans.variable} ${display.variable} ${mono.variable}`}>
       <head>
+        <link rel="icon" href="/favicon.ico" sizes="48x48" />
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         {/* Privacy-friendly analytics, only when a Plausible domain is configured (no cookies). */}
         {PLAUSIBLE && (

@@ -198,7 +198,7 @@ export default function Page() {
             {pillars.map(({ icon: Icon, label, title, text, checks }) => (
               <article key={label} className="pillar">
                 <div className="pillar-top">
-                  <span className="pillar-icon"><Icon size={20} strokeWidth={1.75} /></span>
+                  <span className="pillar-icon"><Icon size={20} strokeWidth={2} /></span>
                   <span className="pillar-label">{label}</span>
                 </div>
                 <h3>{title}</h3>
@@ -236,7 +236,7 @@ export default function Page() {
               const Icon = st.icon;
               return (
                 <li key={st.title}>
-                  <span className="timeline-icon" aria-hidden="true"><Icon size={24} strokeWidth={1.7} /></span>
+                  <span className="timeline-icon" aria-hidden="true"><Icon size={24} strokeWidth={2} /></span>
                   <span className="timeline-step">Step {String(i + 1).padStart(2, "0")}</span>
                   <h3>{st.title}</h3>
                   <p>{st.text}</p>
@@ -310,7 +310,7 @@ export default function Page() {
               <article key={title} className="person-card">
                 <img src={img} alt={alt} width={1200} height={800} loading="lazy" decoding="async" />
                 <div className="person-body">
-                  <span className="feature-icon"><Icon size={20} strokeWidth={1.75} /></span>
+                  <span className="feature-icon"><Icon size={20} strokeWidth={2} /></span>
                   <h3>{title}</h3>
                   <p>{text}</p>
                 </div>
