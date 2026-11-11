@@ -1,6 +1,6 @@
 import * as cheerio from "cheerio";
 import type { AnyNode } from "domhandler";
-import type { AuditResult, Check, Category, FetchedResource, Status } from "./types";
+import type { AuditResult, Check, Category, FetchedResource, Status, AppFiles } from "./types";
 import { botAccess, parseRobots, type ParsedRobots } from "./robots";
 import { reviewSchema } from "./schemaValidate";
 
@@ -13,6 +13,8 @@ export interface AnalyzeInput {
   llmsFull: FetchedResource | null;
   /** Checks computed elsewhere (agent readiness, share image) that should count towards the scores. */
   extraChecks?: Check[];
+  /** Universal Links and Android App Links files, when the site context fetched them. */
+  appFiles?: AppFiles;
 }
 
 // Headings that read as questions even without a "?" ("How to…", "What is…")
@@ -570,6 +572,53 @@ export function analyze(input: AnalyzeInput): AuditResult {
   if (/nosnippet/.test(metaRobots) || /nosnippet/.test(xRobots))
     add("geo", L.access, "nosnippet", "nosnippet", "warn", "nosnippet stops Google (incl. AI Overviews) from quoting this page.",
       "Remove nosnippet (or use data-nosnippet on specific sections) if you want to be quoted.", 2);
+
+  // ---- Mobile app (only when the page links to an app or sets a Smart App Banner) ----
+  const appleIds = new Set<string>();
+  const playIds = new Set<string>();
+  $("a[href]").each((_, a) => {
+    const h = $(a).attr("href") ?? "";
+    const ap = h.match(/(?:apps|itunes)\.apple\.com\/.*?id(\d{5,12})/i);
+    if (ap) appleIds.add(ap[1]);
+    const gp = h.match(/play\.google\.com\/store\/apps\/details\?(?:[^#]*&)?id=([\w.]+)/i);
+    if (gp) playIds.add(gp[1]);
+  });
+  const smartBanner = $('meta[name="apple-itunes-app" i]').attr("content") ?? "";
+  if (appleIds.size || playIds.size || smartBanner) {
+    const LA = "Mobile app";
+    const json = (r: FetchedResource | null | undefined) => {
+      if (!r?.ok) return null;
+      try {
+        return JSON.parse(r.body) as unknown;
+      } catch {
+        return null;
+      }
+    };
+    if (appleIds.size || smartBanner) {
+      const appId = [...appleIds][0] ?? smartBanner.match(/app-id=(\d+)/)?.[1] ?? "YOUR_APP_ID";
+      add("seo", LA, "app-smart-banner", "iPhone Smart App Banner", smartBanner ? "pass" : "warn",
+        smartBanner ? "A Smart App Banner is set, so iPhone visitors see an Open or Get bar." : "The page links to the App Store but has no Smart App Banner, so iPhone visitors don't see an Open or Get bar.",
+        `Add <meta name="apple-itunes-app" content="app-id=${appId}"> to the <head>.`, 1);
+      if (input.appFiles) {
+        const j = json(input.appFiles.aasa) as Record<string, unknown> | null;
+        const ok = !!j && typeof j === "object" && !!(j.applinks || j.webcredentials || j.appclips);
+        add("seo", LA, "app-aasa", "iOS Universal Links file", ok ? "pass" : "warn",
+          ok ? "/.well-known/apple-app-site-association is valid." : "No valid apple-app-site-association file, so links to your site open in Safari instead of your app.",
+          "Publish /.well-known/apple-app-site-association as JSON with an applinks section for your app, served without redirects.", 1);
+      }
+    }
+    if (playIds.size && input.appFiles) {
+      const j = json(input.appFiles.assetlinks);
+      const ok = Array.isArray(j) && j.some((x) => (x as { target?: { namespace?: string } })?.target?.namespace === "android_app");
+      add("seo", LA, "app-assetlinks", "Android App Links file", ok ? "pass" : "warn",
+        ok ? "/.well-known/assetlinks.json is valid." : "No valid assetlinks.json, so links to your site open in the browser instead of your Android app.",
+        "Publish /.well-known/assetlinks.json with your package name and signing certificate fingerprint.", 1);
+    }
+    const appSchema = schemaTypeSet.has("MobileApplication") || schemaTypeSet.has("SoftwareApplication");
+    add("seo", LA, "app-schema", "App structured data", appSchema ? "pass" : "warn",
+      appSchema ? "MobileApplication or SoftwareApplication schema found." : "The page promotes an app but has no app structured data.",
+      "Add MobileApplication JSON-LD with name, operatingSystem, applicationCategory, offers and aggregateRating, using your real store rating.", 1);
+  }
 
   if (input.extraChecks) checks.push(...input.extraChecks.map((c) => ({ ...c, fix: c.status === "pass" ? undefined : c.fix })));
 

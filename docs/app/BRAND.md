@@ -11,16 +11,38 @@ The name, tagline and links live in `lib/brand.ts`. Colours, type and spacing li
 - **Difference:** most AI visibility tools only track numbers. Crawlvane tells you what to change and gives you the code.
 - **Voice:** plain, confident, practical. Short sentences. No hype, no guarantees about rankings or citations.
 
+## Design system v1.0 (current)
+
+The source files are in `design/Design system planning/`: the brand guide, foundations, components, screens, `crawlvane-tokens.css` and every logo file. The app's tokens at the top of `app/globals.css` come from that file, keeping the app's own meaning for `--surface` (alternate sections) and `--surface-2` (tracks and wells).
+
 ## Logo
 
-A magnifying lens with a small four-point spark: found by search, seen by AI.
+The C-Vane: an open ring that forms the C and echoes the score ring, with a needle pointing up and to the right.
 
-- Mark: Golden Chestnut lens and Linen spark on an Espresso rounded square (`public/icon.svg`, `components/Logo.tsx`)
+- Light backgrounds: Stormy Teal ring, Mint needle. Dark backgrounds: Pale Mint ring (`#F2FAF7`), Mint needle
+- In the app: `components/Logo.tsx` draws the mark; set `--logo-ring` to recolour the ring
+- Favicon: `public/icon.svg` (the 32 px tile version). iOS: `public/apple-touch-icon.png`, rendered from `app-icon.svg` with square corners
 - Wordmark: "Crawlvane" in Figtree Bold, letter-spacing -0.03em
-- Minimum size: 20 px for the mark
-- Keep clear space around it equal to the spark's height
+- Clear space: half the mark's height. Minimum size: 20 px for the mark, 96 px for the lockup
+- The logo SVG files carry C2PA content credentials. Keep them when you copy the files
 
-## Colour: "Tropical Fusion" (current, 2026-11-06)
+### Logo files on the site
+
+| File | Use |
+|---|---|
+| `/brand/crawlvane-lockup.svg`, `-dark-bg`, `-mono`, `-mono-white` | Full logo for documents and partners |
+| `/brand/crawlvane-lockup.png`, `-dark-bg.png` | Full logo where SVG isn't accepted (908 px wide) |
+| `/brand/crawlvane-mark*.svg`, `crawlvane-mark-512.png` | The mark alone, for avatars and social profiles |
+| `/brand/crawlvane-wordmark*.svg` | The name alone |
+| `/brand/app-icon.svg`, `/icon-192.png`, `/icon-512.png`, `/icon-maskable-512.png` | App icons and the web app manifest (`app/manifest.ts`) |
+| `/favicon.ico` (16, 32, 48 px), `/icon.svg`, `/favicon-16.svg`, `/apple-touch-icon.png` | Browser tabs and phone home screens |
+| `/icon-512.png` | Organization logo in structured data |
+
+## Status colours
+
+Audit results use their own colours, never brand Mint, and always come with an icon and a word: `--good` #2E7A30, `--warn` #A35400, `--bad` #B42318, `--info` #1D5FAF, plus `-bg` and `-solid` versions for backgrounds, bars and rings.
+
+## Colour: "Tropical Fusion" (2026-11-06, refined by the design system above)
 
 | Token | Value | Use |
 |---|---|---|
@@ -32,7 +54,7 @@ A magnifying lens with a small four-point spark: found by search, seen by AI.
 | `--surface` | #F2FAF7 | Alternate sections |
 | `--text` | #0F2F31 | Body text and headings |
 
-Logo: teal tile, mint lens, gold spark. Buttons stay teal, not bright, on purpose.
+Buttons stay teal, not bright, on purpose.
 
 ## Colour: "Rustic Autumn", refined (previous)
 
@@ -72,10 +94,11 @@ The original palette below is kept for reference.
 
 ## Components
 
-- Buttons: pill-shaped; deep chestnut with uppercase label (primary), outlined (secondary)
-- Radius: pill buttons and inputs, 16 px FAQ items, 24 px cards and photos
-- Icons: Lucide at stroke width 1.75, inside a 48 px soft chestnut circle
-- Section labels: uppercase deep chestnut with a small four-point star
+- Buttons: 10 px corners (`--r`), sentence-case labels. Heights 48 px (default), 44 px (`.btn-sm`) and 56 px (`.btn-lg`, hero). Stormy Teal primary, outlined secondary
+- Radius: `--r-sm` 6 px, `--r` 10 px (buttons, inputs), `--r-lg` 16 px (cards), `--r-pill` for chips and badges only. Inputs are 48 px tall (56 px for the big URL field)
+- Tabs: a 3 px Stormy Teal underline and bold text on the selected tab, so it doesn't rely on colour
+- Icons: Lucide at stroke width 2, using `currentColor`
+- Text: never below 12 px. Scores use Figtree 800 with tabular figures
 - Photos: real people working (Pexels, Unsplash), never as the hero. The hero shows the product.
 
 ## Photos in use

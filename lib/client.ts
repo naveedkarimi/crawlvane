@@ -26,9 +26,27 @@ export async function api<T = unknown>(path: string, init: RequestInit = {}): Pr
   if (k) headers.set("x-admin-key", k);
   if (init.body && !headers.has("content-type")) headers.set("content-type", "application/json");
   const res = await fetch(path, { ...init, headers });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error((data as { error?: string }).error || `Request failed (${res.status})`);
+  const data = (await res.json().catch(() => ({}))) as { error?: string; upgrade?: boolean; signup?: boolean };
+  if (!res.ok) {
+    const err = new ApiError(data.error || `Request failed (${res.status})`, res.status, !!data.upgrade || res.status === 402, !!data.signup);
+    // Lets the page show "create a free account" or "see plans" right where the limit was hit.
+    if ((err.signup || err.upgrade) && typeof window !== "undefined")
+      window.dispatchEvent(new CustomEvent("cv:upsell", { detail: { kind: err.signup ? "signup" : "upgrade", message: err.message } }));
+    throw err;
+  }
   return data as T;
+}
+
+/** An API error that says whether signing up or upgrading would fix it. */
+export class ApiError extends Error {
+  constructor(message: string, public status: number, public upgrade = false, public signup = false) {
+    super(message);
+  }
+}
+
+/** Asks the page to show a sign-up or upgrade prompt, for limits found in the browser. */
+export function askToUpgrade(kind: "signup" | "upgrade", message: string) {
+  if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("cv:upsell", { detail: { kind, message } }));
 }
 
 export interface FeatureState {
@@ -44,6 +62,10 @@ export interface FeatureState {
 export interface AppConfig {
   admin: boolean;
   paywall: boolean;
+  accounts: boolean;
+  signupGate: boolean;
+  fixPreview: number;
+  account: { plan: string; role: string } | null;
   features: FeatureState[];
   engines: string[];
   aiConfigured: boolean;

@@ -4,6 +4,8 @@
 
 - [App overview and setup](../README.md)
 - [Product guide](app/APP-FEATURES.md)
+- [Plans, pricing and growth](app/PLANS.md): what each level gets, billing, and money ideas
+- [Accounts, dashboard and payments build plan](app/ACCOUNTS-PLAN.md)
 - [Product master document](app/FEATURES.md)
 - [Brand guide](app/BRAND.md)
 - [Roadmap](app/ROADMAP.md)

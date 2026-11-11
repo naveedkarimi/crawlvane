@@ -5,7 +5,7 @@ import { assertPublicUrl, safeFetch, BOT_NAME } from "./safeFetch";
 import { agentReadiness, linkPreview, type ToolCheck } from "./gen/pageTools";
 import { a11yReport } from "./gen/a11y";
 import { jsonLdBlocks, schemaImageUrls } from "./schemaValidate";
-import type { AuditResult, Category, Check, FetchedResource } from "./types";
+import type { AuditResult, Category, Check, FetchedResource, AppFiles } from "./types";
 
 export interface SitemapInfo {
   url: string;
@@ -27,6 +27,8 @@ export interface SiteContext {
   llms: FetchedResource | null;
   llmsFull: FetchedResource | null;
   sitemap: SitemapInfo;
+  /** Universal Links and Android App Links files. */
+  appFiles?: AppFiles;
 }
 
 const locs = (xml: string) =>
@@ -67,13 +69,16 @@ async function findSitemap(origin: string, robots: FetchedResource | null): Prom
 
 export async function loadSiteContext(origin: string): Promise<SiteContext> {
   const textOpts = { timeoutMs: 8000, accept: "text/plain,text/markdown,*/*" };
-  const [robots, llms, llmsFull] = await Promise.all([
+  const jsonOpts = { timeoutMs: 6000, accept: "application/json,*/*" };
+  const [robots, llms, llmsFull, aasa, assetlinks] = await Promise.all([
     safeFetch(`${origin}/robots.txt`, textOpts),
     safeFetch(`${origin}/llms.txt`, textOpts),
     safeFetch(`${origin}/llms-full.txt`, { ...textOpts, timeoutMs: 6000 }),
+    safeFetch(`${origin}/.well-known/apple-app-site-association`, jsonOpts).catch(() => null),
+    safeFetch(`${origin}/.well-known/assetlinks.json`, jsonOpts).catch(() => null),
   ]);
   const sitemap = await findSitemap(origin, robots);
-  return { origin, robots, llms, llmsFull, sitemap };
+  return { origin, robots, llms, llmsFull, sitemap, appFiles: { aasa, assetlinks } };
 }
 
 export class BotBlockedError extends Error {}
@@ -163,6 +168,7 @@ export function auditFetched(requestedUrl: string, page: FetchedResource, ctx: S
     sitemap: ctx.sitemap,
     llms: ctx.llms,
     llmsFull: ctx.llmsFull,
+    appFiles: ctx.appFiles,
   });
 }
 

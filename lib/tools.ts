@@ -1,10 +1,11 @@
 /** Free single-purpose tools. Used by /tools, the sitemap, llms.txt, the footer and the home page. */
 
-export type ToolIcon = "eye" | "shield" | "file" | "list" | "braces" | "gauge" | "share" | "message" | "markdown" | "bot" | "redirect" | "sitemap" | "lock" | "chart" | "logs" | "a11y";
+export type ToolIcon = "eye" | "shield" | "file" | "list" | "braces" | "gauge" | "share" | "message" | "markdown" | "bot" | "redirect" | "sitemap" | "lock" | "chart" | "logs" | "a11y" | "phone";
 
-export type ToolGroup = "ai" | "content" | "seo";
+export type ToolGroup = "apps" | "ai" | "content" | "seo";
 
 export const TOOL_GROUPS: { key: ToolGroup; title: string; intro: string }[] = [
+  { key: "apps", title: "Apps in the stores", intro: "SEO for apps: how your App Store and Google Play listing looks, ranks and converts." },
   { key: "ai", title: "Can AI find and read you?", intro: "Crawler access, JavaScript and agents: the reasons AI assistants never see a site." },
   { key: "content", title: "Answers and content", intro: "Make your pages easy for answer engines and language models to quote." },
   { key: "seo", title: "Search basics", intro: "Speed, previews and structured data that help in Google and everywhere else." },
@@ -22,6 +23,14 @@ export interface Tool {
 }
 
 export const TOOLS: Tool[] = [
+  {
+    slug: "app-store-checker",
+    name: "App Check: App Store and Google Play",
+    short: "App Check",
+    group: "apps",
+    summary: "Check any app's App Store or Google Play listing in any country: rating, screenshots, freshness and search basics, with a score and fixes.",
+    icon: "phone",
+  },
   {
     slug: "ai-visibility-checker",
     name: "Can AI read my page?",

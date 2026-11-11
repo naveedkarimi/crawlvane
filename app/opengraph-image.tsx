@@ -17,10 +17,9 @@ export default function OpengraphImage() {
       >
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
           <svg width="64" height="64" viewBox="0 0 32 32" fill="none">
-            <rect width="32" height="32" rx="8" fill="#156064" />
-            <circle cx="14" cy="15" r="6.5" stroke="#00C49A" strokeWidth="2.6" />
-            <path d="M19 20l5 5" stroke="#00C49A" strokeWidth="2.6" strokeLinecap="round" />
-            <path d="M24.5 4.5l1.05 2.45L28 8l-2.45 1.05L24.5 11.5l-1.05-2.45L21 8l2.45-1.05z" fill="#F8E16C" />
+            <rect width="32" height="32" rx="7" fill="#0C3B3E" />
+            <path fill="#F2FAF7" d="M26.29 15.82A10.29 10.29 0 1 1 16.18 5.71L16.09 10.58A5.42 5.42 0 1 0 21.42 15.91Z" />
+            <path fill="#00C49A" d="M24.81 7.19L19.26 17.72L14.85 17.15L14.28 12.74Z" />
           </svg>
           <div style={{ fontSize: 44, fontWeight: 700, letterSpacing: -1 }}>{BRAND.name}</div>
         </div>

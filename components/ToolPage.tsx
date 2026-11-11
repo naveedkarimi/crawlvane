@@ -42,7 +42,7 @@ export default function ToolPage({
         </div>
       </section>
 
-      <section className="section">
+      <section className="section section-tight">
         <div className="container faq-layout">
           <div className="section-head left">
             <div className="kicker">Questions</div>
@@ -66,7 +66,7 @@ export default function ToolPage({
         </div>
       </section>
 
-      <section className="section section-muted" aria-labelledby="more-tools">
+      <section className="section" aria-labelledby="more-tools">
         <div className="container">
           <div className="section-head">
             <div className="kicker kicker-center">More free tools</div>

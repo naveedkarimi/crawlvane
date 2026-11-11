@@ -51,7 +51,7 @@ export default function FeatureGrid() {
           const Icon = ICONS[f.key] ?? Sparkles;
           return (
             <li key={f.key}>
-              <span className="feature-list-icon" aria-hidden="true"><Icon size={20} strokeWidth={1.6} /></span>
+              <span className="feature-list-icon" aria-hidden="true"><Icon size={20} strokeWidth={2} /></span>
               <div>
                 <h3>{f.name}</h3>
                 <p>{f.description}</p>
@@ -70,7 +70,7 @@ export default function FeatureGrid() {
               const Icon = ICONS[f.key] ?? Sparkles;
               return (
                 <article key={f.key} className="feature feature-soon">
-                  <span className="feature-icon"><Icon size={20} strokeWidth={1.75} /></span>
+                  <span className="feature-icon"><Icon size={20} strokeWidth={2} /></span>
                   <h3>{f.name} {f.enabled ? <span className="live">Preview on</span> : <SoonBadge plan={f.plan} />}</h3>
                   <p>{f.description}</p>
                   {f.requires && f.requires.length > 0 && (

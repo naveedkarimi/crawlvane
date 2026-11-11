@@ -2,6 +2,9 @@ import { pagePlan } from "@/lib/ai/plan";
 import { featureEnabled } from "@/lib/config";
 import { clientIp, rateLimit } from "@/lib/rateLimit";
 import type { AuditResult } from "@/lib/types";
+import { optionalAccount } from "@/lib/apiAuth";
+import { SIGNUP_GATE } from "@/lib/tiers";
+import { CREDIT_COST, PaywallError, spendCredits } from "@/lib/entitlements";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,6 +24,8 @@ export async function POST(req: Request) {
     return Response.json({ error: "Bad request." }, { status: 400 });
   }
   if (!Array.isArray(body?.checks)) return Response.json({ error: "Bad request." }, { status: 400 });
+  if (SIGNUP_GATE && !(await optionalAccount(req)))
+    return Response.json({ error: "Create a free account to get your AI fix plan.", signup: true }, { status: 401 });
 
   // Rebuild a safe, typed view of the client payload
   const f = body.facts ?? ({} as AuditResult["facts"]);
@@ -40,6 +45,12 @@ export async function POST(req: Request) {
   } as AuditResult;
 
   try {
+    try {
+      await spendCredits(await optionalAccount(req), CREDIT_COST.aiPlan, "page AI plan");
+    } catch (e) {
+      if (e instanceof PaywallError) return Response.json({ error: e.message, upgrade: true }, { status: e.status });
+      throw e;
+    }
     return Response.json(await pagePlan(audit));
   } catch (e) {
     console.error("advice", e);

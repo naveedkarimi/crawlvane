@@ -1,0 +1,90 @@
+/* Crawlvane design tokens v2.0 — Vane Blue / Signal Red / Paper
+   Existing app names are kept; scale + helper tokens are additive. */
+:root {
+  /* Scales */
+  --blue-50:#EEF4FA; --blue-100:#D9E6F3; --blue-200:#B5CDE7; --blue-300:#8BB2DC; --blue-400:#5A8BC0;
+  --blue-500:#3A6FA3; --blue-600:#235789; --blue-700:#1C4770; --blue-800:#173B5D; --blue-900:#122E49; --blue-950:#0B1E31;
+  --red-50:#FCEEEE; --red-100:#F8D7D8; --red-200:#F0ADAF; --red-300:#E67F82; --red-400:#E0484D;
+  --red-500:#CC383D; --red-600:#C1292E; --red-700:#9E2226; --red-800:#7A1B1E; --red-900:#561416;
+  --gold-50:#FEFAE6; --gold-100:#FCF1BE; --gold-200:#FAE894; --gold-300:#F8E16C; --gold-400:#E9C93A;
+  --gold-500:#C9A61B; --gold-600:#9C7F0E; --gold-700:#7A630B; --gold-800:#5C4A08;
+  --n-0:#FDFFFC; --n-50:#F4F6F9; --n-100:#E7ECF2; --n-200:#DCE3EB; --n-300:#B7C3D0; --n-400:#7E8FA2;
+  --n-500:#56677A; --n-600:#3E4F62; --n-700:#2B3B4D; --n-800:#1C2B3B; --n-900:#0F1E2D;
+
+  /* Brand (existing names) */
+  --ink:#122E49;          /* Deep Navy: dark sections, footer */
+  --ink-2:#1A3D5E;        /* raised surface on ink */
+  --ink-3:#2A5378;        /* borders/dividers on ink */
+  --signal:#8BB2DC;       /* accent on dark: fills, icons, text */
+  --signal-2:#C1292E;     /* Signal Red as text on light, 5.6:1 — brand moments only, never status */
+  --accent-lg:#C1292E;    /* Signal Red, large text */
+  --secondary:#C1292E;    /* Signal Red fill: logo needle, highlights */
+  --tertiary:#FDFFFC;     /* Paper */
+  --cta:#235789;          /* Vane Blue buttons */
+  --cta-hover:#1C4770;
+  --cta-text:#FFFFFF;
+  --gold:#F8E16C;         /* Straw Gold: highlight fills only */
+  --gold-text:#7A630B;    /* gold as text on light */
+
+  /* Surfaces + text */
+  --surface:#FDFFFC;      /* Paper */
+  --surface-2:#F1F5FA;    /* Pale Blue alternate sections */
+  --surface-3:#F4F6F9;    /* neutral wells, code */
+  --line:#DCE3EB;
+  --line-strong:#7E8FA2;  /* input + control borders, 3:1 */
+  --text:#0F1E2D;
+  --text-2:#3E4F62;
+  --muted:#56677A;
+  --link:#235789;
+  --focus:#235789;
+
+  /* Status: never brand red or brand blue. Always paired with icon + label. */
+  --good:#2E7A30;  --good-bg:#EAF5E4;  --good-solid:#3C9A3E;
+  --warn:#A35400;  --warn-bg:#FFF4DB;  --warn-solid:#E58A00;
+  --bad:#B42318;   --bad-bg:#FDECEA;   --bad-solid:#D7372A;
+  --info:#6B3FA0;  --info-bg:#F1ECF8;  --info-solid:#8257C2;
+
+  /* Shape + depth */
+  --r-sm:6px; --r:10px; --r-lg:16px; --r-pill:999px;
+  --shadow-sm:0 1px 2px rgba(18,46,73,.08);
+  --shadow:0 2px 4px rgba(18,46,73,.06), 0 6px 16px rgba(18,46,73,.08);
+  --shadow-lg:0 4px 8px rgba(18,46,73,.06), 0 18px 40px rgba(18,46,73,.14);
+
+  /* Type */
+  --font-head:'Figtree', system-ui, sans-serif;
+  --font-body:'DM Sans', system-ui, sans-serif;
+  --font-mono:'Geist Mono', ui-monospace, monospace;
+
+  /* Space (4px base) */
+  --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:24px; --s-6:32px; --s-7:48px; --s-8:64px; --s-9:96px;
+
+  /* Motion */
+  --ease:cubic-bezier(.2,.7,.2,1);
+  --t-fast:120ms; --t:200ms; --t-slow:320ms;
+}
+
+[data-theme="dark"] {
+  --surface:#0B1E31; --surface-2:#122E49; --surface-3:#0F2640;
+  --line:#24476A; --line-strong:#6E8DAD;
+  --text:#F2F6FA; --text-2:#BBCADB; --muted:#9FB2C7;
+  --link:#8BB2DC; --focus:#8BB2DC;
+  --signal-2:#E67F82; --accent-lg:#E67F82; --secondary:#E0484D;
+  --cta:#8BB2DC; --cta-hover:#B5CDE7; --cta-text:#0B1E31;
+  --gold-text:#F8E16C;
+  --good:#7BCB6E; --good-bg:#173A22;
+  --warn:#F5B649; --warn-bg:#3D2C0C;
+  --bad:#FF8A7A;  --bad-bg:#43201C;
+  --info:#C3A6EE; --info-bg:#2E2148;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.3);
+  --shadow:0 2px 6px rgba(0,0,0,.3), 0 8px 20px rgba(0,0,0,.25);
+  --shadow-lg:0 6px 12px rgba(0,0,0,.3), 0 20px 44px rgba(0,0,0,.35);
+}
+
+:focus-visible { outline:2px solid var(--focus); outline-offset:2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration:1ms !important; animation-iteration-count:1 !important;
+    transition-duration:1ms !important; scroll-behavior:auto !important;
+  }
+}

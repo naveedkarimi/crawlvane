@@ -4,6 +4,8 @@ import { ToolGrid } from "@/components/ToolPage";
 import { posts } from "@/lib/blog";
 import { BRAND } from "@/lib/brand";
 import { TOOLS } from "@/lib/tools";
+import PageHero from "@/components/PageHero";
+import SiteChrome from "@/components/SiteChrome";
 
 /**
  * Served with a real 404 status, so search engines drop the address instead of treating
@@ -26,18 +28,16 @@ const explore = [
 ];
 
 export default function NotFound() {
+  // Unknown addresses are shown from the root layout, so this page adds the site header itself.
   return (
+    <SiteChrome>
     <main>
-      <section className="page-hero">
-        <div className="container">
-          <div className="kicker kicker-center">404 error</div>
-          <h1>We can&apos;t find that page</h1>
-          <p className="lead">The link may be out of date, or the address may have a typo. {BRAND.name} checks whether search engines and AI assistants can read your site, and these are the best places to start.</p>
-          <div className="center-actions">
-            <a className="btn btn-primary" href="/#audit">Audit your site for free <ArrowRight size={16} /></a>
-          </div>
+      <PageHero kicker="404 error" title={<>We can&apos;t find that page</>}>
+        <p className="hero-sub">The link may be out of date, or the address may have a typo. {BRAND.name} checks whether search engines and AI assistants can read your site, and these are the best places to start.</p>
+        <div className="center-actions">
+          <a className="btn btn-primary" href="/#audit">Audit your site for free <ArrowRight size={16} /></a>
         </div>
-      </section>
+      </PageHero>
       <section className="section section-tight">
         <div className="container">
           <div className="tool-group">
@@ -65,5 +65,6 @@ export default function NotFound() {
         </div>
       </section>
     </main>
+    </SiteChrome>
   );
 }

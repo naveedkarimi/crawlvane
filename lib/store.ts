@@ -36,8 +36,10 @@ export function db(): SupabaseClient {
   }));
 }
 
-function failed(action: string, error: { message: string }): never {
-  throw new Error(`Database ${action} failed: ${error.message}`);
+function failed(action: string, error: { message: string; code?: string }): never {
+  // A missing table, column or function means supabase/schema.sql hasn't been run since the code changed.
+  const stale = ["PGRST202", "PGRST205", "42703", "42P01"].includes(error.code ?? "") || /schema cache|does not exist/i.test(error.message);
+  throw new Error(`Database ${action} failed: ${error.message}${stale ? ". Run the latest supabase/schema.sql in the Supabase SQL Editor" : ""}`);
 }
 
 /** jsonb rejects NUL characters and half an emoji, and both can come from crawled or cut-off text. */
@@ -122,6 +124,14 @@ export async function listIds(collection: string): Promise<string[]> {
     ids.push(...data.map((row) => row.id as string));
     if (data.length < PAGE_SIZE) return ids;
   }
+}
+
+/** Documents in a collection whose JSON has `field` equal to `value`, for example every widget of one team. */
+export async function listJsonWhere<T>(collection: string, field: string, value: string): Promise<T[]> {
+  if (!/^[a-zA-Z]{1,40}$/.test(field)) throw new Error("Invalid field name.");
+  const { data, error } = await db().from(TABLE).select("data").eq("collection", collection).eq(`data->>${field}`, value).limit(500);
+  if (error) failed("list", error);
+  return (data ?? []).map((row) => row.data as T);
 }
 
 export async function removeJson(collection: string, id: string): Promise<void> {

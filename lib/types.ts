@@ -11,6 +11,8 @@ export interface Check {
   detail: string;
   /** How to fix (shown when not passing) */
   fix?: string;
+  /** The fix is hidden until the visitor signs up (see lib/tiers.ts). */
+  fixLocked?: boolean;
   /** 1 (minor) .. 3 (major). Info checks don't count towards the score. */
   weight: 1 | 2 | 3;
 }
@@ -21,6 +23,12 @@ export interface BotAccess {
   purpose: "search" | "user-fetch" | "training" | "classic-search";
   allowed: boolean;
   matchedGroup: string;
+}
+
+/** Files that link a website to its mobile app. */
+export interface AppFiles {
+  aasa: FetchedResource | null;
+  assetlinks: FetchedResource | null;
 }
 
 export interface FetchedResource {

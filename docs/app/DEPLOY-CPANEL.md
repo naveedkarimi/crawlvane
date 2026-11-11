@@ -21,6 +21,7 @@ In cPanel, go to **Domains → Create a new domain** (or **Subdomains**) and add
    - `ADMIN_KEY`: a long random password, used to preview hidden features
    - `CRON_SECRET`: another random string, used by the hourly cron job
    - `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`: the newsletter, waitlist, quote and contact forms send submissions straight to Supabase. Use the public key only. They're read at build time, so set them before `npm run build`
+   - `SERPAPI_KEY` (optional): Google Play data for the app store checker. Without it, only App Store checks work. The free SerpApi plan allows 250 searches a month
    - `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` (optional): turns on cookie-free analytics. It's read at build time, so set it before `npm run build`
 
 ## 3. Create the Node.js app

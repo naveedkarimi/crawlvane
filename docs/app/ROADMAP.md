@@ -34,6 +34,7 @@ Effort is a rough guess. "You" means only you can do it (accounts, money, decisi
 |---|---|---|---|---|
 | 13 | Soft launch to 50 to 100 people and collect feedback | You | 1 week | Top complaints listed |
 | 14 | Free "How does AI describe my business?" tool with email gate and daily cap. Competitors already offer this free | Claude | 2 days | Live and capped |
+| 14b | App store checker: done (App Store, Google Play via SerpApi, any country, premium behind a switch). Add `SERPAPI_KEY`, then launch it with the site | You add the key | 10 min | Google Play checks work |
 | 15 | "Email me this result" on free tools | Claude | 1 day | Emails being collected |
 | 16 | Publish guides on AEO and GEO | Claude drafts, you approve | Ongoing | First guides linked |
 | 17 | Comparison pages (vs Otterly, vs Peec, SEOptimer alternative). Decide how to word competitor claims first | You decide, Claude writes | 2 days | Published |
@@ -57,7 +58,7 @@ Effort is a rough guess. "You" means only you can do it (accounts, money, decisi
 
 | # | Task | Who | Effort | Done when |
 |---|---|---|---|---|
-| 28 | Switch on monitoring and change alerts (`FEATURE_MONITORING`) | Claude | Half a day | Alerts arrive |
+| 28 | Switch on monitoring and change alerts (`FEATURE_MONITORING`), including weekly app rating and competitor alerts | Claude | Half a day | Alerts arrive |
 | 29 | Weekly AI prompt tracking: trends per engine, share of voice, sentiment, sources cited, prompt gaps, drop alerts | Claude | 2 weeks | Trend charts live |
 | 30 | Event emails: score dropped, new AI crawler blocked, fix verified. Slack alerts after that | Claude | 2 days | Emails firing |
 | 31 | Search Console: real clicks and impressions next to findings | You create OAuth app, Claude builds | 1 week | Connected on a real site |

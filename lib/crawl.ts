@@ -9,6 +9,7 @@ const SKIP_EXT = /\.(pdf|jpe?g|png|gif|webp|avif|svg|ico|zip|gz|rar|mp4|mp3|mov|
 export const SITE_LEVEL = new Set([
   "robots-txt", "sitemap", "sitemap-in-robots", "llms-txt", "llms-full", "ai-search-bots", "ai-user-bots",
   "ai-training-bots", "bing-access", "hsts", "brand-consistency", "https", "entity-schema", "trust-pages", "compression",
+  "app-aasa", "app-assetlinks",
 ]);
 
 export function normalizeUrl(u: string, base?: string): string | null {

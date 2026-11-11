@@ -38,6 +38,7 @@ export default function SiteFooter() {
             <h2>Product</h2>
             <a href="/#audit">Page check</a>
             <a href="/?mode=full#audit">Full site report</a>
+            <a href="/tools/app-store-checker">App Check</a>
             <a href="/bulk">Bulk audit</a>
             <a href="/developers">API</a>
             <a href="/#features">Features</a>
@@ -53,11 +54,7 @@ export default function SiteFooter() {
             <a href="/blog">Blog and guides</a>
             <a href="/#faq">FAQ</a>
             <a href="/llms.txt">llms.txt</a>
-          </nav>
-          <nav aria-label="Company">
-            <h2>Company</h2>
             <a href={BRAND.contactUrl}>Contact</a>
-            <a href="/credits">Credits</a>
           </nav>
         </div>
 
