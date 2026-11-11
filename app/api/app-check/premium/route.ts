@@ -3,6 +3,9 @@ import { AppStoreError, fetchReviews, lookupApp, parseAppInput, scoreListing, ty
 import { featureEnabled } from "@/lib/config";
 import { isStoreCountry } from "@/lib/countries";
 import { clientIp, rateLimit } from "@/lib/rateLimit";
+import { optionalAccount } from "@/lib/apiAuth";
+import { CREDIT_COST, PaywallError, planAllowsFor, spendCredits } from "@/lib/entitlements";
+import { PAYWALL_ENABLED } from "@/lib/config";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -23,6 +26,15 @@ export async function POST(req: Request) {
   const ref = parseAppInput(String(body.app ?? ""), store);
   if (typeof ref === "string") return Response.json({ error: ref }, { status: 400 });
   if (!rateLimit("apppremium:" + clientIp(req), 10)) return Response.json({ error: "Too many requests. Try again in a bit." }, { status: 429 });
+  const acc = await optionalAccount(req);
+  if (PAYWALL_ENABLED && !planAllowsFor(acc?.org, "appPremium")) return Response.json({ error: acc ? "App Check premium is part of the Pro plan." : "Sign in to use App Check premium.", upgrade: true }, { status: acc ? 402 : 401 });
+  try {
+    if (body.action === "advice") await spendCredits(acc, CREDIT_COST.appAdvice, "app listing rewrite");
+    if (body.action === "reviews") await spendCredits(acc, CREDIT_COST.appReviews, "app review analysis");
+  } catch (e) {
+    if (e instanceof PaywallError) return Response.json({ error: e.message, upgrade: true }, { status: e.status });
+    throw e;
+  }
   try {
     const listing = await lookupApp(ref, country);
     if (body.action === "advice") return Response.json(await adviseListing(listing));

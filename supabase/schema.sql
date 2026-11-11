@@ -176,6 +176,257 @@ create index if not exists app_checks_created_at_idx on public.app_checks (creat
 create index if not exists app_checks_app_idx on public.app_checks (store, app_id);
 alter table public.app_checks enable row level security;
 
+-- ---------- Accounts (phase 1) ----------
+-- Every user belongs to an organisation: a person or an agency. Server access only.
+create table if not exists public.organizations (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  plan text not null default 'free',
+  created_at timestamptz not null default now()
+);
+alter table public.organizations enable row level security;
+
+create table if not exists public.memberships (
+  org_id uuid not null references public.organizations (id) on delete cascade,
+  user_id uuid not null references auth.users (id) on delete cascade,
+  role text not null default 'owner' check (role in ('owner', 'editor', 'viewer')),
+  created_at timestamptz not null default now(),
+  primary key (org_id, user_id)
+);
+create index if not exists memberships_user_idx on public.memberships (user_id);
+alter table public.memberships enable row level security;
+
+create table if not exists public.sites (
+  id uuid primary key default gen_random_uuid(),
+  org_id uuid not null references public.organizations (id) on delete cascade,
+  url text not null,
+  domain text not null,
+  created_at timestamptz not null default now(),
+  unique (org_id, domain)
+);
+alter table public.sites enable row level security;
+
+create table if not exists public.site_scores (
+  id bigint generated always as identity primary key,
+  site_id uuid not null references public.sites (id) on delete cascade,
+  overall integer not null,
+  seo integer not null,
+  aeo integer not null,
+  geo integer not null,
+  source text not null check (source in ('page-check', 'report', 'monitor')),
+  report_id text,
+  created_at timestamptz not null default now()
+);
+create index if not exists site_scores_site_idx on public.site_scores (site_id, created_at desc);
+alter table public.site_scores enable row level security;
+
+create table if not exists public.org_reports (
+  report_id text primary key,
+  org_id uuid not null references public.organizations (id) on delete cascade,
+  site_id uuid references public.sites (id) on delete set null,
+  url text not null,
+  created_at timestamptz not null default now()
+);
+create index if not exists org_reports_org_idx on public.org_reports (org_id, created_at desc);
+alter table public.org_reports enable row level security;
+
+-- ---------- Plans and credits (phase 2) ----------
+create table if not exists public.usage_counters (
+  org_id uuid not null references public.organizations (id) on delete cascade,
+  period text not null,
+  metric text not null,
+  count integer not null default 0,
+  primary key (org_id, period, metric)
+);
+alter table public.usage_counters enable row level security;
+
+-- Adds to a monthly counter in one step, so simultaneous requests can't lose counts.
+create or replace function public.bump_usage(p_org uuid, p_period text, p_metric text, p_by integer default 1)
+returns integer
+language sql
+set search_path = ''
+as $$
+  insert into public.usage_counters (org_id, period, metric, count)
+  values (p_org, p_period, p_metric, p_by)
+  on conflict (org_id, period, metric) do update set count = public.usage_counters.count + excluded.count
+  returning count;
+$$;
+revoke all on function public.bump_usage(uuid, text, text, integer) from public, anon, authenticated;
+
+-- Bought AI credit packs and one-off reports (positive) and what's been used from them (negative).
+create table if not exists public.credit_ledger (
+  id bigint generated always as identity primary key,
+  org_id uuid not null references public.organizations (id) on delete cascade,
+  kind text not null check (kind in ('ai', 'report')),
+  delta integer not null,
+  reason text,
+  created_at timestamptz not null default now()
+);
+create index if not exists credit_ledger_org_idx on public.credit_ledger (org_id, kind);
+alter table public.credit_ledger enable row level security;
+
+-- ---------- Payments (phase 3) ----------
+alter table public.organizations add column if not exists stripe_customer_id text unique;
+alter table public.organizations add column if not exists stripe_subscription_id text;
+alter table public.organizations add column if not exists plan_status text;
+alter table public.organizations add column if not exists current_period_end timestamptz;
+
+-- Stripe can send an event more than once; this makes each one count once.
+create table if not exists public.stripe_events (
+  id text primary key,
+  created_at timestamptz not null default now()
+);
+alter table public.stripe_events enable row level security;
+
+-- ---------- Monitoring (phase 4) ----------
+alter table public.site_scores add column if not exists fails integer;
+
+create table if not exists public.site_monitors (
+  site_id uuid primary key references public.sites (id) on delete cascade,
+  every_days integer not null default 7 check (every_days between 1 and 30),
+  alert_email text,
+  last_run_at timestamptz,
+  created_at timestamptz not null default now()
+);
+alter table public.site_monitors enable row level security;
+
+create table if not exists public.tracked_apps (
+  id uuid primary key default gen_random_uuid(),
+  org_id uuid not null references public.organizations (id) on delete cascade,
+  store text not null check (store in ('apple', 'google')),
+  app_id text not null,
+  country text not null,
+  title text,
+  icon text,
+  url text,
+  competitors jsonb not null default '[]',
+  last_run_at timestamptz,
+  created_at timestamptz not null default now(),
+  unique (org_id, store, app_id, country)
+);
+alter table public.tracked_apps enable row level security;
+
+create table if not exists public.app_snapshots (
+  id bigint generated always as identity primary key,
+  tracked_app_id uuid not null references public.tracked_apps (id) on delete cascade,
+  rating numeric,
+  rating_count bigint,
+  score integer,
+  last_updated timestamptz,
+  competitors jsonb not null default '[]',
+  created_at timestamptz not null default now()
+);
+create index if not exists app_snapshots_app_idx on public.app_snapshots (tracked_app_id, created_at desc);
+alter table public.app_snapshots enable row level security;
+
+-- ---------- AI visibility over time (phase 5) ----------
+create table if not exists public.visibility_trackers (
+  id uuid primary key default gen_random_uuid(),
+  org_id uuid not null references public.organizations (id) on delete cascade,
+  site_id uuid not null unique references public.sites (id) on delete cascade,
+  brand text not null,
+  prompts text[] not null default '{}',
+  competitors jsonb not null default '[]',
+  every_days integer not null default 7,
+  last_run_at timestamptz,
+  created_at timestamptz not null default now()
+);
+alter table public.visibility_trackers enable row level security;
+
+create table if not exists public.visibility_runs (
+  id bigint generated always as identity primary key,
+  tracker_id uuid not null references public.visibility_trackers (id) on delete cascade,
+  summary jsonb not null default '[]',
+  share_of_voice jsonb not null default '[]',
+  rows jsonb not null default '[]',
+  error text,
+  created_at timestamptz not null default now()
+);
+create index if not exists visibility_runs_tracker_idx on public.visibility_runs (tracker_id, created_at desc);
+alter table public.visibility_runs enable row level security;
+
+-- ---------- Dashboard detail, alerts, teams and schedules (phase 6) ----------
+alter table public.site_scores add column if not exists issues jsonb;
+alter table public.site_scores add column if not exists bots jsonb;
+alter table public.sites add column if not exists client_name text;
+
+create table if not exists public.alerts (
+  id bigint generated always as identity primary key,
+  org_id uuid not null references public.organizations (id) on delete cascade,
+  site_id uuid references public.sites (id) on delete cascade,
+  kind text not null check (kind in ('fail', 'warn', 'pass', 'info')),
+  title text not null,
+  detail text,
+  read boolean not null default false,
+  created_at timestamptz not null default now()
+);
+create index if not exists alerts_org_idx on public.alerts (org_id, created_at desc);
+alter table public.alerts enable row level security;
+
+create table if not exists public.invites (
+  id uuid primary key default gen_random_uuid(),
+  org_id uuid not null references public.organizations (id) on delete cascade,
+  email text not null,
+  role text not null check (role in ('editor', 'viewer')),
+  token text not null unique,
+  invited_by uuid references auth.users (id) on delete set null,
+  accepted_at timestamptz,
+  created_at timestamptz not null default now()
+);
+create index if not exists invites_org_idx on public.invites (org_id);
+alter table public.invites enable row level security;
+
+create table if not exists public.scheduled_reports (
+  id uuid primary key default gen_random_uuid(),
+  org_id uuid not null references public.organizations (id) on delete cascade,
+  site_id uuid not null unique references public.sites (id) on delete cascade,
+  email text not null,
+  every_days integer not null default 30,
+  last_run_at timestamptz,
+  pending_report_id text,
+  created_at timestamptz not null default now()
+);
+alter table public.scheduled_reports enable row level security;
+
+-- ---------- Agency branding, report history and custom report domains (phase 8) ----------
+alter table public.visibility_runs add column if not exists sentiment jsonb;
+alter table public.organizations add column if not exists brand_name text;
+alter table public.organizations add column if not exists brand_logo text;
+alter table public.organizations add column if not exists brand_color text;
+alter table public.organizations add column if not exists report_domain text unique;
+alter table public.organizations add column if not exists report_domain_verified_at timestamptz;
+
+-- Full reports are kept longer for teams on a paid plan. Reports nobody owns, or owned by a
+-- free team, go after p_free_days; every report goes after p_paid_days. Server only.
+create or replace function public.prune_reports(p_free_days integer, p_paid_days integer)
+returns integer
+language plpgsql
+set search_path = ''
+as $$
+declare
+  v_deleted integer;
+begin
+  delete from public.documents d
+  where d.collection = 'reports'
+    and (
+      d.updated_at < now() - make_interval(days => p_paid_days)
+      or (
+        d.updated_at < now() - make_interval(days => p_free_days)
+        and not exists (
+          select 1 from public.org_reports r
+          join public.organizations o on o.id = r.org_id
+          where r.report_id = d.id and o.plan in ('pro', 'agency')
+        )
+      )
+    );
+  get diagnostics v_deleted = row_count;
+  return v_deleted;
+end;
+$$;
+revoke all on function public.prune_reports(integer, integer) from public, anon, authenticated;
+grant execute on function public.prune_reports(integer, integer) to service_role;
+grant execute on function public.bump_usage(uuid, text, text, integer) to service_role;
+
 -- Bring across anything already saved in documents.
 insert into public.leads (id, kind, email, name, url, message, source, created_at)
 select id, data->>'kind', data->>'email', data->>'name', data->>'url', data->>'message', data->>'source',

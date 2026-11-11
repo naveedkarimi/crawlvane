@@ -11,6 +11,8 @@ export interface Check {
   detail: string;
   /** How to fix (shown when not passing) */
   fix?: string;
+  /** The fix is hidden until the visitor signs up (see lib/tiers.ts). */
+  fixLocked?: boolean;
   /** 1 (minor) .. 3 (major). Info checks don't count towards the score. */
   weight: 1 | 2 | 3;
 }

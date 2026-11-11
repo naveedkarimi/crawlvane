@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import Auditor from "@/app/Auditor";
+import Auditor from "@/components/Auditor";
 import ReportForm from "./ReportForm";
 import { useConfig } from "@/lib/client";
 

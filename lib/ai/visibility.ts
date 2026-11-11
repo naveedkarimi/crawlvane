@@ -12,7 +12,7 @@
  */
 import { assertBudget, recordUsage } from "../usage";
 import { callClaude, parseJsonLoose } from "./anthropic";
-import type { VisibilityResult } from "../reportTypes";
+import type { Sentiment, SentimentCounts, VisibilityResult } from "../reportTypes";
 
 interface EngineAnswer {
   text: string;
@@ -200,4 +200,36 @@ export async function runVisibility(opts: {
     summary,
     shareOfVoice: sov.sort((a, b) => b.mentions - a.mentions),
   };
+}
+
+/** Counts of positive, neutral and negative descriptions among the answers that mention the brand. */
+export function tallySentiment(rows: VisibilityResult["rows"]): SentimentCounts | null {
+  const rated = rows.filter((r) => r.mentioned && r.sentiment);
+  if (!rated.length) return null;
+  const c: SentimentCounts = { positive: 0, neutral: 0, negative: 0 };
+  for (const r of rated) c[r.sentiment!]++;
+  return c;
+}
+
+/**
+ * Reads how each answer that mentions the brand describes it, in one Claude call.
+ * Returns the rows with `sentiment` added; rows that don't mention the brand are left alone.
+ */
+export async function addSentiment(brand: string, rows: VisibilityResult["rows"]): Promise<VisibilityResult["rows"]> {
+  const idx = rows.map((r, i) => (r.mentioned && r.answerExcerpt ? i : -1)).filter((i) => i >= 0).slice(0, 40);
+  if (!idx.length) return rows;
+  const list = idx.map((i, n) => `${n + 1}. ${rows[i].answerExcerpt.slice(0, 600)}`).join("\n");
+  const r = await callClaude({
+    feature: "sentiment",
+    system: `You judge how AI assistant answers describe the brand "${brand}". For each numbered answer, decide whether it presents ${brand} positively (recommended, praised), neutrally (listed or described without judgement) or negatively (criticised, warned against). Judge only what is said about ${brand}. Reply ONLY with JSON: {"sentiment": ("positive"|"neutral"|"negative")[]} in the same order.`,
+    user: list,
+    maxTokens: 4000,
+  });
+  const out = parseJsonLoose<{ sentiment?: string[] }>(r.text).sentiment ?? [];
+  const ok = (s: unknown): s is Sentiment => s === "positive" || s === "neutral" || s === "negative";
+  const next = rows.map((x) => ({ ...x }));
+  idx.forEach((i, n) => {
+    if (ok(out[n])) next[i].sentiment = out[n];
+  });
+  return next;
 }

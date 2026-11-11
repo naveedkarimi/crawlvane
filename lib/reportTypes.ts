@@ -79,6 +79,9 @@ export interface FixPlan {
   actions: { priority: string; category: string; title: string; why: string; how: string; effort: string }[];
 }
 
+export type Sentiment = "positive" | "neutral" | "negative";
+export interface SentimentCounts { positive: number; neutral: number; negative: number }
+
 export interface VisibilityResult {
   brand: string;
   domain: string;
@@ -93,6 +96,8 @@ export interface VisibilityResult {
     competitorsMentioned: string[];
     answerExcerpt: string;
     error?: string;
+    /** How the answer describes the brand, when it's mentioned. Added by visibility tracking. */
+    sentiment?: Sentiment;
   }[];
   summary: {
     engine: string;

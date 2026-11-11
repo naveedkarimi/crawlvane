@@ -1,7 +1,7 @@
 # SEO + AI Search Audit: product guide
 
-**Live at:** https://crawlvane.com (self-hosted on cPanel)
-**Status:** Launch. Every feature is **free**, and paid plans will come later.
+**Live at:** https://crawlvane.com (landing site) and https://app.crawlvane.com (the app), self-hosted
+**Status:** Launch. Accounts, the dashboard and payments are built; paid plans switch on with `PAYWALL_ENABLED=1`. Plans, limits and the growth plan are in [PLANS.md](PLANS.md).
 
 ---
 
@@ -21,45 +21,59 @@ It then tells users exactly what to fix, with copy-paste code and an AI-written 
 
 ## 2. Feature list
 
-### ✅ Live now (all free)
+Who gets each feature is in [PLANS.md](PLANS.md#what-each-level-gets).
 
-| # | Feature | What it does | Planned plan |
-|---|---|---|---|
-| 1 | **Quick page check** | Runs about 50 SEO, AEO and GEO checks on one URL, with scores from 0 to 100 and a fix for every issue | Free forever |
-| 2 | **AI crawler access map** | Reads robots.txt for 19 crawlers (Googlebot, Bingbot, OAI-SearchBot, ChatGPT-User, GPTBot, Claude-SearchBot, Claude-User, ClaudeBot, PerplexityBot, Google-Extended, CCBot…). It separates search bots from training bots | Free forever |
-| 3 | **Core Web Vitals** | Google PageSpeed lab data and real-user metrics (LCP, INP, CLS) | Free forever |
-| 4 | **Social & brand presence** | Shows which social profiles the site links, whether schema `sameAs` lists them, and how shared links look (Open Graph and X card preview) | Free forever |
-| 5 | **Full-site crawl** | Crawls up to 300 pages from links and the sitemap, and groups issues across the site | Pro |
-| 6 | **Site-wide issue detection** | Finds duplicate titles and descriptions, broken and redirecting internal links, orphan pages, pages buried 4+ clicks deep, thin pages, noindexed pages, sitemap errors, slow pages, and pages blocked by bot protection | Pro |
-| 7 | **Competitor comparison** | Audits up to 3 competitors side by side and lists the checks they pass that you fail | Pro |
-| 8 | **Ready-to-paste fixes** | Generates a robots.txt (keeps your rules, unblocks AI search bots), an llms.txt built from crawled pages, Organization + WebSite JSON-LD, a starter sitemap.xml and homepage `<head>` tags | Pro |
-| 9 | **AI fix plan** | Claude turns all findings into a prioritised plan (up to 10 actions), each with why, how and effort | Pro |
-| 10 | **Shareable reports** | Each report gets its own link, kept for 30 days, and downloads as PDF, Markdown or JSON | Pro |
+### On the website (no account needed)
 
-### 🕒 Built, shown as "Coming soon"
+| Feature | What it does |
+|---|---|
+| **Page check** | About 50 SEO, AEO and GEO checks on one URL, with scores from 0 to 100 and how to fix each issue (the first 3 without an account when `SIGNUP_GATE=1`) |
+| **AI crawler access map** | robots.txt read for 19 crawlers, separating search bots from training bots, plus a live test of what each bot actually gets |
+| **What AI sees** | The page as people see it next to the text AI crawlers read |
+| **Core Web Vitals** | Google PageSpeed lab data and real-user metrics |
+| **Social & brand presence** | Linked profiles, schema `sameAs`, and how shared links look |
+| **App Check** | App Store and Google Play listing score for any country |
+| **Free tools** | robots.txt, llms.txt, schema, meta tags, link preview and more, each with its own page |
 
-These are fully coded and tested. Each one switches on with one setting (see section 6).
+### With a free account
 
-| # | Feature | What it does | Needs | Planned plan |
-|---|---|---|---|---|
-| 11 | **AI visibility test** | Asks ChatGPT, Claude, Perplexity and Gemini real buyer questions, either auto-generated or typed in. Records whether you're mentioned or cited, which sources get cited, and your share of voice against competitors | API key for each engine | Pro |
-| 12 | **Deep niche research** | Claude researches the web for the questions your audience asks, the sources AI assistants trust, your content gaps, and a 6–10 piece content plan | Anthropic key | Pro |
-| 13 | **AI social media posts** | Writes ready-to-post LinkedIn, X, Facebook, Instagram and Reddit posts for a page | Anthropic key | Pro |
-| 14 | **Weekly monitoring & email alerts** | Re-audits daily, weekly or monthly and emails you when the score drops or new issues appear. Emails include an unsubscribe link | Cron job + SMTP | Pro |
-| 15 | **JavaScript rendering** | Renders React, Vue and other single-page-app sites in a real browser before auditing | Browserless URL | Pro |
-| 16 | **White-label PDF reports** | Puts an agency name, logo and brand colour on reports | none | Agency |
-| 17 | **Accounts & saved history** | Placeholder for sign-in, report history and billing | Not built yet | Free account |
+| Feature | What it does |
+|---|---|
+| **Dashboard** | Overview of every saved site: score, change since last week, SEO/AEO/GEO bars, an 8-week chart, alerts, fixes by impact and AI crawler access across sites |
+| **New check inside the app** | Page check, full site report and App Check, run without leaving the dashboard |
+| **Full site report** | Crawls up to 300 pages (50 on Free), finds site-wide issues, ready-to-paste fixes, shareable link, PDF, Markdown and JSON |
+| **AI fix plan** | Claude turns the findings into a prioritised plan |
+| **Saved sites and history** | Every check adds a point to the site's score history |
+| **Weekly checks and alerts** | Re-checks a site each week and emails when the score drops or new problems appear |
+| **Tracked apps** | Rating and review changes and competitor updates for App Store and Google Play apps |
+| **Account tools** | Google or email sign-in, change email, download all your data, delete the account |
 
-### 🛠 Not built yet (roadmap)
+### Pro
 
-- Accounts (sign-up and login) and a report history dashboard
-- Stripe payments that switch the Pro and Agency plans on (the code already has a `planAllows()` hook)
-- A database (MySQL on cPanel) to replace the JSON file storage
-- An AI visibility trend chart (re-run the same questions every week)
-- Google Search Console and GA4 connection: real clicks and impressions, plus AI referral traffic
-- Bulk audits (CSV of URLs) and an API for agencies
-- Multi-language checks (hreflang clusters) and a local SEO mode (Google Business Profile, NAP consistency)
-- Done-for-you service: "we implement the fixes", sold as a fixed-price add-on
+| Feature | What it does |
+|---|---|
+| **Competitor comparison** | Audits up to 3 competitors and lists what they do that you don't |
+| **AI visibility tracking** | Asks ChatGPT, Claude, Perplexity and Gemini real buyer questions each week; mention rate per assistant over time, share of voice, and whether answers describe you positively, neutrally or negatively |
+| **Deep niche research** | Web research on what your audience asks, sources AI trusts and content gaps |
+| **AI social posts** | Ready-to-post LinkedIn, X, Facebook, Instagram and Reddit posts |
+| **JavaScript rendering** | Renders single-page apps in a real browser before auditing |
+| **App Check premium** | AI listing rewrites, review analysis and competitor comparison |
+| **API** | Run audits from your own tools with a team API key |
+| **Team** | Invite people as editors or viewers |
+
+### Agency
+
+| Feature | What it does |
+|---|---|
+| **Client sites** | Up to 25 sites, grouped by client name |
+| **Report branding** | Your name, logo and colour on reports, without the Crawlvane header and footer |
+| **Your own report domain** | Report links on reports.youragency.com, checked through DNS |
+| **Monthly client reports** | A full report emailed to the client each month |
+| **Audit widget** | A free audit on your own website that sends you the leads by email or webhook, with a lead list and CSV |
+
+### Not built yet
+
+See [PLANS.md](PLANS.md#ideas-not-built-yet) for the money ideas, and [TODO.md](TODO.md) for the rest: Search Console and GA4 connection, bulk CSV audits in the dashboard, multi-language and local SEO checks.
 
 ---
 
@@ -77,29 +91,13 @@ These are fully coded and tested. Each one switches on with one setting (see sec
 
 ## 4. Pricing plan
 
-**Now:** everything is free, with `PAYWALL_ENABLED=0`. The Pricing page says "Free during launch".
-
-**Later (suggested starting points to test):**
-
-| Plan | Price | Includes |
-|---|---|---|
-| **Free** | $0 | Quick checks, crawler map, Core Web Vitals, social check |
-| **One-off full report** | ~$39 once | Full crawl, competitors, fixes, AI plan, PDF |
-| **Pro** | ~$49/mo | 3 sites, everything in the full report, AI visibility test, research, social posts, monitoring |
-| **Agency** | ~$149/mo | 10+ sites, white-label, JavaScript rendering, team access, priority support |
-| **Done-for-you** | Quote | You implement the fixes |
-
-**Market reference (2026 published prices):** AI visibility trackers start around **$29/mo** (Otterly Lite). Mid tiers run about **$95–$499/mo** (Peec AI, Otterly Standard and Premium, Profound). Classic SEO suites such as Semrush start around **$139/mo**. These tools mostly monitor rather than give fixes, which leaves room for a cheaper, fix-focused product.
-
-Sources: [Ryze AI price comparison](https://www.get-ryze.ai/blog/ai-visibility-tools-pricing-compared-2026) · [UD: what AI visibility tools cost](https://www.ud.hk/en/insight/article/ai-visibility-tool-pricing-2026-09-03) · [Semrush pricing 2026](https://ai-price-tracker.pages.dev/blog/semrush-pricing-guide-2026)
-
-**Running costs:** hosting is your existing cPanel plan. The rest is pay-per-use AI API calls: one Claude call per fix plan, a handful of web searches per research run, and the number of questions × engines for each AI visibility test. AI visibility and deep research cost the most per report, so price them into Pro. Check each provider's dashboard after your first few real runs to set accurate prices.
+Moved to [PLANS.md](PLANS.md): the four levels (no account, Free, Pro, Agency), limits, AI credits, how visitors become customers, billing with trials and yearly prices, suggested prices, settings and the order to switch things on.
 
 ---
 
 ## 5. How it's built
 
-- **Stack:** Next.js 16 (React 19, TypeScript) with Node API routes and Cheerio for HTML parsing. It uses no database, storing reports and monitors as JSON files in `data/`.
+- **Stack:** Next.js 16 (React 19, TypeScript) with Node API routes and Cheerio for HTML parsing. All data is in Supabase (Postgres); there's no local file storage. Payments run through Stripe.
 - **Hosting:** cPanel "Setup Node.js App" (Passenger) runs a standalone build from the startup file `app.js`. Full steps are in `DEPLOY-CPANEL.md`.
 - **Background jobs:** full reports run in the background, and the report page checks for progress every 2 seconds. A cPanel cron job hits `/api/cron` hourly to run monitoring and delete reports older than 30 days.
 - **AI providers:** Anthropic Claude for the fix plan, research, social posts and question generation; OpenAI, Perplexity and Gemini for the visibility test. Model names are settings, so they can be changed without code.
@@ -145,7 +143,7 @@ All switches go in `.env` (or cPanel's environment variables). Restart the app a
 - **Preview hidden features privately:** visit `https://crawlvane.com/?admin=YOUR_ADMIN_KEY`. Everything unlocks for you only, and the feature grid shows what each feature still needs. Leave preview with `?admin=off`.
 - **Make a feature public:** for example `FEATURE_AI_VISIBILITY=1`.
 - **Hide a live feature:** for example `FEATURE_COMPETITORS=0`.
-- **Paywall:** keep `PAYWALL_ENABLED=0` until accounts and Stripe exist.
+- **Paywall and sign-up gate:** see [PLANS.md](PLANS.md#order-to-switch-things-on) for what each does and the order to turn them on.
 
 Suggested launch order:
 

@@ -5,6 +5,7 @@ import { posts } from "@/lib/blog";
 import { BRAND } from "@/lib/brand";
 import { TOOLS } from "@/lib/tools";
 import PageHero from "@/components/PageHero";
+import SiteChrome from "@/components/SiteChrome";
 
 /**
  * Served with a real 404 status, so search engines drop the address instead of treating
@@ -27,7 +28,9 @@ const explore = [
 ];
 
 export default function NotFound() {
+  // Unknown addresses are shown from the root layout, so this page adds the site header itself.
   return (
+    <SiteChrome>
     <main>
       <PageHero kicker="404 error" title={<>We can&apos;t find that page</>}>
         <p className="hero-sub">The link may be out of date, or the address may have a typo. {BRAND.name} checks whether search engines and AI assistants can read your site, and these are the best places to start.</p>
@@ -62,5 +65,6 @@ export default function NotFound() {
         </div>
       </section>
     </main>
+    </SiteChrome>
   );
 }

@@ -1,7 +1,9 @@
 "use client";
 
 import { Fragment, useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 import { api, download, useConfig } from "@/lib/client";
+import { fullReportHref } from "@/lib/appLinks";
 import { reportToMarkdown } from "@/lib/reportMarkdown";
 import type { FixPlan, Report, ResearchResult, VisibilityResult } from "@/lib/reportTypes";
 import type { SocialPosts } from "@/lib/social";
@@ -24,6 +26,7 @@ const host = (u: string) => {
 };
 
 export default function ReportView({ id }: { id: string }) {
+  const pathname = usePathname();
   const [r, setR] = useState<Report | null>(null);
   const [err, setErr] = useState("");
   const [tab, setTab] = useState<Tab>("overview");
@@ -94,7 +97,7 @@ export default function ReportView({ id }: { id: string }) {
       <div className="card progress-card">
         <h2>Report failed</h2>
         <div className="error">{r.error}</div>
-        <a className="btn" href={`/?mode=full&url=${encodeURIComponent(r.input.url)}`}>Try again</a>
+        <a className="btn" href={fullReportHref(pathname, r.input.url)}>Try again</a>
       </div>
     );
   }

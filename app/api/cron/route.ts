@@ -1,5 +1,8 @@
 import { runDueMonitors } from "@/lib/monitor";
 import { runRetention } from "@/lib/retention";
+import { runDueAppMonitors, runDueSiteMonitors } from "@/lib/orgMonitoring";
+import { runDueTrackers } from "@/lib/visibilityTracking";
+import { runDueSchedules } from "@/lib/schedules";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -18,5 +21,10 @@ export async function GET(req: Request) {
   // Monitors only exist if someone could create them (flag on or admin), so just run any that are due.
   const result = await runDueMonitors(5);
   const pruned = await runRetention();
-  return Response.json({ ok: true, ran: result.ran, errors: result.errors, prunedReports: pruned.reports, prunedLeads: pruned.leads });
+  // Dashboard monitoring: saved sites and tracked apps that are due.
+  const sites = await runDueSiteMonitors(5).catch((e) => ({ ran: 0, errors: [String(e)] }));
+  const apps = await runDueAppMonitors(5).catch((e) => ({ ran: 0, errors: [String(e)] }));
+  const visibility = await runDueTrackers(3).catch((e) => ({ ran: 0, errors: [String(e)] }));
+  const schedules = await runDueSchedules(3).catch((e) => ({ started: 0, sent: 0, errors: [String(e)] }));
+  return Response.json({ ok: true, ran: result.ran, errors: result.errors, prunedReports: pruned.reports, prunedLeads: pruned.leads, siteMonitors: sites, appMonitors: apps, visibility, schedules });
 }

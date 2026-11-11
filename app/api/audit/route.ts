@@ -5,6 +5,9 @@ import { clientIp, rateLimit } from "@/lib/rateLimit";
 import { UnsafeUrlError } from "@/lib/safeFetch";
 import { analyzeSocial } from "@/lib/social";
 import { countAudit } from "@/lib/stats";
+import { optionalAccount } from "@/lib/apiAuth";
+import { recordCheckForOrg } from "@/lib/accounts";
+import { SIGNUP_GATE, lockFixes } from "@/lib/tiers";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -36,7 +39,11 @@ export async function POST(req: Request) {
     const social = featureEnabled("social", req) ? analyzeSocial(page.body, page.url) : undefined;
     countAudit().catch(() => {});
     recordSiteCheck({ url: result.url, tool: "page-check", scores: result.scores, checks: result.checks });
-    return Response.json({ ...result, social });
+    const acc = await optionalAccount(req).catch(() => null);
+    if (acc) void recordCheckForOrg(acc.org.id, result.url, result).catch(() => {});
+    // Visitors see every issue and the first few fixes; a free account shows the rest.
+    const checks = SIGNUP_GATE && !acc ? lockFixes(result.checks) : result.checks;
+    return Response.json({ ...result, checks, social });
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Audit failed.";
     return Response.json({ error: msg }, { status: e instanceof UnsafeUrlError ? 400 : 502 });

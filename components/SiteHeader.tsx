@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, ArrowUpRight, ChevronDown } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import Logo from "./Logo";
 import { TOOL_ICONS } from "./toolIcons";
 import { TOOL_GROUPS, TOOLS, toolUrl } from "@/lib/tools";
+import AccountLink from "./AccountLink";
 
 export interface GuideLink { slug: string; title: string; img?: string; alt?: string; tag: string }
 type MenuKey = "tools" | "guides" | null;
@@ -107,9 +108,7 @@ export default function SiteHeader({ guides }: { guides: GuideLink[] }) {
               </div>
             </div>
           </nav>
-          <a className="header-cta" href="/#audit">
-            Free audit <span className="cta-circle"><ArrowUpRight size={16} /></span>
-          </a>
+          <AccountLink />
           <button type="button" className="menu-btn" aria-label={mobile ? "Close menu" : "Open menu"} aria-expanded={mobile} aria-controls="mobile-menu" onClick={() => setMobile(!mobile)}>
             <span className="burger" aria-hidden="true"><span /><span /></span>
           </button>
@@ -151,6 +150,7 @@ export default function SiteHeader({ guides }: { guides: GuideLink[] }) {
         </div>
         <div className="mobile-foot container">
           <a className="btn btn-light btn-block" href="/#audit" onClick={() => setMobile(false)}>Run a free audit <ArrowRight size={16} /></a>
+          <AccountLink variant="mobile" onNavigate={() => setMobile(false)} />
           <div className="mobile-links">
             <a href="/contact">Contact</a>
             <a href="/bulk">Bulk audit</a>

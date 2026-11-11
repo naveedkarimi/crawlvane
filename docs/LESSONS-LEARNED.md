@@ -73,13 +73,19 @@ Add an entry whenever something surprises you, wastes time, or breaks in a way t
 - **LastPass can cause a hydration error.** If the diff shows `data-lastpass-icon-root`, the extension changed the page before React loaded. It's harmless, and it doesn't happen in a private window with extensions off. Email-only fields carry `data-lpignore` to reduce it. (2026-11-08)
 - **Don't vertically centre a hero whose content changes height.** The home hero was centred, so switching between Page check, Full site report and App Check moved the headline up and down. It's now top-aligned with a minimum height for the form area. (2026-11-09)
 - **Keep tab text the same weight when selected.** A bold selected tab changes every tab's width, so the row shifts sideways. Show selection with background or the underline instead. (2026-11-09)
+- **The dashboard and the public site have separate layouts.** Public pages live in `app/(site)/` and get the header and footer from its layout. The dashboard lives in `app/(app)/`. The brackets aren't part of the URL. `app/not-found.tsx` is shown from the root layout, so it wraps itself in `SiteChrome`. Don't hide the header with CSS: it still loads and flashes. (2026-11-10)
+- **A dashboard that won't load after an update usually means the SQL hasn't run.** Missing tables or columns ("Could not find the table 'public.alerts' in the schema cache", "column sites.client_name does not exist") broke the dashboard, while sign-in still worked because the Phase 1 tables existed. The server log now says to run `supabase/schema.sql`. A `head` count request doesn't reliably report a missing table, so test with a real select. (2026-11-10)
 - **Use a real 404, not a redirect.** Sending missing pages to the homepage counts as a soft 404. `app/not-found.tsx` returns status 404 with noindex, no canonical and no schema, and links back into the site. (2026-11-08)
 
 ## Testing here
 
 - **"Another next dev server is already running."** Only one can run per project. To test a build, copy the project somewhere temporary and build there. (2026-11-08)
 - **Don't send test submissions to a running dev server.** They land in your real Supabase tables. Use the fake-API test scripts, or delete the test rows afterwards. (2026-11-08)
+- **Test the dev server at `localhost`, not `127.0.0.1`.** Next.js 16's dev server blocks its browser code for other hosts, so nothing becomes interactive and every "it doesn't work" result is false. Production builds aren't affected. (2026-11-09)
+- **Read the live page state with Chrome's debugging protocol.** Start Chrome with `--remote-debugging-port=9333 '--remote-allow-origins=*'` (quote it in zsh) and evaluate JavaScript over the WebSocket to click, scroll and measure. Screenshots alone can't show interactivity. (2026-11-09)
 - **zsh differs from bash.** A command stored in a variable isn't split into words, and `$PIPESTATUS` is empty. Use functions, and check `$?` on commands without a pipe. (2026-11-08)
+- **Turbopack won't build with a linked `node_modules`.** In a scratch copy, a symlink gives "Could not find the Next.js package (next/package.json)". Copy it instead with `cp -Rc`, which is instant on APFS. (2026-11-10)
+- **Local Postgres in the scratch folder needs `-k ''`.** The scratch path is too long for a Unix socket ("is too long (maximum 103 bytes)"), so start it TCP-only with `pg_ctl -o "-p 54399 -k ''"` and connect to `localhost`. (2026-11-10)
 - **Don't run parallel shell commands that use `cd`.** They can race and run in the wrong folder. (2026-11-08)
 
 ## Design
@@ -90,6 +96,21 @@ Add an entry whenever something surprises you, wastes time, or breaks in a way t
 
 - **Check visual changes with headless Chrome screenshots.** Take before and after shots of the running dev server (`Google Chrome --headless=new --screenshot=... --window-size=1366,2200`). Headless Chrome won't go narrower than about 500 px, so check phone layouts in a real browser. (2026-11-09)
 - **Don't recolour the link preview tool.** Its `.lp-*` styles copy Google, Facebook and WhatsApp on purpose. (2026-11-09)
+
+## Accounts
+
+- **Sign-in links need the redirect URL allowed in Supabase.** Add `/auth/callback` for every domain under Authentication → URL Configuration, or the email link fails. (2026-11-09)
+- **The design file is a bundle, not readable CSS.** `design/Crawlvane Dashboard (standalone).html` packs its code, so read it by screenshot. Its example card shows 54 as "Needs work", but the app's bands are Good from 85, Needs work from 60 and Poor below 60. The dashboard follows the app so it agrees with reports. (2026-11-10)
+- **The dashboard preview must stay honest.** `/dashboard?demo=1` shows example data with a visible banner, and every button that would change something is disabled or asks you to sign in. (2026-11-10)
+- **Retention covers the account tables too.** Team invites are deleted after 14 days (when they expire), alerts after 180 days and Stripe event IDs after 90. Add any new account table with a time limit to `lib/retention.ts` and the privacy page. (2026-11-10)
+- **A sign-in link that lands on the home page with `?code=` means the redirect URL isn't allowed.** Supabase falls back to the Site URL when `/auth/callback` isn't in its allow list. `proxy.ts` now forwards `/?code=` to `/auth/callback` so the user still reaches the dashboard, but add the callback URL in Supabase anyway. (2026-11-10)
+- **The dashboard is the app; the public pages are the landing site.** Page checks, full reports, App Check and report viewing all run inside `/dashboard` (`?tab=check`, `?tab=report&id=`). Shared components take a prop or check the path to stay in the app (`ReportForm` `onStarted`, `lib/appLinks.ts`). Public report links (`/report/[id]`) still work for sharing. (2026-11-10)
+- **The app can live on its own address.** `NEXT_PUBLIC_APP_URL` (e.g. `https://app.crawlvane.com`) moves `/dashboard`, `/login`, `/auth` and `/invite` there; everything else redirects back to the main site. Without `NEXT_PUBLIC_AUTH_COOKIE_DOMAIN=.crawlvane.com` the sign-in cookie stays on the app address, so the landing header shows "Sign in" even when you're signed in. Both are `NEXT_PUBLIC_`, so set them before building. (2026-11-10)
+- **Supabase's `service_role` needs table access for `prune_reports` and `bump_usage`.** They aren't `security definer`, so they run with the caller's rights. Supabase grants that by default; a bare local Postgres doesn't, which shows as "permission denied for table documents". (2026-11-10)
+- **Custom report domains need hosting work too.** The app checks the agency's DNS points at us, but the server must also accept the domain and have an SSL certificate for it, or browsers show a certificate error. (2026-11-10)
+- **Change what each level gets in `lib/tiers.ts` and `lib/entitlements.ts`, nowhere else.** The pricing comparison is generated from them, so the page can't promise something the app doesn't enforce. Visitor gates are server-side (`/api/audit` strips locked fixes, `/api/advice` and `/api/reports` answer 401 with `signup: true`); the browser only adds prompts. (2026-11-10)
+- **Don't give away what the free account sells.** The old email-only weekly monitor on the page check let visitors skip sign-up. With accounts on, `/api/monitors` now asks for a free account; monitors made before keep running. (2026-11-10)
+- **Account data goes through the server, never the browser.** The browser only signs in and out. API routes check the session with `currentUser()`, then read with the secret key, so row level security stays closed. (2026-11-09)
 
 ## Repo
 

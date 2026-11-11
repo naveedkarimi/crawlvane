@@ -1,14 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Sans, Figtree, Geist_Mono } from "next/font/google";
-import SiteFooter from "@/components/SiteFooter";
-import SiteHeader from "@/components/SiteHeader";
-import Motion from "@/components/Motion";
-import { posts } from "@/lib/blog";
-import { postImage } from "@/lib/blog/images";
 import { BRAND } from "@/lib/brand";
 import "./globals.css";
-
-const guides = posts.slice(0, 3).map((p) => ({ slug: p.slug, title: p.title, tag: p.tags[0], img: postImage(p.slug)?.src }));
 
 const sans = DM_Sans({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
 const display = Figtree({ subsets: ["latin"], variable: "--font-display", display: "swap" });
@@ -86,15 +79,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </>
         )}
       </head>
-      <body>
-        <a className="skip-link" href="#main">Skip to content</a>
-        <SiteHeader guides={guides} />
-
-        <div id="main">{children}</div>
-
-        <SiteFooter />
-        <Motion />
-      </body>
+      {/* Public pages get the header and footer from app/(site)/layout.tsx; the dashboard uses app/(app)/layout.tsx. */}
+      <body>{children}</body>
     </html>
   );
 }

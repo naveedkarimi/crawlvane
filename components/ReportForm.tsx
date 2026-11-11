@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { api, type AppConfig } from "@/lib/client";
 import { SoonBadge } from "./ui";
 
-export default function ReportForm({ initialUrl, cfg, on }: { initialUrl: string; cfg: AppConfig | null; on: (k: string) => boolean }) {
+/** onStarted lets the dashboard open the report in place; on the public site it opens /report/[id]. */
+export default function ReportForm({ initialUrl, cfg, on, onStarted }: { initialUrl: string; cfg: AppConfig | null; on: (k: string) => boolean; onStarted?: (id: string) => void }) {
   const router = useRouter();
   const [url, setUrl] = useState(initialUrl);
   const [maxPages, setMaxPages] = useState(cfg?.limits.maxPagesDefault ?? 50);
@@ -58,7 +59,8 @@ export default function ReportForm({ initialUrl, cfg, on }: { initialUrl: string
               whiteLabel: wlName ? { name: wlName, logoUrl: wlLogo } : undefined,
             }),
           });
-          router.push(`/report/${r.id}`);
+          if (onStarted) onStarted(r.id);
+          else router.push(`/report/${r.id}`);
         } catch (e) {
           setError(e instanceof Error ? e.message : "Failed to start report");
           setBusy(false);

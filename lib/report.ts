@@ -10,6 +10,7 @@ import { LIMITS, isPublic } from "./config";
 import { analyzeSocial, writeSocialPosts } from "./social";
 import { newId, readJson, writeJson } from "./store";
 import type { Report, ReportOptions, ReportStage } from "./reportTypes";
+import { recordReportScore } from "./accounts";
 
 const COLLECTION = "reports";
 
@@ -230,6 +231,7 @@ export async function runReport(report: Report): Promise<Report> {
     }
 
     recordSitePages(report.site.pages);
+    recordReportScore(report.id, report.site.scores, home).catch((e) => console.error("Saving the report score failed:", e));
     begin("finish");
     report.status = "done";
     await step("Report ready", 1, 1);

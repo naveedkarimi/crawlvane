@@ -105,11 +105,7 @@ export const FEATURE_PLAN: Record<FeatureKey, "free" | "pro" | "agency"> = {
 };
 export const PAYWALL_ENABLED = /^(1|true)$/i.test(process.env.PAYWALL_ENABLED ?? ""); // off: all free
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function planAllows(_key: FeatureKey, _req: Request): boolean {
-  if (!PAYWALL_ENABLED) return true;
-  return true; // TODO when accounts + Stripe ship: look up the user's plan
-}
+/** Plan checks live in lib/entitlements.ts (planAllowsFor). */
 
 export const LIMITS = {
   maxPagesDefault: Number(process.env.MAX_PAGES_DEFAULT ?? 50),
@@ -120,7 +116,9 @@ export const LIMITS = {
   maxCompetitors: 3,
   maxConcurrentJobs: Number(process.env.MAX_CONCURRENT_JOBS ?? 2),
   reportsPerHour: Number(process.env.REPORTS_PER_HOUR ?? 5),
-  reportTtlDays: Number(process.env.REPORT_TTL_DAYS ?? 30),
+  reportTtlDays: Number(process.env.REPORT_TTL_DAYS || 30),
+  /** Reports run by a team on a paid plan are kept this long. */
+  paidReportTtlDays: Number(process.env.PAID_REPORT_TTL_DAYS || 365),
 };
 
 export const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-5-5";

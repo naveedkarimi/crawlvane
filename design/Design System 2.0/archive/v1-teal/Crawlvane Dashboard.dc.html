@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Figtree:wght@500;600;700;800&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="crawlvane-tokens.css">
+<style>body{margin:0;background:#E4EBEA;color:#0F2F31;font-family:'DM Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}a{color:#156064}a:hover{color:#0F4C50}button{font-family:inherit;cursor:pointer}</style>
+</helmet>
+<div style="padding:64px;display:flex;flex-direction:column;gap:48px;width:max-content">
+<div style="display:flex;flex-direction:column;gap:8px"><img src="logo/crawlvane-lockup.svg" alt="Crawlvane" style="height:36px;align-self:flex-start"><h1 style="margin:16px 0 0;font:700 44px/50px var(--font-head);letter-spacing:-.02em">06 · Dashboard</h1><p style="margin:0;font-size:18px;color:#3D5557">Signed-in overview for a Pro account with three websites. Click a website card to switch the trend and fix list. All data is example data.</p></div>
+
+<section data-screen-label="06 Dashboard" style="display:flex;gap:48px;align-items:flex-start">
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font:600 15px var(--font-head)">Desktop · 1440</span>
+<div data-theme="{{ theme }}" style="width:1440px;background:var(--surface-3);color:var(--text);box-shadow:0 10px 40px rgba(12,59,62,.15);display:grid;grid-template-columns:248px minmax(0,1fr)">
+
+<aside style="background:var(--ink);color:#B7CFCC;padding:24px 16px;display:flex;flex-direction:column;gap:28px">
+<img src="logo/crawlvane-lockup-dark-bg.svg" alt="Crawlvane" style="height:30px;align-self:flex-start;margin-left:8px">
+<nav aria-label="Main" style="display:flex;flex-direction:column;gap:2px">
+<sc-for list="{{ nav }}" as="n" hint-placeholder-count="6"><a href="#" aria-current="{{ n.current }}" style="{{ n.style }}"><span style="{{ n.iconStyle }}">{{ n.icon }}</span><span style="flex:1">{{ n.label }}</span><sc-if value="{{ n.badge }}" hint-placeholder-val="{{ false }}"><span style="min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:var(--gold);color:#0F2F31;font:600 12px/22px var(--font-body);text-align:center">{{ n.badge }}</span></sc-if></a></sc-for>
+</nav>
+<div style="margin-top:auto;border-radius:var(--r);background:var(--ink-2);padding:16px;display:flex;flex-direction:column;gap:10px">
+<strong style="font:700 15px var(--font-head);color:#EAF4F2">Pro plan</strong>
+<div style="height:6px;background:var(--ink-3);border-radius:999px;overflow:hidden"><div style="height:100%;width:100%;background:var(--signal);border-radius:999px"></div></div>
+<span style="font-size:13px">3 of 3 websites used</span>
+<a href="#" style="color:#5FDABA;font:600 14px var(--font-body);min-height:32px;display:flex;align-items:center;text-decoration:none">Manage plan</a>
+</div>
+</aside>
+
+<div style="display:flex;flex-direction:column;min-width:0">
+<header style="height:76px;display:flex;align-items:center;gap:16px;padding:0 32px;background:var(--surface);border-bottom:1px solid var(--line)">
+<div style="display:flex;flex-direction:column;gap:2px;flex:1"><h2 style="margin:0;font:700 24px/30px var(--font-head)">Overview</h2><span style="font-size:13px;color:var(--muted)">3 websites · Weekly checks run on Mondays</span></div>
+<button style="height:44px;padding:0 16px;border:1px solid var(--line-strong);border-radius:var(--r);background:var(--surface);color:var(--text);font:600 14px/1 var(--font-body);display:flex;align-items:center;gap:8px" style-hover="background:var(--surface-3)">{{ i16.refresh }}Re-check all</button>
+<button style="height:44px;padding:0 18px;border:0;border-radius:var(--r);background:var(--cta);color:var(--cta-text);font:600 14px/1 var(--font-body);display:flex;align-items:center;gap:8px" style-hover="background:var(--cta-hover)">{{ i16.plus }}New check</button>
+<button aria-label="Account" style="width:44px;height:44px;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);display:grid;place-items:center;color:var(--text-2)">{{ i20.user }}</button>
+</header>
+
+<div style="padding:28px 32px 40px;display:flex;flex-direction:column;gap:24px">
+<div role="group" aria-label="Websites" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px">
+<sc-for list="{{ sites }}" as="s" hint-placeholder-count="3">
+<button aria-pressed="{{ s.selected }}" onClick="{{ s.select }}" style="{{ s.card }}">
+<span style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font:500 14px var(--font-mono);color:var(--text)">{{ s.domain }}</span><span style="{{ s.pill }}">{{ s.pillIcon }}{{ s.band }}</span></span>
+<span style="display:flex;gap:18px;align-items:center">
+<span style="position:relative;width:80px;height:80px;flex-shrink:0"><svg width="80" height="80" viewBox="0 0 120 120" role="img" aria-label="{{ s.aria }}"><circle cx="60" cy="60" r="50" fill="none" stroke-width="11" style="stroke:var(--line)"></circle><circle cx="60" cy="60" r="50" fill="none" stroke-width="11" stroke-linecap="round" stroke-dasharray="{{ s.dash }}" transform="rotate(-90 60 60)" style="{{ s.ringStroke }}"></circle></svg><span style="position:absolute;inset:0;display:grid;place-items:center;font:800 28px/1 var(--font-head);color:var(--text)">{{ s.score }}</span></span>
+<span style="display:flex;flex-direction:column;gap:6px">
+<span style="{{ s.deltaStyle }}">{{ s.deltaIcon }}{{ s.deltaText }}</span>
+<span style="font-size:13px;color:var(--muted)">{{ s.checked }}</span>
+</span>
+</span>
+<span style="display:flex;flex-direction:column;gap:8px;width:100%">
+<sc-for list="{{ s.bars }}" as="b" hint-placeholder-count="3"><span style="display:grid;grid-template-columns:40px minmax(0,1fr) 26px;gap:10px;align-items:center"><strong style="font:700 13px var(--font-head)">{{ b.name }}</strong><span style="height:6px;background:var(--line);border-radius:999px;overflow:hidden;display:block"><span style="{{ b.fill }}"></span></span><strong style="font:700 13px var(--font-head);text-align:right">{{ b.score }}</strong></span></sc-for>
+</span>
+</button>
+</sc-for>
+</div>
+
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:24px;align-items:start">
+<div style="background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px">
+<div style="display:flex;flex-direction:column;gap:4px"><strong style="font:700 18px/24px var(--font-head)">Score over 8 weeks</strong><span style="font:500 13px var(--font-mono);color:var(--muted)">{{ sel.domain }}</span></div>
+<div style="display:flex;gap:16px;font-size:13px;color:var(--text-2);align-items:center">
+<span style="display:flex;gap:6px;align-items:center"><svg width="22" height="8" aria-hidden="true"><line x1="0" y1="4" x2="22" y2="4" stroke-width="3" style="stroke:var(--cta)"></line></svg>Overall</span>
+<span style="display:flex;gap:6px;align-items:center"><svg width="22" height="8" aria-hidden="true"><line x1="0" y1="4" x2="22" y2="4" stroke-width="2" style="stroke:var(--teal-400)"></line></svg>SEO</span>
+<span style="display:flex;gap:6px;align-items:center"><svg width="22" height="8" aria-hidden="true"><line x1="0" y1="4" x2="22" y2="4" stroke-width="2" stroke-dasharray="6 3" style="stroke:var(--mint-600)"></line></svg>AEO</span>
+<span style="display:flex;gap:6px;align-items:center"><svg width="22" height="8" aria-hidden="true"><line x1="0" y1="4" x2="22" y2="4" stroke-width="2" stroke-dasharray="2 3" style="stroke:var(--n-500)"></line></svg>GEO</span>
+</div>
+</div>
+<svg width="676" height="220" viewBox="0 0 676 220" role="img" aria-label="{{ sel.chartAria }}" style="display:block;overflow:visible">
+<g style="stroke:var(--line)" stroke-width="1"><line x1="36" x2="606" y1="10" y2="10"></line><line x1="36" x2="606" y1="55" y2="55"></line><line x1="36" x2="606" y1="100" y2="100"></line><line x1="36" x2="606" y1="145" y2="145"></line><line x1="36" x2="606" y1="190" y2="190"></line></g>
+<g style="fill:var(--muted);font:400 12px var(--font-mono)" text-anchor="end"><text x="26" y="14">100</text><text x="26" y="59">75</text><text x="26" y="104">50</text><text x="26" y="149">25</text><text x="26" y="194">0</text></g>
+<g style="fill:var(--muted);font:400 12px var(--font-body)" text-anchor="middle"><text x="36" y="214">20 Sep</text><text x="117" y="214">27 Sep</text><text x="199" y="214">4 Oct</text><text x="280" y="214">11 Oct</text><text x="362" y="214">18 Oct</text><text x="443" y="214">25 Oct</text><text x="525" y="214">1 Nov</text><text x="606" y="214">8 Nov</text></g>
+<path d="{{ ch.area }}" style="fill:var(--cta);opacity:.07"></path>
+<g style="{{ ch.catStyle }}" fill="none" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+<path d="{{ ch.seo }}" style="stroke:var(--teal-400)"></path>
+<path d="{{ ch.aeo }}" stroke-dasharray="6 3" style="stroke:var(--mint-600)"></path>
+<path d="{{ ch.geo }}" stroke-dasharray="2 3" style="stroke:var(--n-500)"></path>
+</g>
+<path d="{{ ch.overall }}" fill="none" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" style="stroke:var(--cta)"></path>
+<circle cx="606" cy="{{ ch.lastY }}" r="5" stroke-width="2.5" style="fill:var(--surface);stroke:var(--cta)"></circle>
+<g style="font:600 12px var(--font-body)">
+<text x="616" y="{{ ch.lbl.overall.y }}" style="fill:var(--text)">{{ ch.lbl.overall.t }}</text>
+<text x="616" y="{{ ch.lbl.seo.y }}" style="{{ ch.lblStyle }}">{{ ch.lbl.seo.t }}</text>
+<text x="616" y="{{ ch.lbl.aeo.y }}" style="{{ ch.lblStyle }}">{{ ch.lbl.aeo.t }}</text>
+<text x="616" y="{{ ch.lbl.geo.y }}" style="{{ ch.lblStyle }}">{{ ch.lbl.geo.t }}</text>
+</g>
+</svg>
+</div>
+
+<div style="background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);display:flex;flex-direction:column;overflow:hidden">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:20px 20px 12px"><strong style="font:700 18px/24px var(--font-head)">Alerts</strong><a href="#" style="font:600 14px var(--font-body);min-height:36px;display:flex;align-items:center">See all</a></div>
+<sc-for list="{{ alerts }}" as="a" hint-placeholder-count="4">
+<div style="display:grid;grid-template-columns:20px minmax(0,1fr);gap:12px;padding:14px 20px;border-top:1px solid var(--line)">
+<span style="{{ a.iconStyle }}">{{ a.icon }}</span>
+<span style="display:flex;flex-direction:column;gap:3px"><span style="display:flex;justify-content:space-between;gap:8px"><strong style="font:600 14px/20px var(--font-body)">{{ a.title }}</strong><span style="font-size:12px;line-height:20px;color:var(--muted);white-space:nowrap">{{ a.date }}</span></span><span style="font-size:13px;line-height:19px;color:var(--text-2)">{{ a.body }}</span><span style="font:600 12px var(--font-body);color:var(--muted)">{{ a.kind }}</span></span>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:24px;align-items:start">
+<div style="background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:16px;padding:20px 24px"><div style="display:flex;flex-direction:column;gap:4px"><strong style="font:700 18px/24px var(--font-head)">Fixes to do</strong><span style="font-size:13px;color:var(--muted)">{{ sel.fixSummary }}</span></div><a href="#" style="font:600 14px var(--font-body);min-height:44px;display:flex;align-items:center">Open full report</a></div>
+<sc-for list="{{ sel.fixes }}" as="f" hint-placeholder-count="4">
+<div style="display:grid;grid-template-columns:24px minmax(0,1fr) auto auto;gap:14px;padding:16px 24px;align-items:center;border-top:1px solid var(--line)">
+<span style="{{ f.iconStyle }}">{{ f.icon }}</span>
+<span style="display:flex;flex-direction:column;gap:6px;min-width:0"><strong style="font:600 15px/21px var(--font-body)">{{ f.title }}</strong><span style="display:flex;gap:6px"><span style="font:500 12px/1 var(--font-mono);padding:5px 6px;border-radius:6px;background:var(--surface-3);color:var(--text-2)">{{ f.cat }}</span><span style="font:500 12px/1 var(--font-mono);padding:5px 6px;border-radius:6px;background:var(--surface-3);color:var(--text-2)">{{ f.impact }}</span></span></span>
+<span style="{{ f.pill }}">{{ f.pillIcon }}{{ f.label }}</span>
+<button style="height:40px;min-width:44px;padding:0 14px;border:1px solid var(--line-strong);border-radius:var(--r);background:var(--surface);color:var(--text);font:600 14px/1 var(--font-body);display:flex;align-items:center;gap:6px" style-hover="background:var(--surface-3)">View fix{{ i16.arrow }}</button>
+</div>
+</sc-for>
+</div>
+
+<div style="background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px;display:flex;flex-direction:column;gap:12px">
+<strong style="font:700 18px/24px var(--font-head)">AI crawler access</strong>
+<table style="width:100%;border-collapse:collapse;font-size:13px">
+<thead><tr><th scope="col" style="text-align:left;font:600 12px var(--font-body);color:var(--muted);padding:0 0 8px">Crawler</th><sc-for list="{{ siteHeads }}" as="h" hint-placeholder-count="3"><th scope="col" style="font:500 11px/14px var(--font-mono);color:var(--muted);padding:0 0 8px;text-align:center;width:66px">{{ h }}</th></sc-for></tr></thead>
+<tbody><sc-for list="{{ matrix }}" as="r" hint-placeholder-count="5"><tr style="border-top:1px solid var(--line)"><th scope="row" style="text-align:left;font:500 13px var(--font-mono);padding:10px 0;color:var(--text)">{{ r.name }}</th><sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="3"><td style="text-align:center;padding:10px 0"><span title="{{ c.label }}" aria-label="{{ c.label }}" style="{{ c.style }}">{{ c.icon }}</span></td></sc-for></tr></sc-for></tbody>
+</table>
+<div style="display:flex;gap:14px;font-size:12px;color:var(--text-2);border-top:1px solid var(--line);padding-top:12px"><span style="display:flex;gap:5px;align-items:center"><span style="color:var(--good);display:flex">{{ i16.pass }}</span>Allowed</span><span style="display:flex;gap:5px;align-items:center"><span style="color:var(--bad);display:flex">{{ i16.fail }}</span>Blocked</span><span style="display:flex;gap:5px;align-items:center"><span style="color:var(--text-2);display:flex">{{ i16.minus }}</span>Not set</span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:12px"><span style="font:600 15px var(--font-head)">Mobile · 390</span>
+<div data-theme="{{ theme }}" style="width:390px;height:844px;background:var(--surface-3);color:var(--text);box-shadow:0 10px 40px rgba(12,59,62,.15);border-radius:28px;overflow:hidden;display:flex;flex-direction:column">
+<div style="height:60px;flex-shrink:0;display:flex;align-items:center;gap:6px;padding:0 8px 0 16px;background:var(--surface);border-bottom:1px solid var(--line)">
+<img src="logo/crawlvane-mark.svg" alt="Crawlvane" style="height:28px">
+<button aria-label="Switch website" onClick="{{ cycleSite }}" style="flex:1;min-width:0;height:44px;border:0;background:transparent;color:var(--text);display:flex;align-items:center;justify-content:center;gap:6px;font:500 14px var(--font-mono)">{{ sel.domain }}{{ i16.chevron }}</button>
+<button aria-label="Alerts, 2 new" style="position:relative;width:44px;height:44px;border:0;background:transparent;color:var(--text);display:grid;place-items:center">{{ i20.bell }}<span style="position:absolute;top:9px;right:10px;width:9px;height:9px;border-radius:999px;background:var(--gold);box-shadow:0 0 0 2px var(--surface)"></span></button>
+</div>
+<div style="flex:1;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:14px">
+<div style="background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px;display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;gap:16px;align-items:center">
+<div style="position:relative;width:84px;height:84px;flex-shrink:0"><svg width="84" height="84" viewBox="0 0 120 120" role="img" aria-label="{{ sel.aria }}"><circle cx="60" cy="60" r="50" fill="none" stroke-width="11" style="stroke:var(--line)"></circle><circle cx="60" cy="60" r="50" fill="none" stroke-width="11" stroke-linecap="round" stroke-dasharray="{{ sel.dash }}" transform="rotate(-90 60 60)" style="{{ sel.ringStroke }}"></circle></svg><div style="position:absolute;inset:0;display:grid;place-items:center;font:800 28px/1 var(--font-head)">{{ sel.score }}</div></div>
+<div style="display:flex;flex-direction:column;gap:6px"><span style="{{ sel.pill }}">{{ sel.pillIcon }}{{ sel.band }}</span><span style="{{ sel.deltaStyle }}">{{ sel.deltaIcon }}{{ sel.deltaText }}</span><span style="font-size:12px;color:var(--muted)">{{ sel.checked }}</span></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px"><sc-for list="{{ sel.bars }}" as="b" hint-placeholder-count="3"><div style="display:grid;grid-template-columns:36px minmax(0,1fr) 24px;gap:10px;align-items:center"><strong style="font:700 12px var(--font-head)">{{ b.name }}</strong><div style="height:6px;background:var(--line);border-radius:999px;overflow:hidden"><div style="{{ b.fill }}"></div></div><strong style="font:700 13px var(--font-head);text-align:right">{{ b.score }}</strong></div></sc-for></div>
+<div style="border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:var(--muted)">Overall, last 8 weeks</span><svg width="318" height="64" viewBox="0 0 318 64" aria-hidden="true" style="display:block"><path d="{{ chM.area }}" style="fill:var(--cta);opacity:.08"></path><path d="{{ chM.overall }}" fill="none" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" style="stroke:var(--cta)"></path><circle cx="314" cy="{{ chM.lastY }}" r="4" stroke-width="2" style="fill:var(--surface);stroke:var(--cta)"></circle></svg></div>
+</div>
+<sc-if value="{{ sel.alert }}" hint-placeholder-val="{{ true }}">
+<div role="status" style="{{ sel.alertBox }}"><span style="{{ sel.alertIconStyle }}">{{ sel.alertIcon }}</span><span style="display:flex;flex-direction:column;gap:2px"><strong style="font:600 14px/20px var(--font-body);color:var(--text)">{{ sel.alertTitle }}</strong><span style="font-size:13px;line-height:18px;color:var(--text-2)">{{ sel.alertBody }}</span></span></div>
+</sc-if>
+<div style="background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px 6px 16px"><strong style="font:700 16px/22px var(--font-head)">Fixes to do</strong><a href="#" style="font:600 14px var(--font-body);min-height:44px;padding:0 8px;display:flex;align-items:center">See all</a></div>
+<sc-for list="{{ sel.fixesM }}" as="f" hint-placeholder-count="3"><a href="#" style="display:grid;grid-template-columns:20px minmax(0,1fr) 20px;gap:12px;padding:14px 16px;align-items:start;border-top:1px solid var(--line);text-decoration:none;color:var(--text)"><span style="{{ f.iconStyle }}">{{ f.icon20 }}</span><span style="display:flex;flex-direction:column;gap:6px"><strong style="font:600 15px/21px var(--font-body)">{{ f.title }}</strong><span style="display:flex;gap:6px"><span style="{{ f.pillSm }}">{{ f.pillIconSm }}{{ f.label }}</span><span style="font:500 12px/1 var(--font-mono);padding:6px;border-radius:6px;background:var(--surface-3);color:var(--text-2)">{{ f.cat }}</span></span></span><span style="color:var(--muted);display:flex;padding-top:2px">{{ i20.chevronR }}</span></a></sc-for>
+</div>
+</div>
+<nav aria-label="Main" style="height:72px;flex-shrink:0;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:0 4px 8px">
+<sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5"><a href="#" aria-current="{{ t.current }}" style="{{ t.style }}">{{ t.icon }}<span>{{ t.label }}</span></a></sc-for>
+</nav>
+</div>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;'light'|'dark'&quot;},&quot;selectedSite&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;main&quot;,&quot;shop&quot;,&quot;uk&quot;],&quot;default&quot;:&quot;main&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;showCategoryLines&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { site: null };
+  sty(s){return Object.fromEntries(s.split(';').filter(Boolean).map(p=>{const i=p.indexOf(':');return [p.slice(0,i).trim().replace(/-([a-z])/g,(m,c)=>c.toUpperCase()),p.slice(i+1).trim()];}));}
+  icon(paths,size){const e=React.createElement;return e('svg',{width:size,height:size,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:2,strokeLinecap:'round',strokeLinejoin:'round','aria-hidden':true,style:{flexShrink:0,display:'block'}},paths.map((p,i)=>p[0]==='c'?e('circle',{key:i,cx:p[1],cy:p[2],r:p[3]}):p[0]==='r'?e('rect',{key:i,x:p[1],y:p[2],width:p[3],height:p[4],rx:p[5]}):e('path',{key:i,d:p})));}
+  line(vals,w,top,h,left,right){const step=(w-left-right)/(vals.length-1);const pts=vals.map((v,i)=>[left+i*step,top+(100-v)/100*h]);const d='M'+pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' L');return {d,pts,area:d+` L${pts[pts.length-1][0].toFixed(1)} ${top+h} L${left} ${top+h} Z`};}
+  renderVals(){
+    const I={pass:[['c',12,12,10],'m9 12 2 2 4-4'],warn:['m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3','M12 9v4','M12 17h.01'],fail:[['c',12,12,10],'m15 9-6 6','m9 9 6 6'],info:[['c',12,12,10],'M12 16v-4','M12 8h.01'],minus:[['c',12,12,10],'M8 12h8'],
+      chevron:['m6 9 6 6 6-6'],chevronR:['m9 18 6-6-6-6'],arrow:['M5 12h14','m12 5 7 7-7 7'],plus:['M5 12h14','M12 5v14'],user:[['c',12,8,4],'M20 21a8 8 0 0 0-16 0'],
+      up:['M22 7 13.5 15.5 8.5 10.5 2 17','M16 7h6v6'],down:['M22 17 13.5 8.5 8.5 13.5 2 7','M16 17h6v-6'],flat:['M5 12h14'],
+      refresh:['M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8','M21 3v5h-5','M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16','M8 16H3v5'],
+      dash:[['r',3,3,7,9,1],['r',14,3,7,5,1],['r',14,12,7,9,1],['r',3,16,7,5,1]],globe:[['c',12,12,10],'M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20','M2 12h20'],
+      file:['M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z','M14 2v4a2 2 0 0 0 2 2h4','M16 13H8','M16 17H8'],
+      wrench:['M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z'],
+      bell:['M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9','M10.3 21a1.94 1.94 0 0 0 3.4 0'],
+      gear:['M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z',['c',12,12,3]]};
+    const i12={},i16={},i20={};for(const k in I){i12[k]=this.icon(I[k],12);i16[k]=this.icon(I[k],16);i20[k]=this.icon(I[k],20);}
+    const ST={pass:['var(--good)','var(--good-bg)','var(--good-solid)','Pass'],warn:['var(--warn)','var(--warn-bg)','var(--warn-solid)','Warning'],fail:['var(--bad)','var(--bad-bg)','var(--bad-solid)','Fail'],info:['var(--info)','var(--info-bg)','var(--info-solid)','Info']};
+    const band=n=>n>=90?'pass':n>=50?'warn':'fail';
+    const bandWord={pass:'Good',warn:'Needs work',fail:'Poor'};
+    const pill=(k,sm)=>this.sty(`display:inline-flex;align-items:center;gap:5px;height:${sm?24:26}px;padding:0 ${sm?8:10}px;border-radius:999px;background:${ST[k][1]};color:${ST[k][0]};font:600 12px/1 'DM Sans';white-space:nowrap;align-self:flex-start`);
+    const D=[
+      {id:'main',domain:'yourbusiness.com',short:'yourbusiness .com',pages:12,checked:'Checked 8 Nov',
+        h:{overall:[58,60,61,63,66,68,68,72],seo:[84,85,86,88,89,90,90,91],aeo:[60,62,63,66,70,72,72,74],geo:[30,33,34,35,39,42,42,48]},
+        fixes:[['fail','GPTBot is blocked in robots.txt','GEO','High impact'],['fail','No Organization schema on your homepage','GEO','High impact'],['fail','Service pages have no direct answer in the first paragraph','AEO','High impact'],['warn','Meta descriptions on 4 of 12 pages are too long','SEO','Medium impact']],counts:'3 fail · 6 warnings'},
+      {id:'shop',domain:'shop.yourbusiness.com',short:'shop.',pages:48,checked:'Checked 3 Nov',
+        h:{overall:[60,61,61,62,62,63,61,54],seo:[84,85,85,85,86,86,84,82],aeo:[55,56,56,57,57,58,56,51],geo:[38,38,39,40,40,41,38,29]},
+        fixes:[['fail','Product schema is missing on 24 product pages','GEO','High impact'],['fail','Product pages have no answer to common questions','AEO','High impact'],['warn','38 product images have no alt text','SEO','Medium impact'],['warn','No llms.txt file','GEO','Low impact']],counts:'2 fail · 9 warnings',
+        alert:['fail','Score dropped 7 points','Product schema went missing on 24 pages after 3 Nov.']},
+      {id:'uk',domain:'yourbusiness.co.uk',short:'.co.uk',pages:9,checked:'Checked 8 Nov',
+        h:{overall:[84,85,86,87,88,89,90,91],seo:[92,92,93,93,94,94,95,95],aeo:[82,84,85,86,87,88,89,90],geo:[78,79,80,82,84,86,87,88]},
+        fixes:[['warn','2 pages have duplicate title tags','SEO','Low impact'],['info','OAI-SearchBot is not mentioned in robots.txt','GEO','Low impact']],counts:'0 fail · 1 warning'}];
+    const selId=this.state.site||this.props.selectedSite||'main';
+    const C=2*Math.PI*50;
+    const build=d=>{
+      const score=d.h.overall[7],prev=d.h.overall[6],delta=score-prev,k=band(score);
+      const dk=delta>0?'up':delta<0?'down':'flat';
+      const fx=([fk,title,cat,impact])=>({title,cat,impact,label:ST[fk][3],icon:i20[fk],icon20:i20[fk],pillIcon:i12[fk],pillIconSm:i12[fk],iconStyle:this.sty(`color:${ST[fk][0]};display:flex`),pill:pill(fk),pillSm:pill(fk,1)});
+      const sel=d.id===selId;
+      const a=d.alert;
+      return {...d,score,band:bandWord[k],selected:sel?'true':'false',aria:`Overall score ${score} of 100, ${bandWord[k]}`,
+        dash:`${(score/100*C).toFixed(1)} ${C.toFixed(1)}`,ringStroke:{stroke:ST[k][2]},pill:pill(k),pillIcon:i12[k],
+        deltaText:delta===0?'No change this week':`${delta>0?'+':''}${delta} since last week`,deltaIcon:i16[dk],
+        deltaStyle:this.sty(`display:flex;align-items:center;gap:6px;font:600 13px 'DM Sans';color:${delta>0?'var(--good)':delta<0?'var(--bad)':'var(--text-2)'}`),
+        bars:[['SEO',d.h.seo[7]],['AEO',d.h.aeo[7]],['GEO',d.h.geo[7]]].map(([name,n])=>({name,score:n,fill:this.sty(`display:block;height:100%;width:${n}%;background:${ST[band(n)][2]};border-radius:999px`)})),
+        fixes:d.fixes.map(fx),fixesM:d.fixes.slice(0,3).map(fx),fixSummary:`${d.domain} · ${d.counts} · Sorted by impact`,
+        chartAria:`Overall score for ${d.domain} rose from ${d.h.overall[0]} to ${score} over 8 weeks`,
+        alert:!!a,alertTitle:a?a[1]:'',alertBody:a?a[2]:'',alertIcon:a?i20[a[0]]:null,alertIconStyle:a?this.sty(`display:flex;color:${ST[a[0]][0]};padding-top:1px`):{},
+        alertBox:a?this.sty(`display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;padding:14px;border-radius:var(--r);background:${ST[a[0]][1]}`):{},
+        select:()=>this.setState({site:d.id}),
+        card:this.sty(`text-align:left;font:inherit;color:var(--text);background:var(--surface);border:${sel?'2px solid var(--cta)':'1px solid var(--line)'};padding:${sel?19:20}px;border-radius:var(--r-lg);display:flex;flex-direction:column;gap:16px;${sel?'box-shadow:var(--shadow);':''}`)};
+    };
+    const sites=D.map(build);const sel=sites.find(s=>s.id===selId)||sites[0];
+    const L={overall:this.line(sel.h.overall,676,10,180,36,70),seo:this.line(sel.h.seo,676,10,180,36,70),aeo:this.line(sel.h.aeo,676,10,180,36,70),geo:this.line(sel.h.geo,676,10,180,36,70)};
+    const showCats=this.props.showCategoryLines??true;
+    const keys=showCats?['overall','seo','aeo','geo']:['overall'];
+    const lab=keys.map(k=>({k,y:L[k].pts[7][1]+4,t:`${k==='overall'?'Overall':k.toUpperCase()} ${sel.h[k][7]}`})).sort((a,b)=>a.y-b.y);
+    for(let i=1;i<lab.length;i++) if(lab[i].y-lab[i-1].y<15) lab[i].y=lab[i-1].y+15;
+    const lbl={overall:{y:0,t:''},seo:{y:-99,t:''},aeo:{y:-99,t:''},geo:{y:-99,t:''}};lab.forEach(l=>lbl[l.k]={y:l.y,t:l.t});
+    const ch={overall:L.overall.d,area:L.overall.area,seo:L.seo.d,aeo:L.aeo.d,geo:L.geo.d,lastY:L.overall.pts[7][1],lbl,catStyle:{display:showCats?'inline':'none'},lblStyle:{fill:'var(--text-2)'}};
+    const M=this.line(sel.h.overall,318,6,52,4,4);
+    const chM={overall:M.d,area:M.area,lastY:M.pts[7][1]};
+    const navD=[['dash','Overview',1],['globe','Websites'],['file','Reports'],['wrench','Fixes'],['bell','Alerts',0,'2'],['gear','Settings']];
+    const nav=navD.map(([ic,label,cur,badge])=>({label,icon:i20[ic],badge:badge||'',current:cur?'page':undefined,
+      style:this.sty(`display:flex;align-items:center;gap:12px;min-height:44px;padding:0 12px;border-radius:var(--r);text-decoration:none;font:${cur?600:500} 15px 'DM Sans';color:${cur?'#FFFFFF':'#B7CFCC'};${cur?'background:var(--ink-2);':''}`),
+      iconStyle:this.sty(`display:flex;color:${cur?'var(--signal)':'#9DB8B5'}`)}));
+    const tabs=[['dash','Overview',1],['globe','Websites'],['wrench','Fixes'],['bell','Alerts'],['user','Account']].map(([ic,label,cur])=>({label,icon:i20[ic],current:cur?'page':undefined,
+      style:this.sty(`display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:56px;text-decoration:none;font:${cur?600:500} 11px 'DM Sans';color:${cur?'var(--cta)':'var(--muted)'};${cur?'box-shadow:inset 0 3px 0 var(--cta);':''}`)}));
+    const alerts=[['fail','shop.yourbusiness.com dropped 7 points','Product schema went missing on 24 pages. This often happens after a theme update.','3 Nov','Fail'],
+      ['pass','yourbusiness.com went up 4 points','FAQ markup on /services is now valid.','8 Nov','Pass'],
+      ['warn','yourbusiness.co.uk has 2 duplicate titles','Found on /about and /about-us.','1 Nov','Warning'],
+      ['info','Next weekly check','Monday 10 Nov, 06:00 UTC, for all 3 websites.','Mon','Info']].map(([k,title,body,date,kind])=>({title,body,date,kind,icon:i20[k],iconStyle:this.sty(`display:flex;color:${ST[k][0]};padding-top:1px`)}));
+    const CW={allow:['Allowed','var(--good)','pass'],block:['Blocked','var(--bad)','fail'],none:['Not set','var(--text-2)','minus']};
+    const MX=[['GPTBot',['block','allow','allow']],['ClaudeBot',['allow','allow','allow']],['PerplexityBot',['allow','allow','allow']],['Google-Extended',['allow','none','allow']],['OAI-SearchBot',['none','none','allow']]];
+    const matrix=MX.map(([name,cs])=>({name,cells:cs.map((k,j)=>({label:`${name} on ${D[j].domain}: ${CW[k][0]}`,icon:i20[CW[k][2]],style:this.sty(`display:inline-flex;color:${CW[k][1]}`)}))}));
+    const order=D.map(d=>d.id);
+    return {theme:this.props.theme==='dark'?'dark':'light',i12,i16,i20,sites,sel,ch,chM,nav,tabs,alerts,matrix,siteHeads:D.map(d=>d.short),
+      cycleSite:()=>this.setState({site:order[(order.indexOf(sel.id)+1)%order.length]})};
+  }
+}
+</script>
+</body>
+</html>

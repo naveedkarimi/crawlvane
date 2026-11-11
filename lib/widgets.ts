@@ -1,5 +1,5 @@
 import { assertPublicUrl } from "./safeFetch";
-import { insertRow, listIds, listRowsNewestFirst, newId, readJson, writeJson } from "./store";
+import { db, insertRow, listIds, listJsonWhere, listRowsNewestFirst, newId, readJson, removeJson, writeJson } from "./store";
 import { mailConfigured, sendMail } from "./mail";
 import type { AuditResult } from "./types";
 
@@ -24,6 +24,8 @@ export interface Widget {
   /** Hide "Powered by" (agency plan). */
   whiteLabel: boolean;
   createdAt: string;
+  /** The team that owns it. Widgets made by the admin have none. */
+  orgId?: string;
 }
 
 export interface WidgetLead {
@@ -66,7 +68,7 @@ export async function validateWidget(body: Record<string, unknown>): Promise<Omi
   return { agency, color, notifyEmail, ...urls, ctaText: clip(body.ctaText, 60) ?? "Get help fixing this", whiteLabel: body.whiteLabel === true };
 }
 
-export async function createWidget(w: Omit<Widget, "id" | "createdAt">): Promise<Widget> {
+export async function createWidget(w: Omit<Widget, "id" | "createdAt"> & { orgId?: string }): Promise<Widget> {
   const widget: Widget = { ...w, id: newId(10), createdAt: new Date().toISOString() };
   await writeJson("widgets", widget.id, widget);
   return widget;
@@ -77,6 +79,41 @@ export const getWidget = (id: string) => readJson<Widget>("widgets", id).catch((
 export async function listWidgets(): Promise<Widget[]> {
   const all = await Promise.all((await listIds("widgets")).map((id) => getWidget(id)));
   return all.filter((w): w is Widget => !!w).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+export async function listOrgWidgets(orgId: string): Promise<Widget[]> {
+  return (await listJsonWhere<Widget>("widgets", "orgId", orgId)).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+/** The widget, only if this team owns it. */
+export async function getOrgWidget(orgId: string, id: string): Promise<Widget | null> {
+  const w = await getWidget(id);
+  return w && w.orgId === orgId ? w : null;
+}
+
+export async function updateOrgWidget(orgId: string, id: string, patch: Omit<Widget, "id" | "createdAt">): Promise<Widget | null> {
+  const w = await getOrgWidget(orgId, id);
+  if (!w) return null;
+  const next: Widget = { ...w, ...patch, id: w.id, createdAt: w.createdAt, orgId };
+  await writeJson("widgets", w.id, next);
+  return next;
+}
+
+/** Deletes the widget and the leads it collected. */
+export async function deleteOrgWidget(orgId: string, id: string): Promise<boolean> {
+  const w = await getOrgWidget(orgId, id);
+  if (!w) return false;
+  const { error } = await db().from("widget_leads").delete().eq("widget_id", id);
+  if (error) throw new Error(`Database delete failed: ${error.message}`);
+  await removeJson("widgets", id);
+  return true;
+}
+
+/** Leads for one widget, newest first. */
+export async function listLeadsFor(widgetId: string, limit = 1000): Promise<WidgetLead[]> {
+  const { data, error } = await db().from("widget_leads").select("id, widget_id, email, name, url, score, created_at").eq("widget_id", widgetId).order("created_at", { ascending: false }).limit(limit);
+  if (error) throw new Error(`Database read failed: ${error.message}`);
+  return (data as WidgetLeadRow[]).map((r) => ({ id: r.id, widgetId: r.widget_id, email: r.email, name: r.name ?? undefined, url: r.url, score: r.score, createdAt: r.created_at }));
 }
 
 type WidgetLeadRow = { id: string; widget_id: string; email: string; name: string | null; url: string; score: number; created_at: string };
