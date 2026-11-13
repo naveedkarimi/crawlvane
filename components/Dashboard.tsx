@@ -5,7 +5,10 @@ import {
   AlertTriangle, ArrowLeft, ArrowRight, Bell, Building2, CheckCircle2, CircleMinus, ExternalLink, FileText, Globe, Info, LayoutGrid, MessageSquareText,
   Plus, RefreshCw, ScanSearch, Settings, Smartphone, Trash2, TrendingDown, TrendingUp, Users, Wrench, XCircle, type LucideIcon,
 } from "lucide-react";
-import { api, useConfig } from "@/lib/client";
+import { takeReferral } from "@/lib/referralClient";
+import GooglePanel from "./GooglePanel";
+import { issuesCsv, type ExportFormat, type ExportIssue } from "@/lib/issueExport";
+import { api, download, useConfig } from "@/lib/client";
 import { BRAND } from "@/lib/brand";
 import { siteLink } from "@/lib/hosts";
 import { browserAuth } from "@/lib/supabaseBrowser";
@@ -92,6 +95,9 @@ function StatusPill({ score }: { score: number }) {
 
 export default function Dashboard() {
   const [demo] = useState(() => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("demo") === "1");
+  // ?claim= comes back from Stripe after buying one report before signing in.
+  const [claimId] = useState(() => (typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("claim") : null));
+  const [notice, setNotice] = useState<{ kind: "good" | "bad"; text: string } | null>(null);
   const [state, setState] = useState<"loading" | "signed-out" | "ready" | "error">("loading");
   const [err, setErr] = useState("");
   const [me, setMe] = useState<Me | null>(null);
@@ -144,6 +150,19 @@ export default function Dashboard() {
     api<Me>("/api/me")
       .then(async (m) => {
         setMe(m);
+        // A referral link opened before signing up: credit the referrer once.
+        const ref = takeReferral();
+        if (ref) void api("/api/me/referrals", { method: "POST", body: JSON.stringify({ code: ref }) }).catch(() => {});
+        if (claimId) {
+          try {
+            const r = await api<{ url: string }>("/api/billing/claim", { method: "POST", body: JSON.stringify({ session: claimId }) });
+            // Start the report the visitor paid for.
+            window.location.replace(`/dashboard?tab=check&mode=full${r.url ? `&url=${encodeURIComponent(r.url)}` : ""}`);
+            return;
+          } catch (e) {
+            setNotice({ kind: "bad", text: e instanceof Error ? e.message : "We couldn't add your report." });
+          }
+        }
         await loadData();
         setState("ready");
       })
@@ -154,17 +173,26 @@ export default function Dashboard() {
           setState("error");
         }
       });
-  }, [demo, loadData]);
+  }, [demo, loadData, claimId]);
 
   if (state === "loading") return <DashboardSkeleton />;
   if (state === "signed-out")
     return (
       <Gate>
         <div className="app-gate card">
-          <h1>Sign in to see your dashboard</h1>
-          <p className="muted">Your saved sites, score history, alerts and reports live here.</p>
+          {claimId ? (
+            <>
+              <h1>Your payment went through</h1>
+              <p className="muted">Sign in or create a free account, and your full report is added to it and starts straight away.</p>
+            </>
+          ) : (
+            <>
+              <h1>Sign in to see your dashboard</h1>
+              <p className="muted">Your saved sites, score history, alerts and reports live here.</p>
+            </>
+          )}
           <div className="site-actions">
-            <a className="btn btn-primary" href="/login?next=/dashboard">Sign in <ArrowRight size={16} aria-hidden="true" /></a>
+            <a className="btn btn-primary" href={`/login?next=${encodeURIComponent(`/dashboard${claimId ? `?claim=${claimId}` : ""}`)}`}>{claimId ? "Sign in to get your report" : "Sign in"} <ArrowRight size={16} aria-hidden="true" /></a>
             <a className="btn" href="/dashboard?demo=1">See a preview</a>
           </div>
         </div>
@@ -292,6 +320,7 @@ export default function Dashboard() {
 
       <main id="main" className="app-main">
         {demo && <p className="demo-banner">Preview with example data. <a href="/login">Sign in</a> to see your own sites.</p>}
+        {notice && <p className={`lead-done ${notice.kind === "bad" ? "notice-bad" : ""}`} role={notice.kind === "bad" ? "alert" : "status"}>{notice.text}</p>}
         {billing === "success" && <p className="lead-done" role="status">Thank you! Your payment went through. Your plan and credits update within a minute.</p>}
         <header className="app-head">
           <div>
@@ -331,7 +360,7 @@ export default function Dashboard() {
             </>
           )
         )}
-        {section === "websites" && (demo ? signInOnly("Managing websites") : <Websites sites={sites} monitors={monitors} canEdit={canEdit} email={me.email} reload={loadData} />)}
+        {section === "websites" && (demo ? signInOnly("Managing websites") : <><Websites sites={sites} monitors={monitors} canEdit={canEdit} email={me.email} reload={loadData} />{sites.length > 0 && <GooglePanel sites={sites} isOwner={me.role === "owner"} canEdit={canEdit} />}</>)}
         {section === "apps" && (demo ? signInOnly("App tracking") : <AppsPanel canEdit={canEdit} />)}
         {section === "visibility" && (demo ? signInOnly("AI visibility tracking") : <VisibilityPanel canEdit={canEdit} />)}
         {section === "check" && <Suspense fallback={null}><CheckPanel key={navKey} mode={to.mode ?? "page"} url={to.url ?? ""} onReport={(id) => goTo({ tab: "report", id })} /></Suspense>}
@@ -342,7 +371,7 @@ export default function Dashboard() {
           </div>
         ) : <Reports reports={reports} />)}
         {section === "reports" && <Reports reports={reports} />}
-        {section === "fixes" && <AllFixes sites={sites} />}
+        {section === "fixes" && <AllFixes sites={sites} demo={demo} />}
         {section === "alerts" && <AlertList alerts={alerts} />}
         {section === "team" && (demo ? signInOnly("Your team") : <Team />)}
         {section === "agency" && (demo ? signInOnly("Agency tools") : <section className="dash-section" aria-label="Agency"><BrandingCard /><WidgetsCard /></section>)}
@@ -497,7 +526,7 @@ function AlertsCard({ alerts, monitors, onAll }: { alerts: AlertRow[]; monitors:
   );
 }
 
-function FixRow({ i, url }: { i: IssueRef; url: string }) {
+function FixRow({ i, url, assign }: { i: IssueRef; url: string; assign?: React.ReactNode }) {
   const Icon = i.status === "fail" ? XCircle : AlertTriangle;
   return (
     <li className={`fix-row ${i.status}`}>
@@ -506,6 +535,7 @@ function FixRow({ i, url }: { i: IssueRef; url: string }) {
         <strong>{i.title}</strong>
         <div className="fix-tags"><span className="mono">{i.category.toUpperCase()}</span><span className="mono">{impact(i.weight)}</span></div>
       </div>
+      {assign}
       <span className={`dash-pill ${i.status === "fail" ? "bad" : "ok"}`}>{i.status === "fail" ? <XCircle size={13} aria-hidden="true" /> : <AlertTriangle size={13} aria-hidden="true" />} {i.status === "fail" ? "Fail" : "Warning"}</span>
       <AppLink className="btn btn-sm" to={{ tab: "check", mode: "page", url }}>View fix <ArrowRight size={14} aria-hidden="true" /></AppLink>
     </li>
@@ -567,12 +597,104 @@ function CrawlerTable({ sites }: { sites: SiteSummary[] }) {
   );
 }
 
-function AllFixes({ sites }: { sites: SiteSummary[] }) {
+type TeamPerson = { userId: string; email: string };
+type FixState = { assignee: string; status: "open" | "doing" | "done"; note: string };
+const NO_STATE: FixState = { assignee: "", status: "open", note: "" };
+const FIX_STATUS_LABEL = { open: "Open", doing: "In progress", done: "Done" } as const;
+
+/** Every issue across saved sites, with who's fixing it, its status and a note, and an export for Jira, Linear or a spreadsheet. */
+function AllFixes({ sites, demo }: { sites: SiteSummary[]; demo: boolean }) {
   const rows = sites.flatMap((s) => s.issues.map((i) => ({ s, i }))).sort((a, b) => (a.i.status === b.i.status ? b.i.weight - a.i.weight : a.i.status === "fail" ? -1 : 1));
+  const [people, setPeople] = useState<TeamPerson[]>([]);
+  const [state, setState] = useState<Record<string, FixState>>({});
+  const [canEdit, setCanEdit] = useState(false);
+  const [noteOpen, setNoteOpen] = useState("");
+  const [err, setErr] = useState("");
+  useEffect(() => {
+    if (demo) return;
+    api<{ assignments: { siteId: string; checkId: string; assignee: string | null; status?: FixState["status"]; note?: string | null }[]; members: TeamPerson[]; canEdit: boolean }>("/api/me/assignments")
+      .then((r) => {
+        setPeople(r.members);
+        setCanEdit(r.canEdit);
+        setState(Object.fromEntries(r.assignments.map((x) => [`${x.siteId}:${x.checkId}`, { assignee: x.assignee ?? "", status: x.status ?? "open", note: x.note ?? "" }])));
+      })
+      .catch(() => {});
+  }, [demo]);
+  const change = async (siteId: string, checkId: string, patch: Partial<FixState>) => {
+    const key = `${siteId}:${checkId}`;
+    const before = state[key] ?? NO_STATE;
+    setState((o) => ({ ...o, [key]: { ...before, ...patch } }));
+    setErr("");
+    try {
+      await api("/api/me/assignments", { method: "POST", body: JSON.stringify({ siteId, checkId, ...patch, ...("assignee" in patch ? { assignee: patch.assignee || null } : {}) }) });
+    } catch (e) {
+      setState((o) => ({ ...o, [key]: before }));
+      setErr(e instanceof Error ? e.message : "Couldn't save that.");
+    }
+  };
+  const emailOf = (id?: string) => people.find((p) => p.userId === id)?.email;
+  const exportAs = (format: ExportFormat) => {
+    const list: ExportIssue[] = rows.map(({ s, i }) => {
+      const st = state[`${s.id}:${i.id}`] ?? NO_STATE;
+      return { site: s.domain, url: s.url, title: i.title, status: i.status, category: i.category, weight: i.weight, detail: st.note ? `${i.detail} Note: ${st.note}` : i.detail, assignee: emailOf(st.assignee) };
+    });
+    download(`fixes-${format}-${new Date().toISOString().slice(0, 10)}.csv`, issuesCsv(list, format), "text/csv");
+  };
   if (!rows.length) return <div className="card dash-empty"><h3>Nothing to fix yet</h3><p className="muted">Problems found by your checks appear here, most important first.</p></div>;
+  const done = rows.filter(({ s, i }) => state[`${s.id}:${i.id}`]?.status === "done").length;
   return (
     <section className="card dash-card" aria-label="All fixes">
-      <ul className="fix-list">{rows.map(({ s, i }) => <Fragment key={s.id + i.id}><li className="mono muted small fix-site">{s.domain}</li><FixRow i={i} url={s.url} /></Fragment>)}</ul>
+      <div className="card-head fixes-head">
+        <p className="muted small">{rows.length} issue{rows.length === 1 ? "" : "s"} across {sites.length} site{sites.length === 1 ? "" : "s"}, most important first{done ? ` · ${done} marked done` : ""}.{people.length < 2 && !demo ? " Invite your team to assign fixes to people." : ""}</p>
+        <div className="fixes-export" role="group" aria-label="Export fixes">
+          <span className="muted small">Export for</span>
+          <button type="button" className="btn btn-sm" onClick={() => exportAs("jira")}>Jira</button>
+          <button type="button" className="btn btn-sm" onClick={() => exportAs("linear")}>Linear</button>
+          <button type="button" className="btn btn-sm" onClick={() => exportAs("csv")}>CSV</button>
+        </div>
+      </div>
+      {err && <p className="c-fail small" role="alert">{err}</p>}
+      <ul className="fix-list">
+        {rows.map(({ s, i }) => {
+          const key = `${s.id}:${i.id}`;
+          const st = state[key] ?? NO_STATE;
+          return (
+            <Fragment key={key}>
+              <li className="mono muted small fix-site">{s.domain}</li>
+              <FixRow i={i} url={s.url} assign={demo ? undefined : (
+                <div className="fix-controls">
+                  <label className="fix-assign">
+                    <span className="sr-only">Status of {i.title}</span>
+                    <select className={`field fix-status s-${st.status}`} disabled={!canEdit} value={st.status} onChange={(e) => change(s.id, i.id, { status: e.target.value as FixState["status"] })}>
+                      {(["open", "doing", "done"] as const).map((k) => <option key={k} value={k}>{FIX_STATUS_LABEL[k]}</option>)}
+                    </select>
+                  </label>
+                  {people.length > 1 && (
+                    <label className="fix-assign">
+                      <span className="sr-only">Who&apos;s fixing {i.title}</span>
+                      <select className="field" disabled={!canEdit} value={st.assignee} onChange={(e) => change(s.id, i.id, { assignee: e.target.value })}>
+                        <option value="">Unassigned</option>
+                        {people.map((p) => <option key={p.userId} value={p.userId}>{p.email}</option>)}
+                      </select>
+                    </label>
+                  )}
+                  {canEdit && <button type="button" className="link small" onClick={() => setNoteOpen(noteOpen === key ? "" : key)}>{st.note ? "Edit note" : "Add note"}</button>}
+                </div>
+              )} />
+              {st.note && noteOpen !== key && <li className="fix-note small muted">Note: {st.note}</li>}
+              {noteOpen === key && (
+                <li className="fix-note">
+                  <form className="team-invite-row" onSubmit={(e) => { e.preventDefault(); const v = (new FormData(e.currentTarget).get("note") as string) ?? ""; void change(s.id, i.id, { note: v }); setNoteOpen(""); }}>
+                    <label className="sr-only" htmlFor={`note-${key}`}>Note for {i.title}</label>
+                    <input id={`note-${key}`} name="note" className="field" maxLength={500} defaultValue={st.note} placeholder="What's happening with this fix?" autoFocus />
+                    <button className="btn btn-sm">Save</button>
+                  </form>
+                </li>
+              )}
+            </Fragment>
+          );
+        })}
+      </ul>
     </section>
   );
 }
@@ -754,6 +876,93 @@ function Team() {
   );
 }
 
+/** Send dashboard alerts to a Slack channel through an incoming webhook. */
+function SlackCard() {
+  const [connected, setConnected] = useState<boolean | null>(null);
+  const [url, setUrl] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  useEffect(() => { api<{ connected: boolean }>("/api/me/slack").then((r) => setConnected(r.connected)).catch(() => setConnected(false)); }, []);
+  const save = async (value: string) => {
+    setBusy(true);
+    setMsg(null);
+    try {
+      const r = await api<{ connected: boolean }>("/api/me/slack", { method: "PUT", body: JSON.stringify({ url: value }) });
+      setConnected(r.connected);
+      setUrl("");
+      setMsg({ ok: true, text: r.connected ? "Connected. We sent a test message to the channel." : "Slack is disconnected." });
+    } catch (e) {
+      setMsg({ ok: false, text: e instanceof Error ? e.message : "That didn't work." });
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="card dash-card">
+      <h3>Slack alerts</h3>
+      <p className="muted small">Post every alert (score drops, new failing checks, app and AI visibility changes) to a Slack channel as well as by email. In Slack, add the Incoming Webhooks app to a channel and paste its webhook URL here.</p>
+      {connected ? (
+        <div className="site-actions">
+          <span className="dash-pill good">Connected</span>
+          <button type="button" className="btn btn-sm" disabled={busy} onClick={() => save("")}>{busy ? "Working…" : "Disconnect"}</button>
+        </div>
+      ) : (
+        <form className="team-invite-row" onSubmit={(e) => { e.preventDefault(); void save(url); }}>
+          <label className="sr-only" htmlFor="slack-url">Slack webhook URL</label>
+          <input id="slack-url" className="field" inputMode="url" placeholder="https://hooks.slack.com/services/…" value={url} onChange={(e) => setUrl(e.target.value)} required />
+          <button className="btn" disabled={busy || connected === null}>{busy ? "Testing…" : "Connect"}</button>
+        </form>
+      )}
+      {msg && <p className={`small ${msg.ok ? "c-pass" : "c-fail"}`} role={msg.ok ? "status" : "alert"}>{msg.text}</p>}
+    </div>
+  );
+}
+
+/** A team webhook: alerts and finished reports POSTed as signed JSON (for Zapier, Make or your own code). */
+function WebhookCard() {
+  const [hook, setHook] = useState<{ url: string } | null | undefined>(undefined);
+  const [url, setUrl] = useState("");
+  const [secret, setSecret] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  useEffect(() => { api<{ webhook: { url: string } | null }>("/api/me/webhook").then((r) => setHook(r.webhook)).catch(() => setHook(null)); }, []);
+  const save = async (value: string) => {
+    setBusy(true);
+    setMsg(null);
+    try {
+      const r = await api<{ secret: string | null }>("/api/me/webhook", { method: "PUT", body: JSON.stringify({ url: value }) });
+      setHook(value ? { url: value } : null);
+      setSecret(r.secret ?? "");
+      setUrl("");
+      setMsg({ ok: true, text: value ? "Connected. We sent a test request." : "Webhook removed." });
+    } catch (e) {
+      setMsg({ ok: false, text: e instanceof Error ? e.message : "That didn't work." });
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="card dash-card">
+      <h3>Webhook</h3>
+      <p className="muted small">Send every alert and each finished full report to your own address as JSON, for Zapier, Make or your own code. Each request carries an <code>x-webhook-signature</code> header (HMAC-SHA256 of the body with your secret).</p>
+      {hook ? (
+        <div className="site-actions">
+          <span className="mono small">{hook.url}</span>
+          <button type="button" className="btn btn-sm" disabled={busy} onClick={() => save("")}>{busy ? "Working…" : "Remove"}</button>
+        </div>
+      ) : (
+        <form className="team-invite-row" onSubmit={(e) => { e.preventDefault(); void save(url); }}>
+          <label className="sr-only" htmlFor="webhook-url">Webhook URL</label>
+          <input id="webhook-url" className="field" inputMode="url" placeholder="https://hooks.zapier.com/…" value={url} onChange={(e) => setUrl(e.target.value)} required />
+          <button className="btn" disabled={busy || hook === undefined}>{busy ? "Testing…" : "Connect"}</button>
+        </form>
+      )}
+      {secret && <p className="small">Your signing secret (shown once; copy it now): <code className="mono">{secret}</code></p>}
+      {msg && <p className={`small ${msg.ok ? "c-pass" : "c-fail"}`} role={msg.ok ? "status" : "alert"}>{msg.text}</p>}
+    </div>
+  );
+}
+
 function SettingsPanel({ me, reload }: { me: Me; reload: () => void }) {
   const [name, setName] = useState(me.org.name);
   const [busy, setBusy] = useState(false);
@@ -795,6 +1004,8 @@ function SettingsPanel({ me, reload }: { me: Me; reload: () => void }) {
         {err && <p className="c-fail small" role="alert">{err}</p>}
       </div>
       <ChangeEmailCard email={me.email} />
+      {me.role === "owner" && <SlackCard />}
+      {me.role === "owner" && <WebhookCard />}
       <ApiKeysCard />
       <ExportCard />
     </section>

@@ -16,7 +16,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   return (
     <main>
       <PageHero kicker="Account" title={`Sign in to ${BRAND.name}`}>
-        <p className="hero-sub">Save your sites, see how scores change over time and keep every report in one place. We&apos;ll email you a link: no password needed.</p>
+        <p className="hero-sub">Save your sites, see how scores change over time and keep every report in one place. No password needed.</p>
         <LoginForm />
       </PageHero>
     </main>

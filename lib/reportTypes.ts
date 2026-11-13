@@ -17,6 +17,10 @@ export interface PageSummary {
   fails: string[];
   warns: string[];
   inlinks: number;
+  /** Internal links on this page (added 2026-11-12; older reports don't have it). */
+  outlinks?: number;
+  /** Fingerprint of the main text, to group exact duplicates. */
+  textKey?: string;
   error?: string;
 }
 
@@ -40,6 +44,10 @@ export interface SiteAudit {
   scores: { overall: number; seo: number; aeo: number; geo: number };
   issues: IssueGroup[];
   pages: PageSummary[];
+  /** Crawl coverage, page groups, likely soft 404s, URL variants and links to the wrong pages. Not scored. */
+  diagnostics?: import("./siteDiagnostics").SiteDiagnostics;
+  /** Pages with few internal links, and related pages that could link to them. */
+  linkSuggestions?: import("./linkSuggest").LinkSuggestion[];
 }
 
 export interface CompetitorResult {

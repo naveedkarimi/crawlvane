@@ -1,5 +1,8 @@
 "use client";
 
+import { citedSources, promptGaps } from "@/lib/promptGaps";
+import type { GapBrief } from "@/lib/ai/helpers";
+
 import { useCallback, useEffect, useState } from "react";
 import { Plus, RefreshCw, Trash2 } from "lucide-react";
 import { api } from "@/lib/client";
@@ -121,13 +124,37 @@ export default function VisibilityPanel({ canEdit }: { canEdit: boolean }) {
                   })()}
                 </div>
               )}
+              {last?.rows && last.rows.length > 0 && <PromptGaps trackerId={t.id} rows={last.rows} canEdit={canEdit} />}
+              {last?.rows && citedSources(last.rows, t.domain).length > 0 && (
+                <div>
+                  <h4 className="vis-h">Sources AI cites (latest run)</h4>
+                  <p className="muted small">Other sites the assistants linked to in their answers. Being mentioned on these, or publishing something they'd cite, helps you appear.</p>
+                  <ul className="cited-list">{citedSources(last.rows, t.domain).map((c) => <li key={c.domain}><strong>{c.domain}</strong> <span className="muted small">· cited {c.times} time{c.times === 1 ? "" : "s"}, for {c.prompts.length} question{c.prompts.length === 1 ? "" : "s"}</span></li>)}</ul>
+                </div>
+              )}
               {last?.rows && last.rows.length > 0 && (
                 <details>
                   <summary>Latest answers ({last.rows.length})</summary>
                   <div className="table-wrap">
                     <table>
                       <thead><tr><th>Question</th><th>Assistant</th><th>Mentioned</th><th>Answer</th></tr></thead>
-                      <tbody>{last.rows.map((r, i) => <tr key={i}><td>{r.prompt}</td><td>{r.engine}</td><td>{r.error ? "Error" : r.mentioned ? (r.sentiment ? `Yes, ${r.sentiment}` : "Yes") : "No"}</td><td className="small">{r.answerExcerpt.slice(0, 220)}</td></tr>)}</tbody>
+                      <tbody>{last.rows.map((r, i) => {
+                        const corrected = (r as { corrected?: boolean }).corrected;
+                        return (
+                          <tr key={i}>
+                            <td>{r.prompt}</td><td>{r.engine}</td>
+                            <td>
+                              {r.error ? "Error" : r.mentioned ? (r.sentiment ? `Yes, ${r.sentiment}` : "Yes") : corrected ? "No (marked not us)" : "No"}
+                              {canEdit && !r.error && (r.mentioned || corrected) && (
+                                <button type="button" className="link small vis-correct" onClick={async () => { await api(`/api/me/visibility/${t.id}/correct`, { method: "POST", body: JSON.stringify({ prompt: r.prompt, engine: r.engine, notUs: r.mentioned }) }).catch(() => {}); void load(); }}>
+                                  {r.mentioned ? "Not us" : "Undo"}
+                                </button>
+                              )}
+                            </td>
+                            <td className="small">{r.answerExcerpt.slice(0, 220)}</td>
+                          </tr>
+                        );
+                      })}</tbody>
                     </table>
                   </div>
                 </details>
@@ -149,6 +176,57 @@ function SentimentBar({ c }: { c: SentimentCounts }) {
         {parts.map(([k, , n]) => (n ? <i key={k} className={`sent-${k}`} style={{ width: `${(n / total) * 100}%` }} /> : null))}
       </div>
       <ul className="sent-legend">{parts.map(([k, l, n]) => <li key={k} className={`sent-${k}`}>{l}: {n}</li>)}</ul>
+    </div>
+  );
+}
+
+/** Questions where AI answers name competitors but not you, each with an AI content brief on request. */
+function PromptGaps({ trackerId, rows, canEdit }: { trackerId: string; rows: Parameters<typeof promptGaps>[0]; canEdit: boolean }) {
+  const gaps = promptGaps(rows);
+  const [briefs, setBriefs] = useState<Record<string, GapBrief>>({});
+  const [busy, setBusy] = useState("");
+  const [err, setErr] = useState("");
+  if (!gaps.length) return null;
+  const write = async (prompt: string) => {
+    setBusy(prompt);
+    setErr("");
+    try {
+      const b = await api<GapBrief>(`/api/me/visibility/${trackerId}/brief`, { method: "POST", body: JSON.stringify({ prompt }) });
+      setBriefs((x) => ({ ...x, [prompt]: b }));
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "That didn't work.");
+    } finally {
+      setBusy("");
+    }
+  };
+  return (
+    <div>
+      <h4 className="vis-h">Prompt gaps (latest run)</h4>
+      <p className="muted small">Questions where AI assistants named a competitor but never you. Each one is a page you could write.</p>
+      <ul className="gap-list">
+        {gaps.map((g) => (
+          <li key={g.prompt}>
+            <div className="gap-head">
+              <div>
+                <strong>{g.prompt}</strong>
+                <p className="muted small">Names {g.competitors.join(", ")} · in {g.engines.join(", ")}</p>
+              </div>
+              {canEdit && !briefs[g.prompt] && <button type="button" className="btn btn-sm" disabled={!!busy} onClick={() => write(g.prompt)}>{busy === g.prompt ? "Writing…" : "Write a brief"}</button>}
+            </div>
+            {briefs[g.prompt] && (
+              <div className="gap-brief">
+                <p><strong>{briefs[g.prompt].title}</strong></p>
+                <p className="small">{briefs[g.prompt].angle}</p>
+                <p className="small"><strong>Must cover:</strong></p>
+                <ul className="small">{briefs[g.prompt].mustCover.map((m) => <li key={m}>{m}</li>)}</ul>
+                {briefs[g.prompt].sources.length > 0 && <p className="small"><strong>Evidence to include:</strong> {briefs[g.prompt].sources.join("; ")}</p>}
+                {briefs[g.prompt].schema && <p className="small"><strong>Schema:</strong> {briefs[g.prompt].schema}</p>}
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+      {err && <p className="c-fail small" role="alert">{err}</p>}
     </div>
   );
 }

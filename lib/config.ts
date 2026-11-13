@@ -26,7 +26,9 @@ export type FeatureKey =
   | "social"
   | "socialPosts"
   | "appCheck"
-  | "appPremium";
+  | "appPremium"
+  | "aiHelpers"
+  | "aiTools";
 
 export interface FeatureInfo {
   key: FeatureKey;
@@ -55,6 +57,8 @@ export const FEATURES: FeatureInfo[] = [
   { key: "whiteLabel", name: "White-label PDF reports", description: "Put your agency name and logo on client reports.", tier: "advanced", env: "FEATURE_WHITE_LABEL" },
   { key: "socialPosts", name: "AI social post writer", description: "Ready-to-post LinkedIn, X, Facebook, Instagram and Reddit posts for any page.", tier: "advanced", env: "FEATURE_SOCIAL_POSTS", requires: ["ANTHROPIC_API_KEY"] },
   { key: "appPremium", name: "App Check premium", description: "AI listing rewrites, review analysis and competitor comparison for apps.", tier: "advanced", env: "FEATURE_APP_PREMIUM", requires: ["ANTHROPIC_API_KEY"] },
+  { key: "aiHelpers", name: "AI page helpers", description: "Topic coverage, answer rewrites, an FAQ builder and meta tag ideas for the page you checked.", tier: "live", env: "FEATURE_AI_HELPERS", requires: ["ANTHROPIC_API_KEY"] },
+  { key: "aiTools", name: "AI free tools", description: "\"How does AI describe my business?\" and the meta title and description writer.", tier: "live", env: "FEATURE_AI_TOOLS", requires: ["ANTHROPIC_API_KEY"] },
   { key: "accounts", name: "Accounts & saved reports", description: "Sign in, keep report history, and manage your plan.", tier: "advanced", env: "FEATURE_ACCOUNTS" },
 ];
 
@@ -102,6 +106,8 @@ export const FEATURE_PLAN: Record<FeatureKey, "free" | "pro" | "agency"> = {
   accounts: "free",
   social: "free",
   socialPosts: "pro",
+  aiHelpers: "free",
+  aiTools: "free",
 };
 export const PAYWALL_ENABLED = /^(1|true)$/i.test(process.env.PAYWALL_ENABLED ?? ""); // off: all free
 

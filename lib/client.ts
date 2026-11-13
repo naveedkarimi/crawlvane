@@ -66,6 +66,8 @@ export interface AppConfig {
   signupGate: boolean;
   fixPreview: number;
   account: { plan: string; role: string } | null;
+  /** Price label for one full report bought before signing in, or null when it isn't on sale. */
+  guestReport?: string | null;
   features: FeatureState[];
   engines: string[];
   aiConfigured: boolean;

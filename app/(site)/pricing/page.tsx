@@ -53,7 +53,7 @@ export default function PricingPage() {
               <article key={p.name} className={`plan ${p.featured ? "plan-featured" : ""}`}>
                 <div className="plan-head">
                   <h2>{p.name}</h2>
-                  {p.status === "live" && <span className="badge badge-live">Available now</span>}
+                  {p.status === "live" && !PAID && <span className="badge badge-live">Available now</span>}
                 </div>
                 <p className="plan-price">
                   <strong>{p.price}</strong>
@@ -64,8 +64,8 @@ export default function PricingPage() {
                 <ul>
                   {p.features.map((f) => <li key={f}><Check size={16} /> {f}</li>)}
                 </ul>
-                <a className={`btn ${p.featured ? "btn-primary" : "btn-ghost"} btn-block`} href={p.cta.href}>
-                  {p.cta.label} {p.featured && <ArrowRight size={16} />}
+                <a className={`btn ${p.featured ? "btn-primary" : "btn-ghost"} btn-block plan-cta`} href={p.cta.href}>
+                  {p.cta.label} <span className="cta-circle" aria-hidden="true"><ArrowRight size={14} /></span>
                 </a>
               </article>
             ))}

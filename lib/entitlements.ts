@@ -1,5 +1,6 @@
 import { FEATURE_PLAN, LIMITS, PAYWALL_ENABLED, type FeatureKey } from "./config";
 import { db, insertRow } from "./store";
+import { limitEmail } from "./lifecycle";
 
 /**
  * Plans, limits and AI credits. Change the numbers here and the whole app follows.
@@ -47,11 +48,32 @@ export const CREDIT_COST = {
   visibilityAnswer: 1,
   /** One AI call per tracking run to read how the answers describe the brand. */
   sentiment: 1,
+  /** AI page helpers on the page check. */
+  topicCoverage: 1,
+  answerRewrites: 2,
+  faqBuilder: 1,
+  metaWriter: 1,
+  /** A content brief for one prompt where competitors are mentioned and you aren't. */
+  gapBrief: 1,
 } as const;
 
 const RANK: Record<PlanId, number> = { free: 0, pro: 1, agency: 2 };
 export const planOf = (org?: { plan?: string } | null): PlanId => (org?.plan && org.plan in PLAN_LIMITS ? (org.plan as PlanId) : "free");
-export const limitsFor = (org?: { plan?: string } | null): PlanLimits => (PAYWALL_ENABLED ? PLAN_LIMITS[planOf(org)] : LAUNCH);
+
+/** Agency add-ons: each site pack adds this many saved and monitored sites. */
+export const SITES_PER_PACK = 10;
+export interface OrgPlanInfo { plan?: string; extra_seats?: number | null; extra_site_packs?: number | null }
+
+/** The plan's limits, plus any add-on seats and site packs bought on top. */
+export function limitsFor(org?: OrgPlanInfo | null): PlanLimits {
+  if (!PAYWALL_ENABLED) return LAUNCH;
+  const base = PLAN_LIMITS[planOf(org)];
+  const seats = Math.max(0, Math.floor(Number(org?.extra_seats) || 0));
+  const packs = Math.max(0, Math.floor(Number(org?.extra_site_packs) || 0));
+  if (!seats && !packs) return base;
+  const more = packs * SITES_PER_PACK;
+  return { ...base, seats: base.seats + seats, sites: base.sites + more, monitors: base.monitors + more };
+}
 
 /** Is this feature included in the organisation's plan? Always true while the paywall is off. */
 export function planAllowsFor(org: { plan?: string } | null | undefined, key: FeatureKey): boolean {
@@ -108,7 +130,7 @@ export async function creditsLeft(org: { id: string; plan?: string }): Promise<n
   return Math.max(0, limitsFor(org).aiCreditsPerMonth - (usage.ai_credits ?? 0)) + Math.max(0, packs);
 }
 
-type Payer = { org: { id: string; plan?: string } } | null;
+type Payer = { org: { id: string } & OrgPlanInfo } | null;
 
 /** Takes AI credits, from the monthly allowance first, then bought packs. Does nothing while the paywall is off. */
 export async function spendCredits(account: Payer, n: number, reason: string): Promise<void> {
@@ -116,7 +138,10 @@ export async function spendCredits(account: Payer, n: number, reason: string): P
   if (!account) throw new PaywallError("Sign in to use AI features.", 401);
   const [usage, packs] = await Promise.all([usageThisMonth(account.org.id), packBalance(account.org.id, "ai")]);
   const split = splitSpend(n, limitsFor(account.org).aiCreditsPerMonth - (usage.ai_credits ?? 0), packs);
-  if (!split) throw new PaywallError(`This needs ${n} AI credit${n === 1 ? "" : "s"} and you don't have enough left this month. Upgrade or buy more credits.`);
+  if (!split) {
+    void limitEmail(account.org.id, "limit_credits").catch(() => {});
+    throw new PaywallError(`This needs ${n} AI credit${n === 1 ? "" : "s"} and you don't have enough left this month. Upgrade or buy more credits.`);
+  }
   if (split.fromAllowance) await bumpUsage(account.org.id, "ai_credits", split.fromAllowance);
   if (split.fromPacks) await addPack(account.org.id, "ai", -split.fromPacks, reason);
 }
@@ -134,6 +159,7 @@ export async function useFullReport(account: Payer): Promise<void> {
     await addPack(account.org.id, "report", -1, "full report");
     return;
   }
+  void limitEmail(account.org.id, "limit_reports").catch(() => {});
   throw new PaywallError("You've used this month's full reports. Upgrade, or buy a one-off report.");
 }
 

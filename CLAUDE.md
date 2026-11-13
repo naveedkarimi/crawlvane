@@ -35,7 +35,7 @@ Run the type check and `npm test` after every change. Tests use a fake Supabase.
 | `lib/auth.ts`, `lib/accounts.ts`, `lib/apiAuth.ts` | Sign-in sessions, organisations, saved sites and score history. Plan: `docs/app/ACCOUNTS-PLAN.md` |
 | `lib/entitlements.ts`, `lib/billing.ts` | Plan limits, usage and AI credits, and Stripe checkout, portal and webhooks |
 | `lib/orgMonitoring.ts`, `lib/visibilityTracking.ts`, `lib/schedules.ts`, `lib/alerts.ts`, `lib/teams.ts` | Weekly site and app checks, AI visibility over time, monthly client reports, alerts, and team invites and roles |
-| `components/Dashboard.tsx` | The signed-in dashboard, built from `design/Crawlvane Dashboard (standalone).html`. `/dashboard?demo=1` shows it with example data |
+| `components/Dashboard.tsx` | The signed-in dashboard, built from `design/Design System 2.0/Crawlvane Dashboard (standalone).html`. `/dashboard?demo=1` shows it with example data |
 | `lib/retention.ts` | Deletes old data on the schedule the privacy policy promises |
 | `lib/config.ts` | Feature flags and limits |
 | `lib/brand.ts` | Product name, domain and legal details |

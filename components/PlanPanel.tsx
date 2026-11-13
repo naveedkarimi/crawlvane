@@ -104,6 +104,91 @@ export default function PlanPanel({ isOwner }: { isOwner: boolean }) {
         <p className="muted small">Only the team owner can change the plan.</p>
       )}
       {err && <p className="c-fail small" role="alert">{err}</p>}
+      {isOwner && u.paywall && u.plan === "agency" && <AddonsCard />}
+      {u.paywall && <ReferralCard />}
     </section>
+  );
+}
+
+interface ReferralStats { link: string; referred: number; paying: number; monthsEarned: number; monthsWaiting: number }
+
+/** The team's referral link: a free month for each team it refers that starts paying. */
+function ReferralCard() {
+  const [r, setR] = useState<ReferralStats | null>(null);
+  const [copied, setCopied] = useState(false);
+  useEffect(() => { api<ReferralStats>("/api/me/referrals").then(setR).catch(() => {}); }, []);
+  if (!r) return null;
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(r.link);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch { /* the link is visible to copy by hand */ }
+  };
+  return (
+    <div className="card dash-card referral-card">
+      <h3>Refer a team, get a free month</h3>
+      <p className="muted small">Share your link. When a team that signs up through it starts paying, you get one month of your plan free, taken off your next bill.</p>
+      <div className="team-invite-row">
+        <label className="sr-only" htmlFor="ref-link">Your referral link</label>
+        <input id="ref-link" className="field mono" readOnly value={r.link} onFocus={(e) => e.currentTarget.select()} />
+        <button type="button" className="btn" onClick={copy}>{copied ? "Copied" : "Copy link"}</button>
+      </div>
+      <p className="muted small">
+        {r.referred} team{r.referred === 1 ? "" : "s"} signed up · {r.paying} paying · {r.monthsEarned} free month{r.monthsEarned === 1 ? "" : "s"} earned
+        {r.monthsWaiting ? ` · ${r.monthsWaiting} waiting until you subscribe` : ""}
+      </p>
+    </div>
+  );
+}
+
+interface Addons { offered: boolean; labels: { seat: string; sites: string; sitesPerPack: number }; seats: number; sitePacks: number }
+
+/** Agency add-ons: extra seats and extra sites, billed on the Agency subscription. */
+function AddonsCard() {
+  const [a, setA] = useState<Addons | null>(null);
+  const [seats, setSeats] = useState(0);
+  const [packs, setPacks] = useState(0);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  useEffect(() => {
+    api<Addons>("/api/billing/addons").then((x) => { setA(x); setSeats(x.seats); setPacks(x.sitePacks); }).catch(() => {});
+  }, []);
+  if (!a?.offered) return null;
+  const changed = seats !== a.seats || packs !== a.sitePacks;
+  const save = async () => {
+    setBusy(true);
+    setMsg(null);
+    try {
+      const r = await api<{ seats: number; sitePacks: number }>("/api/billing/addons", { method: "POST", body: JSON.stringify({ seats, sitePacks: packs }) });
+      setA({ ...a, seats: r.seats, sitePacks: r.sitePacks });
+      setMsg({ ok: true, text: "Saved. Your bill is adjusted for the rest of this period." });
+    } catch (e) {
+      setMsg({ ok: false, text: e instanceof Error ? e.message : "That didn't work." });
+    } finally {
+      setBusy(false);
+    }
+  };
+  const num = (v: string) => Math.min(100, Math.max(0, Math.floor(Number(v) || 0)));
+  return (
+    <div className="card dash-card addons-card">
+      <h3>Add-ons</h3>
+      <p className="muted small">Grow past the Agency limits without changing plan. Changes are prorated on your next bill.</p>
+      <div className="addons-grid">
+        <label className="addon">
+          <span><strong>Extra seats</strong><small className="muted">{a.labels.seat} each</small></span>
+          <input className="field" type="number" min={0} max={100} value={seats} onChange={(e) => setSeats(num(e.target.value))} />
+        </label>
+        <label className="addon">
+          <span><strong>Extra sites</strong><small className="muted">{a.labels.sites} per {a.labels.sitesPerPack} sites</small></span>
+          <input className="field" type="number" min={0} max={100} value={packs} onChange={(e) => setPacks(num(e.target.value))} aria-describedby="packs-note" />
+        </label>
+      </div>
+      <p className="muted small" id="packs-note">{packs} pack{packs === 1 ? "" : "s"} = {packs * a.labels.sitesPerPack} more saved and monitored sites.</p>
+      <div className="site-actions">
+        <button type="button" className="btn btn-primary" disabled={!changed || busy} onClick={save}>{busy ? "Saving…" : "Save add-ons"}</button>
+      </div>
+      {msg && <p className={`small ${msg.ok ? "c-pass" : "c-fail"}`} role={msg.ok ? "status" : "alert"}>{msg.text}</p>}
+    </div>
   );
 }

@@ -39,7 +39,7 @@ export async function setBranding(a: Account, b: { name?: unknown; logoUrl?: unk
   const logoUrl = typeof b.logoUrl === "string" ? b.logoUrl.trim().slice(0, 500) : "";
   const color = typeof b.color === "string" ? b.color.trim() : "";
   if (logoUrl && !/^https:\/\/[^\s]+$/.test(logoUrl)) throw new BrandingError("The logo must be an https:// image address.");
-  if (color && !HEX.test(color)) throw new BrandingError("The colour must be a hex value like #156064.");
+  if (color && !HEX.test(color)) throw new BrandingError("The colour must be a hex value like #235789.");
   const update: Record<string, unknown> = { brand_name: name || null, brand_logo: logoUrl || null, brand_color: color || null };
   if (typeof b.domain === "string") {
     const domain = normalizeDomain(b.domain);

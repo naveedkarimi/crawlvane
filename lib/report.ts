@@ -11,6 +11,8 @@ import { analyzeSocial, writeSocialPosts } from "./social";
 import { newId, readJson, writeJson } from "./store";
 import type { Report, ReportOptions, ReportStage } from "./reportTypes";
 import { recordReportScore } from "./accounts";
+import { emitReportCompleted } from "./webhooks";
+import { SITE_URL } from "./config";
 
 const COLLECTION = "reports";
 
@@ -235,6 +237,7 @@ export async function runReport(report: Report): Promise<Report> {
     begin("finish");
     report.status = "done";
     await step("Report ready", 1, 1);
+    void emitReportCompleted(report.id, { url: report.input.url, scores: report.site.scores, pagesCrawled: report.site.pagesCrawled, link: `${SITE_URL}/report/${report.id}` });
   } catch (e) {
     report.status = "error";
     report.error = e instanceof Error ? e.message : String(e);

@@ -6,7 +6,13 @@
 const clean = (u: string | undefined) => (u ?? "").trim().replace(/\/+$/, "");
 const siteUrl = clean(process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL) || "https://crawlvane.com";
 
-export const APP_URL = clean(process.env.NEXT_PUBLIC_APP_URL);
+/**
+ * `npm run dev` ignores the app address and the shared cookie domain, so links like Sign in stay
+ * on localhost even when .env.local holds the live settings. A production build uses them.
+ */
+const isDev = process.env.NODE_ENV === "development";
+
+export const APP_URL = isDev ? "" : clean(process.env.NEXT_PUBLIC_APP_URL);
 
 /** A link into the app: absolute when the app has its own address, otherwise a plain path. */
 export const appUrl = (path: string) => `${APP_URL}${path}`;
@@ -43,7 +49,7 @@ export const hostKind = (host: string): "app" | "main" | "custom" | "other" => {
 
 /** Cookie domain shared by both addresses (".crawlvane.com"), so the landing site knows you're signed in. */
 export const authCookieOptions = () => {
-  const domain = process.env.NEXT_PUBLIC_AUTH_COOKIE_DOMAIN?.trim();
+  const domain = isDev ? "" : process.env.NEXT_PUBLIC_AUTH_COOKIE_DOMAIN?.trim();
   return domain ? { domain } : undefined;
 };
 

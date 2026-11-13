@@ -2,6 +2,7 @@ import { FEATURES, FEATURE_PLAN, LIMITS, PAYWALL_ENABLED, featureEnabled, isAdmi
 import { availableEngines } from "@/lib/ai/visibility";
 import { optionalAccount } from "@/lib/apiAuth";
 import { SIGNUP_GATE, VISITOR_FIX_PREVIEW } from "@/lib/tiers";
+import { guestReportOffer } from "@/lib/billing";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,8 @@ export async function GET(req: Request) {
     signupGate: SIGNUP_GATE,
     fixPreview: VISITOR_FIX_PREVIEW,
     account: acc ? { plan: acc.org.plan, role: acc.role } : null,
+    // Price label for buying one full report before signing in, when it's on sale.
+    guestReport: PAYWALL_ENABLED && !acc ? guestReportOffer() : null,
     features: FEATURES.map((f) => ({
       key: f.key,
       name: f.name,

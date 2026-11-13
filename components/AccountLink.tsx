@@ -41,7 +41,7 @@ export default function AccountLink({ variant = "cta", onNavigate }: { variant?:
     <>
       {variant === "cta" ? (
         <a className="header-cta" href={href} onClick={open}>
-          {label} <span className="cta-circle"><ArrowUpRight size={16} aria-hidden="true" /></span>
+          {label} <span className="cta-circle"><ArrowUpRight size={14} aria-hidden="true" /></span>
         </a>
       ) : (
         !accountsOff && <a className="btn btn-outline-light btn-block" href={href} onClick={open}>{label}</a>

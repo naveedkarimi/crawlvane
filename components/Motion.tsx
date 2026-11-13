@@ -6,8 +6,8 @@ import { ArrowUp } from "lucide-react";
 /** Blocks that fade up when they scroll into view. Siblings get a small stagger. */
 const REVEAL = [
   ".section-head", ".feature", ".tool-card", ".post-card", ".post-lead", ".person-card", ".how-grid > *",
-  ".plan", ".faq-list details", ".split > *", ".pillar", ".tool-group-head", ".footer-cta-card", ".engines-row li",
-  ".photo", ".product-frame", ".stat", ".example-stats", ".faq-card", ".feature-list li",
+  ".plan", ".price-cols article", ".faq-list details", ".split > *", ".pillar", ".tool-group-head", ".pre-footer-inner", ".newsletter-box", ".engines-row li",
+  ".photo", ".product-frame", ".stat", ".example-stats", ".feature-list li",
 ].join(",");
 
 /** Count a number up from 0 to its value (the real number is already in the HTML). */

@@ -6,25 +6,25 @@ The name, tagline and links live in `lib/brand.ts`. Colours, type and spacing li
 
 ## Positioning
 
-- **One line:** Get found on Google. Get cited by AI.
+- **One line:** Get found on search engines. Get cited by AI. Say "search engines", not "Google", in marketing copy; name Google only for facts about Google itself
 - **What it is:** a website audit for search engines, answer engines and AI assistants that hands you the fixes.
 - **Difference:** most AI visibility tools only track numbers. Crawlvane tells you what to change and gives you the code.
 - **Voice:** plain, confident, practical. Short sentences. No hype, no guarantees about rankings or citations.
 
-## Design system v1.0 (current)
+## Design system v2.0 (current, 2026-11-10)
 
-The source files are in `design/Design system planning/`: the brand guide, foundations, components, screens, `crawlvane-tokens.css` and every logo file. The app's tokens at the top of `app/globals.css` come from that file, keeping the app's own meaning for `--surface` (alternate sections) and `--surface-2` (tracks and wells).
+The source files are in `design/Design System 2.0/`: the brand guide, foundations, components, screens, dashboard, `crawlvane-tokens.css` and every logo file. The teal v1.0 files are kept in `design/Design System 2.0/archive/v1-teal/`. The app's tokens at the top of `app/globals.css` come from `crawlvane-tokens.css`, keeping the app's own meaning for `--surface` (alternate sections) and `--surface-2` (tracks and wells).
 
 ## Logo
 
 The C-Vane: an open ring that forms the C and echoes the score ring, with a needle pointing up and to the right.
 
-- Light backgrounds: Stormy Teal ring, Mint needle. Dark backgrounds: Pale Mint ring (`#F2FAF7`), Mint needle
-- In the app: `components/Logo.tsx` draws the mark; set `--logo-ring` to recolour the ring
+- Light backgrounds: Vane Blue ring (`#235789`), Signal Red needle (`#C1292E`). Dark backgrounds: Paper ring (`#FDFFFC`), the same Signal Red needle
+- In the app: `components/Logo.tsx` draws the mark; set `--logo-ring` and `--logo-needle` to recolour it. Dark sections already do this (see "Dark sections" in `app/globals.css`)
 - Favicon: `public/icon.svg` (the 32 px tile version). iOS: `public/apple-touch-icon.png`, rendered from `app-icon.svg` with square corners
 - Wordmark: "Crawlvane" in Figtree Bold, letter-spacing -0.03em
 - Clear space: half the mark's height. Minimum size: 20 px for the mark, 96 px for the lockup
-- The logo SVG files carry C2PA content credentials. Keep them when you copy the files
+- Most logo SVG files carry C2PA content credentials. Keep them when you copy the files. The dark-background files, favicons and app icon were recoloured from the design's `#E0484D` needle to `#C1292E` on 2026-11-11, which removed their credentials
 
 ### Logo files on the site
 
@@ -38,11 +38,28 @@ The C-Vane: an open ring that forms the C and echoes the score ring, with a need
 | `/favicon.ico` (16, 32, 48 px), `/icon.svg`, `/favicon-16.svg`, `/apple-touch-icon.png` | Browser tabs and phone home screens |
 | `/icon-512.png` | Organization logo in structured data |
 
+The PNGs and `favicon.ico` are rendered from the SVGs with `sharp`. Re-render them whenever the logo SVGs change.
+
 ## Status colours
 
-Audit results use their own colours, never brand Mint, and always come with an icon and a word: `--good` #2E7A30, `--warn` #A35400, `--bad` #B42318, `--info` #1D5FAF, plus `-bg` and `-solid` versions for backgrounds, bars and rings.
+Audit results use their own colours, never brand red or brand blue, and always come with an icon and a word: `--good` #2E7A30, `--warn` #A35400, `--bad` #B42318, `--info` #6B3FA0 (purple, so it can't be mistaken for a link or button), plus `-bg` and `-solid` versions for backgrounds, bars and rings.
 
-## Colour: "Tropical Fusion" (2026-11-06, refined by the design system above)
+## Colour: "Vane Blue / Signal Red / Paper" (2026-11-10)
+
+| Token | Value | Use |
+|---|---|---|
+| `--cta`, `--link` | #235789 Vane Blue | Buttons, links, focus rings. The header Sign in is white with a white arrow in a Signal Red circle |
+| `--ink` | #122E49 Deep Navy | Dark sections, home hero, footer, dashboard sidebar |
+| `--signal` | #235789 on light, #8BB2DC on dark | Accent fills and icons: checks, step icons, progress |
+| `--signal-2`, `--secondary` | #C1292E Signal Red | Logo needle and brand moments: the "Get cited by AI." headline, kickers, sparkles, feature and menu icons, step circles, the selected tab underline, the Sign in arrow and the dashboard's selected sidebar item. Never for scores, checks, alerts or result filters |
+| `--gold` | #F8E16C Straw Gold | Highlights only |
+| `--bg` | #FDFFFC Paper | Page background |
+| `--surface` | #F1F5FA Pale Blue | Alternate sections |
+| `--text` | #0F1E2D | Body text and headings |
+
+Red means "brand" here, but audits also use red for failures, so keep Signal Red away from scores. Use the one red, `#C1292E`, at full strength everywhere: no lighter shades, pink tints or see-through versions, on light or dark backgrounds. The "AI-powered" badge is red text on white.
+
+## Colour: "Tropical Fusion" (2026-11-06, previous)
 
 | Token | Value | Use |
 |---|---|---|
@@ -85,6 +102,12 @@ The original palette below is kept for reference.
 
 **Why some text uses deeper chestnut:** Golden Chestnut `#C08552` is only 3.1:1 against white and 2.6:1 against Linen, below WCAG AA for text. The deeper shades keep the same hue and pass (buttons 5.1:1 with white text, small text 5.0:1 on Linen). To use the exact Golden Chestnut on buttons anyway, set `--cta: #c08552` in `app/globals.css`.
 
+## Navigation (2026-11-11)
+
+- **Header menu, in order:** Product ▾ · Solutions ▾ · Free tools ▾ · Resources ▾ · Pricing. Product holds only things you can use (Audit a website: Page check, Full site report, Bulk audit; Audit an app: App Check; For developers: API), with "See all features" at the bottom. Solutions is who it's for. Resources is Learn (Blog and guides, FAQ) and Help (Contact). "How it works" isn't in the menu: it's a home page section and is repeated on `/features`. This follows how Ahrefs, Semrush, Peec AI, Profound and Otterly organise theirs (checked 2026-11-11). Phones get the same groups as expandable sections.
+- **Footer columns:** Product, Solutions, Free tools, Resources, in the menu order, plus All features, Pricing and llms.txt. They come from the same list as the header, `components/navLinks.ts`, so change menus there.
+- **Home page, in order:** hero with the audit box, engines strip, How it works, the report, the three pillars, a real example, pricing, FAQ. The features grid and "Who it's for" live on `/features`, and the newsletter signup is on the blog.
+
 ## Type
 
 - **Figtree** for headings, weight 600
@@ -94,16 +117,16 @@ The original palette below is kept for reference.
 
 ## Components
 
-- Buttons: 10 px corners (`--r`), sentence-case labels. Heights 48 px (default), 44 px (`.btn-sm`) and 56 px (`.btn-lg`, hero). Stormy Teal primary, outlined secondary
+- Buttons: fully rounded pill shape (`--r-pill`), like the header Sign in, with sentence-case labels. The hero search box, the Page check / Full site report switch and email boxes next to a button are pills too. Tabs, sidebar items and list rows keep their own shapes. Heights 48 px (default), 44 px (`.btn-sm`) and 56 px (`.btn-lg`, hero). Vane Blue primary, outlined secondary
 - Radius: `--r-sm` 6 px, `--r` 10 px (buttons, inputs), `--r-lg` 16 px (cards), `--r-pill` for chips and badges only. Inputs are 48 px tall (56 px for the big URL field)
-- Tabs: a 3 px Stormy Teal underline and bold text on the selected tab, so it doesn't rely on colour
+- Tabs: a 3 px Vane Blue underline and bold text on the selected tab, so it doesn't rely on colour
 - Icons: Lucide at stroke width 2, using `currentColor`
 - Text: never below 12 px. Scores use Figtree 800 with tabular figures
 - Photos: real people working (Pexels, Unsplash), never as the hero. The hero shows the product.
 
 ## Photos in use
 
-- **Product shots are real.** `public/images/app-*.webp` are screenshots of Crawlvane auditing Pixenlo. Re-capture them after big UI changes.
+- **Product shots are real.** `public/images/app-*.webp` are screenshots of a real Crawlvane page check of naveedkarimi.com (2026-11-11): `app-product-shot.webp` shows the scores and What AI sees, `app-example-issues.webp` the issues. The home page numbers in `app/(site)/page.tsx` must match them. Re-capture them after big UI changes.
 - **People photos come from Pexels** (free commercial use, no attribution needed). The list with photo links is in `FEATURES.md`, section 6.
 - To add more: download from pexels.com or unsplash.com, resize to about 1200 px wide, save as JPG under 150 KB in `public/images/`, and add a row to that table.
 

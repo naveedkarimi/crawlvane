@@ -105,9 +105,13 @@ export default function LeadForm({ kind, url, compact = false, cta }: { kind: Ki
         </button>
       </div>
       {err && <p className="c-fail small" role="alert">{err}</p>}
-      <p className="lead-note tiny muted">
-        {kind === "newsletter" ? "SEO and AI search tips by email. Unsubscribe any time." : `We only use your email to reply${kind === "waitlist" ? " and tell you when Pro opens" : ""}.`} See the <a href="/privacy">privacy policy</a>.
-      </p>
+      {kind === "newsletter" ? (
+        <p className="lead-note tiny muted">Unsubscribe any time. <a href="/privacy">Privacy policy</a></p>
+      ) : (
+        <p className="lead-note tiny muted">
+          We only use your email to reply{kind === "waitlist" ? " and tell you when Pro opens" : ""}. See the <a href="/privacy">privacy policy</a>.
+        </p>
+      )}
     </form>
   );
 }

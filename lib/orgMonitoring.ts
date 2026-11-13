@@ -5,8 +5,9 @@ import { addAlert } from "./alerts";
 import { lookupApp, parseAppInput, scoreListing, type AppListing, type Store } from "./appStore";
 import { limitsFor, planAllowsFor } from "./entitlements";
 import { mailConfigured, sendMail } from "./mail";
-import { SITE_URL } from "./config";
+import { PAYWALL_ENABLED, SITE_URL } from "./config";
 import { APP_URL } from "./hosts";
+import { DROP_UPSELL, ownerEmails } from "./lifecycle";
 
 /**
  * Monitoring for signed-in organisations: weekly site checks and tracked apps with competitors.
@@ -25,17 +26,8 @@ export class MonitorError extends Error {
   }
 }
 
-/** Emails of the organisation's owners, for alerts. */
-export async function ownerEmails(orgId: string): Promise<string[]> {
-  const { data, error } = await db().from("memberships").select("user_id").eq("org_id", orgId).eq("role", "owner");
-  if (error) failed("read", error);
-  const out: string[] = [];
-  for (const m of data ?? []) {
-    const u = await db().auth.admin.getUserById(m.user_id as string).catch(() => null);
-    if (u?.data.user?.email) out.push(u.data.user.email);
-  }
-  return out;
-}
+/** Emails of the organisation's owners, for alerts (shared with the upgrade emails). */
+export { ownerEmails } from "./lifecycle";
 
 async function alert(to: string[], subject: string, lines: string[], link: string) {
   if (!mailConfigured() || !to.length) return;
@@ -104,7 +96,10 @@ export async function runDueSiteMonitors(limit = 5): Promise<{ ran: number; erro
       if (reason) {
         await addAlert(site.org_id, { kind: "fail", siteId: m.site_id, title: `${site.domain}: ${reason}`, detail: extras.issues?.[0] ? `Top issue: ${extras.issues[0].title}.` : undefined });
         const to = m.alert_email ? [m.alert_email] : await ownerEmails(site.org_id);
-        await alert(to, `${site.domain}: ${reason}`, [reason, `SEO ${r.scores.seo} · Answers ${r.scores.aeo} · AI search ${r.scores.geo}`], `${APP_URL || SITE_URL}/dashboard`);
+        // Free teams also hear what Pro would add, since a drop is when competitor and AI tracking matter most.
+        const { data: org } = await db().from("organizations").select("plan").eq("id", site.org_id).maybeSingle();
+        const upsell = PAYWALL_ENABLED && (org?.plan ?? "free") === "free" ? [DROP_UPSELL] : [];
+        await alert(to, `${site.domain}: ${reason}`, [reason, `SEO ${r.scores.seo} · Answers ${r.scores.aeo} · AI search ${r.scores.geo}`, ...upsell], `${APP_URL || SITE_URL}/dashboard`);
       }
     } catch (e) {
       errors.push(`${site.domain}: ${e instanceof Error ? e.message : e}`);

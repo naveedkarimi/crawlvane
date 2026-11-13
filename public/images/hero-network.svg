@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
-<g stroke="#00c49a" stroke-opacity="0.08" stroke-width="1">
+<g stroke="#8bb2dc" stroke-opacity="0.08" stroke-width="1">
 <line x1="1417" y1="199" x2="1322" y2="315"/>
 <line x1="1417" y1="199" x2="1254" y2="217"/>
 <line x1="382" y1="234" x2="360" y2="134"/>
@@ -36,7 +36,7 @@
 <line x1="750" y1="851" x2="572" y2="846"/>
 <line x1="817" y1="884" x2="930" y2="863"/>
 <line x1="772" y1="855" x2="930" y2="863"/>
-</g><g fill="#00c49a">
+</g><g fill="#8bb2dc">
 <circle cx="1417" cy="199" r="4" fill-opacity="0.3"/>
 <circle cx="382" cy="234" r="2.6" fill-opacity="0.2"/>
 <circle cx="1322" cy="315" r="2.6" fill-opacity="0.2"/>
@@ -67,24 +67,24 @@
 <circle cx="772" cy="855" r="2.6" fill-opacity="0.2"/>
 <circle cx="930" cy="863" r="4" fill-opacity="0.3"/>
 </g><g font-family="ui-monospace, Menlo, monospace" font-size="14" font-weight="500">
-<rect x="1398" y="145" width="65" height="24" rx="12" fill="#e6f4f0" fill-opacity="0.01" stroke="#e6f4f0" stroke-opacity="0.06"/>
-<text x="1431" y="161" text-anchor="middle" font-size="12" font-weight="500" fill="#e6f4f0" fill-opacity="0.2">Google</text>
-<rect x="1219" y="189" width="72" height="24" rx="12" fill="#e6f4f0" fill-opacity="0.01" stroke="#e6f4f0" stroke-opacity="0.06"/>
-<text x="1255" y="205" text-anchor="middle" font-size="12" font-weight="500" fill="#e6f4f0" fill-opacity="0.2">ChatGPT</text>
-<rect x="337" y="195" width="50" height="24" rx="12" fill="#e6f4f0" fill-opacity="0.01" stroke="#e6f4f0" stroke-opacity="0.06"/>
-<text x="362" y="211" text-anchor="middle" font-size="12" font-weight="500" fill="#e6f4f0" fill-opacity="0.2">Bing</text>
-<rect x="1364" y="224" width="65" height="24" rx="12" fill="#e6f4f0" fill-opacity="0.01" stroke="#e6f4f0" stroke-opacity="0.06"/>
-<text x="1397" y="240" text-anchor="middle" font-size="12" font-weight="500" fill="#e6f4f0" fill-opacity="0.2">Claude</text>
-<rect x="318" y="280" width="65" height="24" rx="12" fill="#e6f4f0" fill-opacity="0.01" stroke="#e6f4f0" stroke-opacity="0.06"/>
-<text x="351" y="296" text-anchor="middle" font-size="12" font-weight="500" fill="#e6f4f0" fill-opacity="0.2">Gemini</text>
-<rect x="138" y="324" width="94" height="24" rx="12" fill="#e6f4f0" fill-opacity="0.01" stroke="#e6f4f0" stroke-opacity="0.06"/>
-<text x="185" y="340" text-anchor="middle" font-size="12" font-weight="500" fill="#e6f4f0" fill-opacity="0.2">Perplexity</text>
-<rect x="1237" y="380" width="72" height="24" rx="12" fill="#e6f4f0" fill-opacity="0.01" stroke="#e6f4f0" stroke-opacity="0.06"/>
-<text x="1273" y="396" text-anchor="middle" font-size="12" font-weight="500" fill="#e6f4f0" fill-opacity="0.2">Copilot</text>
-<rect x="1378" y="687" width="43" height="24" rx="12" fill="#e6f4f0" fill-opacity="0.01" stroke="#e6f4f0" stroke-opacity="0.06"/>
-<text x="1400" y="703" text-anchor="middle" font-size="12" font-weight="500" fill="#e6f4f0" fill-opacity="0.2">SEO</text>
-<rect x="148" y="696" width="43" height="24" rx="12" fill="#e6f4f0" fill-opacity="0.01" stroke="#e6f4f0" stroke-opacity="0.06"/>
-<text x="170" y="712" text-anchor="middle" font-size="12" font-weight="500" fill="#e6f4f0" fill-opacity="0.2">AEO</text>
-<rect x="322" y="745" width="43" height="24" rx="12" fill="#e6f4f0" fill-opacity="0.01" stroke="#e6f4f0" stroke-opacity="0.06"/>
-<text x="343" y="761" text-anchor="middle" font-size="12" font-weight="500" fill="#e6f4f0" fill-opacity="0.2">GEO</text>
+<rect x="1398" y="145" width="65" height="24" rx="12" fill="#f2f6fa" fill-opacity="0.01" stroke="#f2f6fa" stroke-opacity="0.06"/>
+<text x="1431" y="161" text-anchor="middle" font-size="12" font-weight="500" fill="#f2f6fa" fill-opacity="0.2">Google</text>
+<rect x="1219" y="189" width="72" height="24" rx="12" fill="#f2f6fa" fill-opacity="0.01" stroke="#f2f6fa" stroke-opacity="0.06"/>
+<text x="1255" y="205" text-anchor="middle" font-size="12" font-weight="500" fill="#f2f6fa" fill-opacity="0.2">ChatGPT</text>
+<rect x="337" y="195" width="50" height="24" rx="12" fill="#f2f6fa" fill-opacity="0.01" stroke="#f2f6fa" stroke-opacity="0.06"/>
+<text x="362" y="211" text-anchor="middle" font-size="12" font-weight="500" fill="#f2f6fa" fill-opacity="0.2">Bing</text>
+<rect x="1364" y="224" width="65" height="24" rx="12" fill="#f2f6fa" fill-opacity="0.01" stroke="#f2f6fa" stroke-opacity="0.06"/>
+<text x="1397" y="240" text-anchor="middle" font-size="12" font-weight="500" fill="#f2f6fa" fill-opacity="0.2">Claude</text>
+<rect x="318" y="280" width="65" height="24" rx="12" fill="#f2f6fa" fill-opacity="0.01" stroke="#f2f6fa" stroke-opacity="0.06"/>
+<text x="351" y="296" text-anchor="middle" font-size="12" font-weight="500" fill="#f2f6fa" fill-opacity="0.2">Gemini</text>
+<rect x="138" y="324" width="94" height="24" rx="12" fill="#f2f6fa" fill-opacity="0.01" stroke="#f2f6fa" stroke-opacity="0.06"/>
+<text x="185" y="340" text-anchor="middle" font-size="12" font-weight="500" fill="#f2f6fa" fill-opacity="0.2">Perplexity</text>
+<rect x="1237" y="380" width="72" height="24" rx="12" fill="#f2f6fa" fill-opacity="0.01" stroke="#f2f6fa" stroke-opacity="0.06"/>
+<text x="1273" y="396" text-anchor="middle" font-size="12" font-weight="500" fill="#f2f6fa" fill-opacity="0.2">Copilot</text>
+<rect x="1378" y="687" width="43" height="24" rx="12" fill="#f2f6fa" fill-opacity="0.01" stroke="#f2f6fa" stroke-opacity="0.06"/>
+<text x="1400" y="703" text-anchor="middle" font-size="12" font-weight="500" fill="#f2f6fa" fill-opacity="0.2">SEO</text>
+<rect x="148" y="696" width="43" height="24" rx="12" fill="#f2f6fa" fill-opacity="0.01" stroke="#f2f6fa" stroke-opacity="0.06"/>
+<text x="170" y="712" text-anchor="middle" font-size="12" font-weight="500" fill="#f2f6fa" fill-opacity="0.2">AEO</text>
+<rect x="322" y="745" width="43" height="24" rx="12" fill="#f2f6fa" fill-opacity="0.01" stroke="#f2f6fa" stroke-opacity="0.06"/>
+<text x="343" y="761" text-anchor="middle" font-size="12" font-weight="500" fill="#f2f6fa" fill-opacity="0.2">GEO</text>
 </g></svg>

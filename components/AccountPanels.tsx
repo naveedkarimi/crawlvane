@@ -118,14 +118,14 @@ export function ExportCard() {
 /** Report branding and the team's own report domain (Agency). */
 export function BrandingCard() {
   const [data, setData] = useState<{ branding: Branding; allowed: boolean; customDomains: boolean; canEdit: boolean } | null>(null);
-  const [form, setForm] = useState({ name: "", logoUrl: "", color: "#156064", domain: "" });
+  const [form, setForm] = useState({ name: "", logoUrl: "", color: "#235789", domain: "" });
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState("");
   const load = useCallback(async () => {
     const d = await api<{ branding: Branding; allowed: boolean; customDomains: boolean; canEdit: boolean }>("/api/me/branding");
     setData(d);
-    setForm({ name: d.branding.name ?? "", logoUrl: d.branding.logoUrl ?? "", color: d.branding.color ?? "#156064", domain: d.branding.domain ?? "" });
+    setForm({ name: d.branding.name ?? "", logoUrl: d.branding.logoUrl ?? "", color: d.branding.color ?? "#235789", domain: d.branding.domain ?? "" });
   }, []);
   useEffect(() => { load().catch((e) => setErr(errText(e))); }, [load]);
   if (!data) return err ? <p className="c-fail small">{err}</p> : null;
@@ -185,7 +185,7 @@ export function BrandingCard() {
 }
 
 interface WidgetsData { widgets: Widget[]; limit: number; canEdit: boolean; whiteLabel: boolean; siteUrl: string }
-const EMPTY = { agency: "", color: "#156064", logoUrl: "", notifyEmail: "", webhookUrl: "", ctaText: "Book a free call", ctaUrl: "", whiteLabel: false };
+const EMPTY = { agency: "", color: "#235789", logoUrl: "", notifyEmail: "", webhookUrl: "", ctaText: "Book a free call", ctaUrl: "", whiteLabel: false };
 
 /** Embeddable audit widgets: create, edit, copy the embed code, see and download leads. */
 export function WidgetsCard() {

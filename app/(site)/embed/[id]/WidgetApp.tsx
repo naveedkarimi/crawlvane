@@ -71,7 +71,7 @@ export default function WidgetApp(props: {
             }
           }}
         >
-          <h1>How does your website do on Google and in AI answers?</h1>
+          <h1>How does your website do in search engines and AI answers?</h1>
           <p>Get your score for search engines, answer engines and AI assistants in about 20 seconds.</p>
           <input className="hp" tabIndex={-1} autoComplete="off" aria-hidden="true" value={hp} onChange={(e) => setHp(e.target.value)} />
           <label>

@@ -44,8 +44,8 @@ const clip = (v: unknown, n: number) => (typeof v === "string" ? v.trim().slice(
 export async function validateWidget(body: Record<string, unknown>): Promise<Omit<Widget, "id" | "createdAt"> | string> {
   const agency = clip(body.agency, 80);
   if (!agency) return "Agency name is required.";
-  const color = clip(body.color, 7) ?? "#156064";
-  if (!HEX.test(color)) return "Colour must be a hex value like #156064.";
+  const color = clip(body.color, 7) ?? "#235789";
+  if (!HEX.test(color)) return "Colour must be a hex value like #235789.";
   const urls: Record<string, string | undefined> = { logoUrl: clip(body.logoUrl, 500), webhookUrl: clip(body.webhookUrl, 500), ctaUrl: clip(body.ctaUrl, 500) };
   for (const [k, v] of Object.entries(urls)) {
     if (!v) continue;

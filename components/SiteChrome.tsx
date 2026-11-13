@@ -2,6 +2,7 @@ import SiteFooter from "./SiteFooter";
 import SiteHeader from "./SiteHeader";
 import Motion from "./Motion";
 import Upsell from "./Upsell";
+import ReferralCapture from "./ReferralCapture";
 import { posts } from "@/lib/blog";
 import { postImage } from "@/lib/blog/images";
 
@@ -17,6 +18,7 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
       <SiteFooter />
       <Motion />
       <Upsell />
+      <ReferralCapture />
     </>
   );
 }

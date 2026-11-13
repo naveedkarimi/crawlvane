@@ -13,7 +13,7 @@ const appName = process.env.NEXT_PUBLIC_APP_NAME || "Crawlvane";
 
 export const BRAND = {
   name: appName,
-  tagline: "Get found on Google. Get cited by AI.",
+  tagline: "Get found on search engines. Get cited by AI.",
   description:
     `${appName} audits your website for search engines, answer engines and AI assistants like ChatGPT, Claude, Perplexity and Gemini, then hands you the fixes.`,
   url: siteUrl,
@@ -24,7 +24,7 @@ export const BRAND = {
   legalName: process.env.NEXT_PUBLIC_LEGAL_NAME?.trim() || "",
   legalAddress: process.env.NEXT_PUBLIC_LEGAL_ADDRESS?.trim() || "",
   privacyEmail: process.env.NEXT_PUBLIC_PRIVACY_EMAIL?.trim() || "",
-  themeColor: "#156064",
+  themeColor: "#235789",
   /** Bump when page copy changes; used for dateModified and the sitemap. */
   updated: "2026-11-06",
 } as const;

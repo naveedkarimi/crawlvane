@@ -1,26 +1,15 @@
 import { Suspense } from "react";
-import { ArrowRight, Link2, ListChecks, Share2, Wrench, Bot, Briefcase, Building2, Check, Globe, MessageCircleQuestion, Search, Sparkles, Store } from "lucide-react";
-import { ToolGrid } from "@/components/ToolPage";
-import { TOOLS } from "@/lib/tools";
+import { ArrowRight, Bot, Check, Globe, MessageCircleQuestion, Search, Sparkles } from "lucide-react";
 import Home from "@/components/Home";
-import FeatureGrid from "@/components/FeatureGrid";
+import HowItWorks from "@/components/HowItWorks";
 import type { Metadata } from "next";
 import { BRAND, contactLink } from "@/lib/brand";
-import { posts } from "@/lib/blog";
-import PostCard from "@/components/PostCard";
 import { plans } from "@/lib/plans";
 import AuditCount from "@/components/AuditCount";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
-
-const steps = [
-  { icon: Link2, title: "Enter your URL", text: "Check one page in about 20 seconds, or crawl up to 300 pages to find problems that repeat across the site." },
-  { icon: ListChecks, title: "See what matters", text: "Scores for SEO, answers and AI search, with the biggest issues first and the AI crawlers that can or can't read you." },
-  { icon: Wrench, title: "Apply the fixes", text: "Copy the generated robots.txt, llms.txt and schema, follow the fix plan, then re-run the check to see the score move." },
-  { icon: Share2, title: "Compare and share", text: "Line up to 3 competitors side by side, then share the report link or download it as a PDF." },
-];
 
 const faqs = [
   {
@@ -66,7 +55,7 @@ const pillars = [
     icon: Globe,
     label: "SEO",
     title: "Search-ready",
-    text: "Can Google and Bing find, crawl and index every important page?",
+    text: "Can search engines find, crawl and index every important page?",
     checks: ["Indexability and canonicals", "Sitemap and robots.txt", "Titles, headings, schema", "Speed and Core Web Vitals"],
   },
   {
@@ -85,29 +74,14 @@ const pillars = [
   },
 ];
 
-const audiences = [
-  {
-    icon: Store, title: "Site owners", text: "Know what to fix, in what order, before you spend more on content or development.",
-    img: "/images/pexels-site-owner.jpg", alt: "A small business owner checking orders on a laptop among shipping boxes",
-  },
-  {
-    icon: Briefcase, title: "Consultants", text: "Open client conversations with clear, shareable findings and a ready-made plan.",
-    img: "/images/pexels-consultant.jpg", alt: "A consultant reviewing work on a laptop in a studio",
-  },
-  {
-    icon: Building2, title: "Agencies", text: "Audit client sites at scale. White-label reports and monitoring are on the way.",
-    img: "/images/pexels-agency-team.jpg", alt: "An agency team gathered around a laptop reviewing a client site",
-  },
-];
-
-/** Real audit of a free Open Graph image maker, run with Crawlvane on 2026-11-05. */
+/** Real page check of naveedkarimi.com (the owner's portfolio, used with permission), run with Crawlvane on 2026-11-11. */
 const example = {
-  subject: "a free Open Graph image maker",
+  subject: "naveedkarimi.com",
   scores: [
-    { label: "Overall", value: 58 },
-    { label: "SEO", value: 86 },
-    { label: "Answers", value: 30 },
-    { label: "AI search", value: 40 },
+    { label: "Overall", value: 90 },
+    { label: "SEO", value: 99 },
+    { label: "Answers", value: 69 },
+    { label: "AI search", value: 93 },
   ],
 };
 
@@ -153,6 +127,8 @@ export default function Page() {
         </div>
       </section>
 
+      <HowItWorks />
+
       <section className="section" aria-labelledby="preview-title">
         <div className="container split">
           <div className="split-copy">
@@ -175,9 +151,9 @@ export default function Page() {
             <div className="product-crop">
               <img
                 src="/images/app-product-shot.webp"
-                alt={`${BRAND.name} page check for ${example.subject}: overall score 58, SEO 86, answers 30, AI search 40, and the What AI sees view showing a polished page for people but no text for AI crawlers`}
+                alt={`${BRAND.name} page check for ${example.subject}: overall score 90, SEO 99, answers 69, AI search 93, 1 failed check, 6 warnings and 45 passed, and the What AI sees view showing the title, headings and 304 words of text AI crawlers can read`}
                 width={1600}
-                height={2883}
+                height={1931}
                 loading="lazy"
                 decoding="async"
               />
@@ -192,7 +168,7 @@ export default function Page() {
           <div className="section-head">
             <div className="kicker">Three ways people find you</div>
             <h2 id="pillars-title">One audit for search, answers and AI.</h2>
-            <p className="lead">Search is no longer one results page. People ask Google, voice assistants and chatbots. Each one reads your site differently.</p>
+            <p className="lead">Search is no longer one results page. People ask search engines, voice assistants and chatbots. Each one reads your site differently.</p>
           </div>
           <div className="pillars">
             {pillars.map(({ icon: Icon, label, title, text, checks }) => (
@@ -210,51 +186,13 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="section section-features" id="features" aria-labelledby="features-title">
-        <div className="container features-layout">
-          <div className="features-aside">
-            <div className="kicker">Features</div>
-            <h2 id="features-title">Everything in the free launch plan.</h2>
-            <p className="lead">No account and no credit card. Monitoring, AI visibility tracking and white-label reports are coming in paid plans.</p>
-            <figure className="photo features-photo">
-              <img src="/images/pexels-notes-laptop.webp" alt="Someone planning website changes in a notebook next to a laptop" width={900} height={1125} loading="lazy" decoding="async" />
-            </figure>
-          </div>
-          <FeatureGrid />
-        </div>
-      </section>
-
-      <section className="section section-dark how-section" id="how" aria-labelledby="how-title">
-        <div className="container">
-          <div className="section-head">
-            <div className="kicker kicker-center">How it works</div>
-            <h2 id="how-title">From URL to a clear plan in minutes.</h2>
-            <p className="lead">No setup and no account. Paste a link and get a report you can act on the same day.</p>
-          </div>
-          <ol className="timeline">
-            {steps.map((st, i) => {
-              const Icon = st.icon;
-              return (
-                <li key={st.title}>
-                  <span className="timeline-icon" aria-hidden="true"><Icon size={24} strokeWidth={2} /></span>
-                  <span className="timeline-step">Step {String(i + 1).padStart(2, "0")}</span>
-                  <h3>{st.title}</h3>
-                  <p>{st.text}</p>
-                </li>
-              );
-            })}
-          </ol>
-          <div className="center-actions"><a className="btn btn-light" href="#audit">Try it on your site <ArrowRight size={16} /></a></div>
-        </div>
-      </section>
-
       <section className="section section-muted" id="example" aria-labelledby="example-title">
         <div className="container split split-example">
           <div className="split-copy">
             <div className="kicker">Real example</div>
-            <h2 id="example-title">A good-looking site that AI assistants can&apos;t read.</h2>
+            <h2 id="example-title">A strong site that still misses easy answers.</h2>
             <p className="lead">
-              We audited {example.subject}. It has rich schema and lets every AI bot in, yet it scored 58 out of 100.
+              We audited {example.subject}, a developer portfolio. Search engines and AI crawlers read it well, yet answer readiness scored only 69 out of 100.
             </p>
             <dl className="example-stats">
               {example.scores.map((x) => (
@@ -265,58 +203,25 @@ export default function Page() {
               ))}
             </dl>
             <ul className="ticks">
-              <li><Check size={18} /><span><strong>0 words in the HTML.</strong> The page is built in the browser with JavaScript. Most AI crawlers read the raw HTML, so they see an empty page.</span></li>
-              <li><Check size={18} /><span><strong>No H1, headings or paragraphs</strong> for answer engines to quote, and no question-style headings.</span></li>
-              <li><Check size={18} /><span><strong>No llms.txt, About or Contact page</strong>, so AI tools have less to understand and trust.</span></li>
-              <li><Check size={18} /><span><strong>Slow on mobile.</strong> Performance 65: the phone spends about 3.4 seconds running JavaScript before the page responds.</span></li>
+              <li><Check size={18} /><span><strong>No question-style headings.</strong> None of the 10 headings is phrased the way people ask, so answer engines have nothing to match.</span></li>
+              <li><Check size={18} /><span><strong>A 7-word opening.</strong> The first paragraph is a greeting, not a short summary that an answer engine can quote.</span></li>
+              <li><Check size={18} /><span><strong>No facts or numbers</strong> in the main text, such as statistics or dates, for AI tools to cite.</span></li>
+              <li><Check size={18} /><span><strong>Images without sizes.</strong> All 3 images lack width and height, so the layout can shift as they load.</span></li>
             </ul>
-            <p className="example-fix"><strong>The fix:</strong> prerender the page so its text ships in the HTML, then add an H1, a short intro and an FAQ. {BRAND.name} generates the llms.txt.</p>
+            <p className="example-fix"><strong>The fix:</strong> open with a two-sentence summary, turn a few headings into the questions clients ask, add concrete facts, and give the images fixed sizes. {BRAND.name} lists each change in plain English.</p>
             <a className="btn btn-ghost" href="#audit">Audit your own site <ArrowRight size={16} /></a>
           </div>
           <figure className="photo-shot">
             <img
-              src="/images/app-speed-test.webp"
-              alt={`${BRAND.name} speed test for ${example.subject}: performance 65, accessibility 93, best practices 100, SEO 100; top fix too much JavaScript work, saves about 3.4 seconds`}
+              src="/images/app-example-issues.webp"
+              alt={`${BRAND.name} issues for ${example.subject}: question-style headings failed, plus warnings for the answer-first opening, specific facts and numbers, the contact page link and image dimensions, each with a plain-English fix`}
               width={1400}
-              height={1201}
+              height={1479}
               loading="lazy"
               decoding="async"
             />
-            <figcaption>The speed test for the same page, with the top fixes in plain English.</figcaption>
+            <figcaption>The issues from the same check, each with the fix in plain English.</figcaption>
           </figure>
-        </div>
-      </section>
-
-      <section className="section" aria-labelledby="tools-title">
-        <div className="container">
-          <div className="section-head">
-            <div className="kicker kicker-center">Free tools</div>
-            <h2 id="tools-title">Quick checks, no sign-up.</h2>
-            <p className="lead">Single-purpose tools for the most common reasons AI assistants skip a site.</p>
-          </div>
-          <ToolGrid tools={TOOLS.slice(0, 6)} />
-          <div className="center-actions"><a className="btn btn-ghost" href="/tools">All {TOOLS.length} free tools <ArrowRight size={16} /></a></div>
-        </div>
-      </section>
-
-      <section className="section section-muted" aria-labelledby="who-title">
-        <div className="container">
-          <div className="section-head">
-            <div className="kicker kicker-center">Who it&apos;s for</div>
-            <h2 id="who-title">Start with a free audit. Grow into more.</h2>
-          </div>
-          <div className="people">
-            {audiences.map(({ icon: Icon, title, text, img, alt }) => (
-              <article key={title} className="person-card">
-                <img src={img} alt={alt} width={1200} height={800} loading="lazy" decoding="async" />
-                <div className="person-body">
-                  <span className="feature-icon"><Icon size={20} strokeWidth={2} /></span>
-                  <h3>{title}</h3>
-                  <p>{text}</p>
-                </div>
-              </article>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -331,13 +236,18 @@ export default function Page() {
           <div className="price-cols">
             {plans.map((p) => (
               <article key={p.name} className={p.featured ? "featured" : ""}>
-                <h3>{p.name}</h3>
+                <div className="price-head">
+                  <h3>{p.name}</h3>
+                  {p.status === "live" && <span className="badge badge-live">Available now</span>}
+                </div>
                 <p className="price-line"><strong>{p.price}</strong>{p.period && <span> {p.period}</span>}</p>
                 <p>{p.blurb}</p>
                 <ul>
                   {p.features.slice(p.name === "Launch" ? 0 : 1, 4).map((f) => <li key={f}><Check size={15} aria-hidden="true" /> {f}</li>)}
                 </ul>
-                <a className={`btn ${p.featured ? "btn-light" : "btn-outline-light"} btn-block`} href={p.cta.href}>{p.cta.label}</a>
+                <a className={`btn ${p.featured ? "btn-light" : "btn-outline-light"} btn-block plan-cta`} href={p.cta.href}>
+                  {p.cta.label} <span className="cta-circle" aria-hidden="true"><ArrowRight size={14} /></span>
+                </a>
               </article>
             ))}
           </div>
@@ -348,36 +258,12 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="section home-blog" aria-labelledby="blog-title">
-        <div className="container">
-          <div className="section-head">
-            <div className="kicker kicker-center">From the blog</div>
-            <h2 id="blog-title">Learn how search and AI read your site.</h2>
-          </div>
-          <div className="post-grid">
-            {posts.slice(0, 3).map((p) => <PostCard key={p.slug} post={p} />)}
-          </div>
-          <div className="center-actions"><a className="btn btn-ghost" href="/blog">All guides <ArrowRight size={16} /></a></div>
-        </div>
-      </section>
-
       <section className="section section-muted" id="faq" aria-labelledby="faq-title">
         <div className="container faq-layout">
           <div className="section-head left">
             <div className="kicker">FAQ</div>
             <h2 id="faq-title">Questions, answered.</h2>
             <p className="lead">Short answers to what people ask before their first audit.</p>
-            <div className="faq-card">
-              <span className="feature-icon"><MessageCircleQuestion size={22} /></span>
-              <div>
-                <strong>Still have a question?</strong>
-                <p>Ask us anything about your results or the fixes. A real person replies.</p>
-                <div className="row wrap">
-                  <a className="btn btn-primary btn-sm" href="#audit">Run a free audit</a>
-                  <a className="btn btn-ghost btn-sm" href={BRAND.contactUrl}>Get in touch</a>
-                </div>
-              </div>
-            </div>
           </div>
           <div className="faq-list">
             {faqs.map((f) => (

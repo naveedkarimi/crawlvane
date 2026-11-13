@@ -8,6 +8,8 @@ import type { AuditResult, Category, Check, Status } from "@/lib/types";
 import type { SocialPresence } from "@/lib/social";
 import { Pill, Ring, SoonBadge } from "@/components/ui";
 import { api, askToUpgrade, download, useConfig } from "@/lib/client";
+import AiHelpers from "./AiHelpers";
+import { anyFixPrice, pricedFixes } from "@/lib/fixPrices";
 import { appUrl } from "@/lib/hosts";
 import { CheckCircle2, Lock } from "lucide-react";
 import SocialCard from "@/components/SocialCard";
@@ -581,6 +583,8 @@ export default function Auditor({ redirect = false }: { redirect?: boolean }) {
             </div>
           )}
 
+          {cfg?.guestReport && !cfg.account && <GuestReportCard url={result.facts.finalUrl} price={cfg.guestReport} />}
+
           {counts.fail + counts.warn > 0 && (
             <div className="card fix-cta no-print" id="fix-for-me">
               <div>
@@ -590,10 +594,19 @@ export default function Auditor({ redirect = false }: { redirect?: boolean }) {
                   Send this report and we&apos;ll reply with what we&apos;d change, in what order, and a fixed price. Most sites need a few hours of work,
                   not a rebuild.
                 </p>
+                {anyFixPrice() && (
+                  <ul className="fix-prices">
+                    {pricedFixes(result.checks).map((f) => (
+                      <li key={f.type}><span>{f.label} <small className="muted">· {f.issues} issue{f.issues === 1 ? "" : "s"}</small></span><strong>{f.from ? `From $${f.from}` : "Quote"}</strong></li>
+                    ))}
+                  </ul>
+                )}
               </div>
               <LeadForm kind="fix" url={result.facts.finalUrl} />
             </div>
           )}
+
+          {on("aiHelpers") && cfg?.aiConfigured && <AiHelpers facts={result.facts} url={result.url} />}
 
           <BadgeCard url={result.facts.finalUrl} score={result.scores.overall} />
 
@@ -632,6 +645,38 @@ export default function Auditor({ redirect = false }: { redirect?: boolean }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/** Buy one full report for this site without an account. After paying, you sign in and it runs. */
+function GuestReportCard({ url, price }: { url: string; price: string }) {
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const host = url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
+  const buy = async () => {
+    setBusy(true);
+    setErr("");
+    try {
+      const r = await api<{ url: string }>("/api/billing/guest-checkout", { method: "POST", body: JSON.stringify({ url }) });
+      window.location.href = r.url;
+    } catch (e) {
+      setBusy(false);
+      setErr(e instanceof Error ? e.message : "Checkout didn't open. Try again.");
+    }
+  };
+  return (
+    <div className="card guest-report no-print">
+      <div>
+        <span className="kicker">One-off report</span>
+        <h3>Get the full report for {host}</h3>
+        <p className="muted">Every page crawled (up to 300), problems that repeat across the site, competitor comparison and ready-to-paste fixes. Pay once, no subscription. You sign in after paying so the report is saved to your account.</p>
+      </div>
+      <div className="guest-report-buy">
+        <strong className="guest-report-price">{price}</strong>
+        <button type="button" className="btn btn-primary" disabled={busy} onClick={buy}>{busy ? "Opening checkout…" : "Buy the full report"}</button>
+        {err && <p className="c-fail small" role="alert">{err}</p>}
+      </div>
     </div>
   );
 }
