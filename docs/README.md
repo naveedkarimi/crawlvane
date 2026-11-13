@@ -3,6 +3,7 @@
 ## Crawlvane app
 
 - [App overview and setup](../README.md)
+- **[Your next steps](app/YOUR-NEXT-STEPS.md): everything that needs you, in priority order**
 - [Product guide](app/APP-FEATURES.md)
 - [Plans, pricing and growth](app/PLANS.md): what each level gets, billing, and money ideas
 - [Accounts, dashboard and payments build plan](app/ACCOUNTS-PLAN.md)

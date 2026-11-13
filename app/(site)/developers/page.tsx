@@ -34,14 +34,14 @@ export default function Page() {
       </PageHero>
       <section className="section section-tight">
         <div className="container post-container doc-body api-doc">
-          <h2>Get a key</h2>
+          <h2>How do I get an API key?</h2>
           <p>The API is in early access. <a href={contactLink(`${BRAND.name}: API access`)}>Ask for a key</a> and tell us roughly how many pages you&apos;ll check a month.</p>
 
-          <h2>Run an audit</h2>
+          <h2>How do I run an audit?</h2>
           <p><code>GET /api/v1/audit?url=…</code> with your key in the <code>Authorization</code> header (or <code>x-api-key</code>). A check takes about 5 to 20 seconds.</p>
           <pre><code>{curl}</code></pre>
 
-          <h2>Response</h2>
+          <h2>What does the response look like?</h2>
           <pre><code>{sample}</code></pre>
           <ul>
             <li><code>scores</code>: 0 to 100 overall and for SEO, AEO (answer engines) and GEO (AI search).</li>
@@ -49,7 +49,7 @@ export default function Page() {
             <li><code>facts</code>: what we read from the page: status, title, description, headings, schema types, links, sitemap, llms.txt and AI crawler access.</li>
           </ul>
 
-          <h2>Limits and errors</h2>
+          <h2>What are the limits and errors?</h2>
           <ul>
             <li>Each key has an hourly limit (100 by default). Over it you get <code>429</code>.</li>
             <li><code>401</code>: missing or wrong key. <code>400</code>: bad or private URL. <code>502</code>: the site didn&apos;t load or showed a bot challenge.</li>

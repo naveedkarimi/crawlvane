@@ -402,6 +402,13 @@ console.log("✓ job queue: claims, limits concurrency, records failures and giv
   assert.ok(!/href="javascript/i.test(html) && !html.includes('"y') && !html.includes("<img"), "AI drafts can't inject links or HTML");
 }
 console.log("✓ rank tracking, backlinks and AI writer helpers");
+{
+  const { agentReadiness } = await import("../lib/gen/pageTools");
+  const html = `<html><body><main><form><label for="e">Email</label><input id="e" type="email"><input class="hp" tabindex="-1" aria-hidden="true" name="website"><div hidden><input name="x"></div></form></main></body></html>`;
+  const r = agentReadiness(html, "https://ex.com/") as { checks: { title: string; status: string }[] };
+  assert.equal(r.checks.find((c) => c.title === "Form labels")?.status, "pass", "honeypots and hidden fields don't need labels");
+}
+console.log("✓ form label check ignores hidden honeypot fields");
 
 assert.equal(sign("whsec_test", '{"a":1}'), "sha256=" + (await import("node:crypto")).createHmac("sha256", "whsec_test").update('{"a":1}').digest("hex"));
 console.log("✓ webhook requests are signed");

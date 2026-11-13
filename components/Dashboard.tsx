@@ -95,6 +95,14 @@ function StatusPill({ score }: { score: number }) {
 }
 
 export default function Dashboard() {
+  // Scrollable tables and code must be reachable by keyboard (WCAG 2.1.1), as on the public pages (Motion.tsx).
+  useEffect(() => {
+    const focusable = () => document.querySelectorAll<HTMLElement>(".app-main pre, .app-main .table-wrap").forEach((el) => { if (!el.hasAttribute("tabindex")) el.tabIndex = 0; });
+    focusable();
+    const mo = new MutationObserver(focusable);
+    mo.observe(document.body, { childList: true, subtree: true });
+    return () => mo.disconnect();
+  }, []);
   const [demo] = useState(() => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("demo") === "1");
   // ?claim= comes back from Stripe after buying one report before signing in.
   const [claimId] = useState(() => (typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("claim") : null));
@@ -296,7 +304,7 @@ export default function Dashboard() {
     <NavCtx.Provider value={{ go: goTo, href }}>
     <div className="app-shell">
       <aside className="app-side" aria-label="Dashboard">
-        <a className="app-logo" href={siteLink("/")}><LogoMark size={28} /><span>{BRAND.name}</span></a>
+        <a className="app-logo" href={siteLink("/")} aria-label={`${BRAND.name} home`}><LogoMark size={28} /><span aria-hidden="true">{BRAND.name}</span></a>
         {orgs.length > 1 && (
           <label className="org-switch">
             <span className="sr-only">Team</span>
