@@ -1,12 +1,12 @@
 "use client";
 
 import { createContext, Fragment, Suspense, useCallback, useContext, useEffect, useMemo, useState, type MouseEvent, type ReactNode } from "react";
-import {
-  AlertTriangle, ArrowLeft, ArrowRight, Bell, Building2, CheckCircle2, CircleMinus, ExternalLink, FileText, Globe, Info, LayoutGrid, MessageSquareText,
-  Plus, RefreshCw, ScanSearch, Settings, Smartphone, Trash2, TrendingDown, TrendingUp, Users, Wrench, XCircle, type LucideIcon,
-} from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, Bell, Building2, CheckCircle2, CircleMinus, ExternalLink, FileText, Globe, Info, LayoutGrid, MessageSquareText, Plus, RefreshCw, ScanSearch, Settings, Smartphone, Trash2, TrendingDown, TrendingUp, Users, Wrench, XCircle, type LucideIcon, PenLine } from "lucide-react";
 import { takeReferral } from "@/lib/referralClient";
 import GooglePanel from "./GooglePanel";
+import BingPanel from "./BingPanel";
+import BotVisitsPanel from "./BotVisitsPanel";
+import SeoToolsPanel from "./SeoToolsPanel";
 import { issuesCsv, type ExportFormat, type ExportIssue } from "@/lib/issueExport";
 import { api, download, useConfig } from "@/lib/client";
 import { BRAND } from "@/lib/brand";
@@ -34,7 +34,7 @@ import ReportView from "./ReportView";
 import AppCheck from "./AppCheck";
 
 interface Me { email: string; org: Org; role: string }
-type Section = "overview" | "check" | "report" | "websites" | "apps" | "visibility" | "reports" | "fixes" | "alerts" | "team" | "agency" | "plan" | "settings";
+type Section = "overview" | "check" | "report" | "websites" | "apps" | "visibility" | "content" | "reports" | "fixes" | "alerts" | "team" | "agency" | "plan" | "settings";
 
 const NAV: { key: Section; label: string; icon: LucideIcon }[] = [
   { key: "overview", label: "Overview", icon: LayoutGrid },
@@ -42,6 +42,7 @@ const NAV: { key: Section; label: string; icon: LucideIcon }[] = [
   { key: "websites", label: "Websites", icon: Globe },
   { key: "apps", label: "Apps", icon: Smartphone },
   { key: "visibility", label: "AI visibility", icon: MessageSquareText },
+  { key: "content", label: "Keywords & content", icon: PenLine },
   { key: "reports", label: "Reports", icon: FileText },
   { key: "fixes", label: "Fixes", icon: Wrench },
   { key: "alerts", label: "Alerts", icon: Bell },
@@ -249,6 +250,7 @@ export default function Dashboard() {
     websites: ["Websites", "Add sites, turn on weekly checks and schedule client reports."],
     apps: ["Apps", "Track App Store and Google Play listings and competitors."],
     visibility: ["AI visibility", "How often AI assistants mention your sites, week by week."],
+    content: ["Keywords & content", "Where you rank in Google, who links to you, and AI-written article drafts."],
     check: ["New check", "Check one page, run a full site report or check an app listing. Checks of your saved sites are added to their history."],
     report: ["Report", "Full site report. Anyone with the share link can view it."],
     reports: ["Reports", "Every full report your team has run."],
@@ -360,9 +362,10 @@ export default function Dashboard() {
             </>
           )
         )}
-        {section === "websites" && (demo ? signInOnly("Managing websites") : <><Websites sites={sites} monitors={monitors} canEdit={canEdit} email={me.email} reload={loadData} />{sites.length > 0 && <GooglePanel sites={sites} isOwner={me.role === "owner"} canEdit={canEdit} />}</>)}
+        {section === "websites" && (demo ? signInOnly("Managing websites") : <><Websites sites={sites} monitors={monitors} canEdit={canEdit} email={me.email} reload={loadData} />{sites.length > 0 && <><GooglePanel sites={sites} isOwner={me.role === "owner"} canEdit={canEdit} /><BingPanel sites={sites} isOwner={me.role === "owner"} canEdit={canEdit} /><BotVisitsPanel sites={sites} canEdit={canEdit} /></>}</>)}
         {section === "apps" && (demo ? signInOnly("App tracking") : <AppsPanel canEdit={canEdit} />)}
         {section === "visibility" && (demo ? signInOnly("AI visibility tracking") : <VisibilityPanel canEdit={canEdit} />)}
+        {section === "content" && (demo ? signInOnly("Keywords and content") : <SeoToolsPanel sites={sites} canEdit={canEdit} />)}
         {section === "check" && <Suspense fallback={null}><CheckPanel key={navKey} mode={to.mode ?? "page"} url={to.url ?? ""} onReport={(id) => goTo({ tab: "report", id })} /></Suspense>}
         {section === "report" && (to.id ? (
           <div className="dash-report">
@@ -488,7 +491,25 @@ function ScoreChart({ s }: { s: SiteSummary }) {
           ]}
         />
       )}
+      <SpeedTrend s={s} />
     </section>
+  );
+}
+
+/** Speed of the top pages from full reports, once there are two to compare. */
+function SpeedTrend({ s }: { s: SiteSummary }) {
+  const pts = s.history.filter((p): p is typeof p & { speed: number } => typeof p.speed === "number").slice(-8);
+  if (!pts.length) return null;
+  const last = pts[pts.length - 1].speed;
+  const change = pts.length > 1 ? last - pts[pts.length - 2].speed : null;
+  return (
+    <div className="speed-trend">
+      <h3>Speed of your top pages <span className="muted small">(Google PageSpeed, mobile, from full reports)</span></h3>
+      <p className="small">Latest average <strong>{last}</strong>{change !== null && <span className={change >= 0 ? "c-pass" : "c-fail"}> ({change >= 0 ? "+" : ""}{change} since the report before)</span>}.</p>
+      {pts.length > 1 && (
+        <LineChart title={`Top-page speed over time for ${s.domain}`} labels={pts.map((p) => fmt(p.at))} series={[{ key: "speed", label: "Speed", values: pts.map((p) => p.speed), className: "s-overall" }]} />
+      )}
+    </div>
   );
 }
 

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/privacy" },
 };
 
-const UPDATED = "2026-11-12";
+const UPDATED = "2026-11-13";
 
 const body = `
 ${BRAND.name} ("we") is a website audit. This page explains what happens to your data when you use ${BRAND.host}. The short version: we collect as little as we can, we don't use tracking cookies, and we don't sell data.
@@ -42,7 +42,7 @@ ${BRAND.legalName ? `${BRAND.name} is run by ${BRAND.legalName}${BRAND.legalAddr
 
 **App store checker.** When you check an app, we send the app link, ID or name you entered and the country to Apple (for the App Store) or SerpApi (for Google Play) to read the public store listing. We record the store, the app, the country, its score and which checks failed, with nothing about you. App icons load straight from Apple's or Google's servers, so they can see your IP address.
 
-**Accounts.** If you sign in, we store your email address and your team, the sites you save, their score history (scores, failing checks and AI crawler access), which teammate each issue is assigned to, and links to the reports you run. Sign-in uses a one-time code or link we email you, or your Google, Microsoft or GitHub account if you choose one, handled by Supabase, so there's no password. If you use one of those accounts, that company gives us your email address and name, and Google and GitHub also give a profile picture link (GitHub adds your username); Supabase stores these with your account. Signing in sets a cookie that keeps you signed in; it's needed for the account to work and isn't used for tracking. You can change your email, download everything we hold about you and your team as a file, or delete your account from the dashboard. If you're the last member of a team, deleting your account deletes the team and everything in it.
+**Accounts.** If you sign in, we store your email address and your team, the sites you save, their score history (scores, failing checks and AI crawler access), which teammate each issue is assigned to, and links to the reports you run. You can sign in with your email and a password, with a one-time code or link we email you, or with your Google, Microsoft or GitHub account if you choose one. Supabase handles sign-in and keeps your password only as a one-way hash, so nobody, including us, can read it. If you use one of those accounts, that company gives us your email address and name, and Google and GitHub also give a profile picture link (GitHub adds your username); Supabase stores these with your account. Signing in sets a cookie that keeps you signed in; it's needed for the account to work and isn't used for tracking. You can change your email, download everything we hold about you and your team as a file, or delete your account from the dashboard. If you're the last member of a team, deleting your account deletes the team and everything in it.
 
 **Teams.** When a team owner invites someone, we store that person's email address, their role and who invited them, and email them a link. The invite is deleted after 14 days, whether or not it was used. Everyone on a team can see the other members' email addresses.
 
@@ -53,6 +53,14 @@ ${BRAND.legalName ? `${BRAND.name} is run by ${BRAND.legalName}${BRAND.legalAddr
 **API keys.** If your team creates a key for our API, we store its name, its first characters, a one-way fingerprint of it (never the key itself) and how often it's used. Audits run with a key of your team's are added to your saved sites' history.
 
 **Google Search Console and Analytics.** If a team owner connects Google, we store the Google account's email address and an encrypted token that lets us read (never change) Search Console and Google Analytics data, plus which property belongs to each saved site. When you look at a site's search data, we fetch clicks, impressions, top searches, top pages and visits by source for the last 28 days from Google and show them; we don't store that data. Disconnecting deletes the token and revokes our access at Google.
+
+**Bing Webmaster Tools and IndexNow.** If a team owner connects Bing, we store their Bing Webmaster Tools API key, encrypted, and which Bing site belongs to each saved site. When you look at a site's Bing data, we fetch clicks, impressions, top searches and top pages for the last 28 days and show them; we don't store that data. Disconnecting deletes the key. If you set up IndexNow for a site, we store its IndexNow key and when it was last checked and used, fetch the key file from your site to check it, and send the page addresses you choose to IndexNow, which shares them with the search engines that use it (such as Bing and Yandex).
+
+**AI bot visits.** If you set up AI bot counting for a site, the snippet on your site sends us the user agent of AI crawler requests only, with a secret token for that site. We keep just a daily count per bot (for example "GPTBot, 12 visits on 3 March"), not the user agent, not the page address and nothing about your human visitors. Counts are deleted after about 13 months.
+
+**Keywords and content.** If you track keywords for a site, we store the keywords and, each week, the average position, clicks and impressions Search Console reports for them; they're deleted when you remove the keyword or the site. Backlinks are read from Bing Webmaster Tools when you look and aren't stored. If you use the AI writer, the topic, audience and notes you enter, with the site's name and domain, are sent to our AI provider to write the draft, and the draft is kept for your team until you delete it.
+
+**Abuse protection.** To stop floods and abuse, we count requests per IP address or account for a short window (usually an hour). The counter is stored under a scrambled, keyed hash, never the IP address itself, and deleted within two days.
 
 **GitHub pull requests.** If you open a pull request with your fixes, the GitHub token you paste is used for that one request to create a branch, add the fix files and open the pull request, and is never stored.
 
@@ -68,7 +76,7 @@ ${BRAND.legalName ? `${BRAND.name} is run by ${BRAND.legalName}${BRAND.legalAddr
 
 - No advertising or tracking cookies. The only cookies are the ones that keep you signed in and remember which team you're viewing. If we measure visits, we use Plausible Analytics, which sets no cookies and doesn't collect personal data
 - No selling or renting of data
-- No passwords: you sign in with an emailed code or link, or a Google, Microsoft or GitHub account
+- No readable passwords: if you set one, Supabase keeps only a one-way hash of it. You can also sign in without one, with an emailed code or a Google, Microsoft or GitHub account
 
 ## Services that receive data
 
@@ -77,13 +85,16 @@ Some features need another service. They receive only what the feature needs:
 | Service | When | What they receive |
 |---|---|---|
 | Google PageSpeed Insights | Speed test and screenshots | The URL being tested |
-| Anthropic (Claude) | AI fix plan, AI page helpers, the AI free tools, AI research and AI app features, when you use them; AI visibility tracking and its content briefs | The URL and a summary of the audit findings; for the page helpers and AI free tools, the page's title, headings and an excerpt of its text; for AI visibility tracking, excerpts of AI answers that mention your brand |
+| Anthropic (Claude) | AI fix plan, AI page helpers, the AI writer, the AI free tools, AI research and AI app features, when you use them; AI visibility tracking and its content briefs | The URL and a summary of the audit findings; for the page helpers and AI free tools, the page's title, headings and an excerpt of its text; for AI visibility tracking, excerpts of AI answers that mention your brand |
 | Google (sign-in) | Only if you choose "Continue with Google" | The sign-in request. Google tells us your email address, name and profile picture link |
 | Microsoft (sign-in) | Only if you choose "Continue with Microsoft" | The sign-in request. Microsoft tells us your email address and name |
 | GitHub (sign-in) | Only if you choose "Continue with GitHub" | The sign-in request. GitHub tells us your email address, name, username and profile picture link |
-| Our email provider | Sign-in codes and links, alerts, trial and plan-limit reminders, team invites, scheduled reports and replies | The recipient's email address and the message |
+| Our email provider | Sign-in codes and links, email confirmations, password reset links, alerts, trial and plan-limit reminders, team invites, scheduled reports and replies | The recipient's email address and the message |
 | Stripe | When you buy a plan, report, credit pack or add-on, or manage billing | Your email address and your team's ID (none for a one-off report bought before signing in). Card details go straight to Stripe |
 | Google (Search Console and Analytics) | Only if a team owner connects Google | The connection token, and requests for your sites' search and visit data |
+| Microsoft Bing (Webmaster Tools) | Only if a team owner connects Bing | The API key, and requests for your sites' Bing search data |
+| Wikidata (Wikimedia Foundation) | When a full report runs | The domain being audited, to look up whether it has a Wikidata item |
+| IndexNow (api.indexnow.org) | Only when you send pages with IndexNow | Your site's address, its IndexNow key and the page addresses you send. IndexNow shares them with the search engines that take part |
 | GitHub | Only when you open a pull request with your fixes | The fix files and the pull request text, sent to the repository you chose |
 | Your team's webhook | Only if your team sets one | Alert titles and details, and the address, scores and link of each finished full report, sent to the address you chose |
 | Slack | Only if your team connects a Slack channel | Alert titles and details for your team's sites and apps, sent to the channel you chose |

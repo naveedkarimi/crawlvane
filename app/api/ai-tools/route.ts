@@ -36,7 +36,7 @@ export async function POST(req: Request) {
   if (!tool) return Response.json({ error: "Bad request." }, { status: 400 });
   const email = String(b.email ?? "").trim().slice(0, 254);
   if (tool === "describe" && !EMAIL.test(email)) return Response.json({ error: "Enter your email address to get the result." }, { status: 400 });
-  if (!rateLimit(`aitool:${tool}:${clientIp(req)}`, tool === "describe" ? 3 : 5, 86400_000))
+  if (!await rateLimit(`aitool:${tool}:${clientIp(req)}`, tool === "describe" ? 3 : 5, 86400_000))
     return Response.json({ error: "You've reached today's free limit for this tool. Try again tomorrow." }, { status: 429 });
   if (!underDailyCap()) return Response.json({ error: "This free tool is busy today. Try again tomorrow." }, { status: 429 });
 

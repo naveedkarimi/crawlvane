@@ -14,7 +14,7 @@ The live site (`app/globals.css`) has moved on from the files in `design/Design 
 | Element | How |
 |---|---|
 | Logo needle | `#C1292E` on every background |
-| Home hero headline, second line ("Get cited by AI.") | Solid `#C1292E` text on the navy hero |
+| Home hero headline, second line ("and in AI.") | Solid `#C1292E` text on the navy hero |
 | Section kickers on light pages, and the sparkles beside page titles | `#C1292E` |
 | Feature, tool-card and menu icons | Solid `#C1292E` circle (or 10 px rounded square in menus) with a white icon |
 | Selected tab underline | 3 px `#C1292E`. Exception: tabs that filter by result (Failed, Warnings) keep a Vane Blue underline |
@@ -92,7 +92,7 @@ The second step shows a round mail icon, the heading "Check your email", a centr
 
 ## 4. Copy and structure
 
-- **Tagline:** "Get found on search engines. Get cited by AI." Say "search engines" in marketing copy, and name Google only for facts about Google itself.
+- **Tagline:** "Get found on search engines and in AI." (changed from "… Get cited by AI." on 2026-11-13). On the home hero and share image it splits after "engines", with "and in AI." in red. Say "search engines" in marketing copy, and name Google only for facts about Google itself.
 - **Home page order:**
   1. Hero with the audit box
   2. Engines strip

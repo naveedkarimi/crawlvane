@@ -10,7 +10,7 @@ export const maxDuration = 60;
 export async function POST(req: Request, ctx: { params: Promise<{ id: string }> }) {
   const a = await requireAccount(req);
   if (a instanceof Response) return a;
-  if (!rateLimit("appcheck-org:" + a.org.id, 30)) return Response.json({ error: "Too many checks. Try again in a bit." }, { status: 429 });
+  if (!await rateLimit("appcheck-org:" + a.org.id, 30)) return Response.json({ error: "Too many checks. Try again in a bit." }, { status: 429 });
   try {
     return Response.json(await checkApp(a.org.id, (await ctx.params).id));
   } catch (e) {

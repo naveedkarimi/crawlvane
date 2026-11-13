@@ -1,3 +1,4 @@
+import { aiViewMarkdown } from "./aiView";
 import type { Report } from "./reportTypes";
 
 const isErr = (x: unknown): x is { error: string } => !!x && typeof x === "object" && "error" in x;
@@ -11,6 +12,7 @@ export function reportToMarkdown(r: Report): string {
   if (s) {
     L.push(`**Overall ${s.scores.overall}** · SEO ${s.scores.seo} · AEO ${s.scores.aeo} · GEO ${s.scores.geo} · ${s.pagesCrawled} pages crawled`, "");
   }
+  if (r.home?.facts) L.push(...aiViewMarkdown(r.home.facts));
   const plan = r.plan;
   if (plan && !isErr(plan)) {
     L.push("## Fix plan", "", plan.summary, "");

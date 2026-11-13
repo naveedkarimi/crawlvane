@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   // With accounts on, weekly checks belong to an account (one site free). Existing email-only monitors keep running.
   if (isPublic("accounts")) return Response.json({ error: "Create a free account to get a weekly check and email alerts.", signup: true }, { status: 401 });
   if (!mailConfigured()) return Response.json({ error: "Email alerts aren't configured yet (SMTP settings missing)." }, { status: 503 });
-  if (!rateLimit("monitor:" + clientIp(req), 5)) return Response.json({ error: "Too many requests." }, { status: 429 });
+  if (!await rateLimit("monitor:" + clientIp(req), 5)) return Response.json({ error: "Too many requests." }, { status: 429 });
   let body: { url?: string; email?: string; everyDays?: number; maxPages?: number };
   try {
     body = await req.json();

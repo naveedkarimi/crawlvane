@@ -27,7 +27,7 @@ export async function GET(req: Request) {
   const hit = cache.get(key);
   if (hit && Date.now() - hit.at < CACHE_MS) return Response.json({ ...hit.result, cached: true });
 
-  if (!rateLimit("psi:" + clientIp(req), 20))
+  if (!await rateLimit("psi:" + clientIp(req), 20))
     return Response.json({ error: "Speed test limit reached. Try again later." }, { status: 429 });
 
   const api = new URL("https://www.googleapis.com/pagespeedonline/v5/runPagespeed");

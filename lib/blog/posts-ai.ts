@@ -98,7 +98,7 @@ JavaScript-only content often arrives with a new theme, page builder or framewor
   },
   {
     slug: "ai-crawlers-which-to-allow",
-    title: "GPTBot, ClaudeBot, PerplexityBot: which AI crawlers to allow in 2026",
+    title: "Which AI crawlers to allow: GPTBot, ClaudeBot, PerplexityBot",
     description: "AI search bots, assistant fetchers and training crawlers are different. How to allow the ones that cite you and block the ones that only train.",
     date: "2026-11-06",
     tags: ["GEO", "robots.txt", "AI crawlers"],

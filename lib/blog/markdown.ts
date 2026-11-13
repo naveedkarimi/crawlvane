@@ -16,8 +16,11 @@ function inline(s: string): string {
   out = out.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
   out = out.replace(/(^|[^*])\*([^*\s][^*]*)\*/g, "$1<em>$2</em>");
   out = out.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, text: string, href: string) => {
-    const external = /^https?:\/\//.test(href);
-    return `<a href="${href}"${external ? ' target="_blank" rel="noopener noreferrer"' : ""}>${text}</a>`;
+    // Only web, mailto, relative and in-page links: no javascript: or data: URLs (AI writer drafts render with this too).
+    if (/^[a-z][a-z0-9+.-]*:/i.test(href) && !/^(https?|mailto):/i.test(href)) return text;
+    const safe = href.replace(/"/g, "%22");
+    const external = /^https?:\/\//.test(safe);
+    return `<a href="${safe}"${external ? ' target="_blank" rel="noopener noreferrer"' : ""}>${text}</a>`;
   });
   return out;
 }

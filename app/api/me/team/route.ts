@@ -23,7 +23,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const a = await requireAccount(req);
   if (a instanceof Response) return a;
-  if (!rateLimit("invite:" + a.org.id, 20)) return Response.json({ error: "Too many invites. Try again later." }, { status: 429 });
+  if (!await rateLimit("invite:" + a.org.id, 20)) return Response.json({ error: "Too many invites. Try again later." }, { status: 429 });
   const b = (await req.json().catch(() => ({}))) as { email?: string; role?: string };
   try {
     return Response.json(await inviteMember(a, String(b.email ?? ""), (isRole(b.role) ? b.role : "editor"), returnOrigin(req)));

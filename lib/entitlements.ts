@@ -55,6 +55,8 @@ export const CREDIT_COST = {
   metaWriter: 1,
   /** A content brief for one prompt where competitors are mentioned and you aren't. */
   gapBrief: 1,
+  /** One AI writer article draft (a long answer, so it costs more than a helper). */
+  article: 3,
 } as const;
 
 const RANK: Record<PlanId, number> = { free: 0, pro: 1, agency: 2 };

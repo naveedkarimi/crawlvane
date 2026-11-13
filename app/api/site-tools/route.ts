@@ -23,7 +23,7 @@ export async function GET(req: Request) {
   const key = `${tool}:${raw}`;
   const hit = cache.get(key);
   if (hit && Date.now() - hit.at < 600_000) return Response.json(hit.data);
-  if (!rateLimit("sitetools:" + clientIp(req), Number(process.env.TOOL_PER_HOUR ?? 40)))
+  if (!await rateLimit("sitetools:" + clientIp(req), Number(process.env.TOOL_PER_HOUR ?? 40)))
     return Response.json({ error: "Too many checks from your network. Try again in a bit." }, { status: 429 });
   try {
     const data = await RUN[tool](raw);

@@ -35,7 +35,7 @@ export async function GET(req: Request) {
 
   let page = pages.get(target);
   if (!page || Date.now() - page.at > CACHE_MS) {
-    if (!rateLimit("pagetools:" + clientIp(req), Number(process.env.TOOL_PER_HOUR ?? 40)))
+    if (!await rateLimit("pagetools:" + clientIp(req), Number(process.env.TOOL_PER_HOUR ?? 40)))
       return Response.json({ error: "Too many checks from your network. Try again in a bit." }, { status: 429 });
     try {
       page = { at: Date.now(), page: await fetchPage(target) };

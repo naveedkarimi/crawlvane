@@ -21,6 +21,7 @@ Run the type check and `npm test` after every change. Tests use a fake Supabase.
 | Path | What's there |
 |---|---|
 | `app/(site)/` | Public pages, with the site header and footer from `components/SiteChrome.tsx` |
+| `app/(auth)/`, `components/auth/` | Log in, sign up, forgot and reset password, full screen without the site header. Email links land on `app/auth/callback` |
 | `app/(app)/` | The signed-in dashboard: the app itself. Checks and reports run inside it |
 | `proxy.ts`, `lib/hosts.ts` | Splits the landing site (`crawlvane.com`) from the app (`NEXT_PUBLIC_APP_URL`, e.g. `app.crawlvane.com`), serves agency report domains, and finishes sign-ins that land on the home page |
 | `lib/branding.ts`, `lib/apiKeys.ts`, `lib/widgets.ts`, `lib/exportData.ts` | Agency branding and report domains, team API keys, audit widgets, and the data download |
@@ -54,7 +55,16 @@ Run the type check and `npm test` after every change. Tests use a fake Supabase.
 - **Personal data in statistics:** `site_checks` stores domain and path only. Never a query string, IP address or email.
 - **Honesty:** never score an error page, add fake progress, or invent testimonials or numbers.
 - **Branding:** use `BRAND` from `lib/brand.ts`. Don't hardcode the product name, domain or a person's name.
+- **Tagline:** "Get found on search engines and in AI." Use `BRAND.tagline` in code. Where the headline splits over two lines (home hero, share image), it breaks after "engines" with "and in AI." in red. Don't write the old "Get cited by AI" or "Get found on Google" lines, and say "search engines", not "Google", in marketing copy.
 - **Git:** commit or push only when the user asks. `origin` is `naveedkarimi/crawlvane`.
+
+## Replies
+
+Keep the final summary short, to save tokens:
+- At most 5 short bullets or about 80 words: what changed, anything the user must do, anything that failed.
+- No tables, file-by-file lists or repeated explanations unless asked.
+- Don't repeat an open question every turn: ask once, then wait.
+- Fewer screenshots: one desktop and one phone check per change is enough.
 
 ## Lessons Learned
 

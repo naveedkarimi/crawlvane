@@ -16,7 +16,7 @@ const RUN = { topics: topicCoverage, answers: answerRewrites, faq: faqBuilder, m
 export async function POST(req: Request) {
   if (!featureEnabled("aiHelpers", req)) return Response.json({ error: "Not available." }, { status: 404 });
   if (!process.env.ANTHROPIC_API_KEY) return Response.json({ error: "AI helpers aren't set up yet." }, { status: 503 });
-  if (!rateLimit("aihelper:" + clientIp(req), 20)) return Response.json({ error: "You've used the AI helpers a lot this hour. Try again later." }, { status: 429 });
+  if (!await rateLimit("aihelper:" + clientIp(req), 20)) return Response.json({ error: "You've used the AI helpers a lot this hour. Try again later." }, { status: 429 });
   const body = (await req.json().catch(() => null)) as { kind?: string; facts?: Record<string, unknown> } | null;
   const kind = body?.kind as HelperKind;
   if (!HELPER_KINDS.includes(kind) || !body?.facts) return Response.json({ error: "Bad request." }, { status: 400 });

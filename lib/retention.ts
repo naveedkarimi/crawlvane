@@ -32,6 +32,14 @@ export async function runRetention() {
   // Team invites expire after 14 days (lib/teams.ts), so they're deleted then, used or not.
   await safely("invites", () => pruneRows("invites", 14));
   await safely("alerts", () => pruneRows("alerts", 180));
+  await safely("AI bot visit counts", () => pruneRows("bot_hits", 400));
+  await safely("finished jobs", () => pruneRows("jobs", 30));
+  // Rate limit counters only matter for their window (an hour or a day), so they go after two days.
+  await safely("rate limit counters", async () => {
+    const { error, count } = await db().from("rate_limits").delete({ count: "exact" }).lt("window_start", new Date(Date.now() - 2 * 86400000).toISOString());
+    if (error) throw new Error(error.message);
+    return count ?? 0;
+  });
   await safely("Stripe event IDs", () => pruneRows("stripe_events", 90));
   return { reports, leads };
 }

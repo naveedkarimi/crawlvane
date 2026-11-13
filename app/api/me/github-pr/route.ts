@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   const a = await requireAccount(req);
   if (a instanceof Response) return a;
   if (a.role === "viewer") return Response.json({ error: "Viewers can't open pull requests." }, { status: 403 });
-  if (!rateLimit("githubpr:" + a.org.id, 10)) return Response.json({ error: "Too many pull requests. Try again later." }, { status: 429 });
+  if (!await rateLimit("githubpr:" + a.org.id, 10)) return Response.json({ error: "Too many pull requests. Try again later." }, { status: 429 });
   const b = (await req.json().catch(() => ({}))) as { reportId?: string; repo?: string; base?: string; dir?: string; token?: string };
   const reportId = String(b.reportId ?? "");
   const { data: link } = await db().from("org_reports").select("report_id").eq("org_id", a.org.id).eq("report_id", reportId).maybeSingle();

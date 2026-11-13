@@ -21,6 +21,14 @@ export interface AnalyzeInput {
 export const QUESTION_START =
   /^(how|why)\s|^(what|when|where|who|which)\s+(is|are|was|were|does|do|did|can|should|will|makes|happens|to)\b/i;
 
+/** Words of readable text in an HTML document, counted like the page itself (main, article or body). */
+export function htmlWords(html: string): number {
+  const $c = cheerio.load(html || "");
+  $c("script,style,noscript,template,svg,iframe").remove();
+  const main = $c("main").length ? $c("main").first() : $c("article").length ? $c("article").first() : $c("body");
+  return words(main.text().replace(/\s+/g, " ").trim() || $c("body").text().replace(/\s+/g, " ").trim());
+}
+
 export const words = (s: string) => (s.match(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu) || []).length;
 
 function syllables(word: string): number {
@@ -113,6 +121,8 @@ export function analyze(input: AnalyzeInput): AuditResult {
   const bodyText = $content("body").text().replace(/\s+/g, " ").trim();
   const mainText = mainEl.text().replace(/\s+/g, " ").trim();
   const wordCount = words(mainText || bodyText);
+  // With JavaScript rendering on, also count the raw HTML: that's what most AI crawlers get.
+  const rawWordCount = page.rendered && page.rawBody !== undefined ? htmlWords(page.rawBody) : undefined;
 
   // ---------- Head data ----------
   const title = $("title").first().text().trim();
@@ -674,6 +684,7 @@ export function analyze(input: AnalyzeInput): AuditResult {
       outline: headings.slice(0, 15).map((h) => ({ level: h.level, text: spacedText(h.el).slice(0, 140) })),
       textExcerpt: (spacedText(mainEl.get(0)) || bodyText).slice(0, 900),
       rendered: !!page.rendered,
+      ...(rawWordCount !== undefined ? { rawWordCount } : {}),
     },
   };
 }

@@ -14,7 +14,7 @@ const fail = (e: unknown) => {
 export async function GET(req: Request) {
   const a = await requireAccount(req);
   if (a instanceof Response) return a;
-  if (!rateLimit("gdata:" + a.org.id, 120)) return Response.json({ error: "Too many requests. Try again in a bit." }, { status: 429 });
+  if (!await rateLimit("gdata:" + a.org.id, 120)) return Response.json({ error: "Too many requests. Try again in a bit." }, { status: 429 });
   try {
     return Response.json(await siteSearchData(a.org.id, new URL(req.url).searchParams.get("id") ?? ""));
   } catch (e) {

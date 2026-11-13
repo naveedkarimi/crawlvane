@@ -22,7 +22,7 @@ export async function POST(req: Request) {
   if ((PAYWALL_ENABLED || SIGNUP_GATE) && !acc) return Response.json({ error: "Create a free account to run a full site report.", signup: true }, { status: 401 });
   const plan = acc?.org ?? null;
   const limits = limitsFor(plan);
-  if (!isAdmin(req) && !rateLimit("report:" + clientIp(req), LIMITS.reportsPerHour))
+  if (!isAdmin(req) && !await rateLimit("report:" + clientIp(req), LIMITS.reportsPerHour))
     return Response.json({ error: "You've run a lot of reports — please try again in an hour." }, { status: 429 });
 
   let body: Record<string, unknown>;

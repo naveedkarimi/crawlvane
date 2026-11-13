@@ -115,8 +115,8 @@ Tick items as you go (`- [x]`).
 - [ ] Move hosting off shared cPanel to Vercel or a small VPS (background crawls, cron jobs and headless Chrome don't fit cPanel well)
 - [x] Finish moving to Supabase: leads, widget leads, newsletter and site statistics have their own tables; reports and monitors are still JSON in `documents`
   - [x] Tables: users, projects, reports, monitors, ai_visibility_runs, leads
-- [ ] A job queue for crawls and AI runs (for example Inngest, Trigger.dev or a database-backed queue)
-- [ ] Keep rate limits in a shared store (Redis or the database) instead of per server process
+- [x] A job queue for crawls and AI runs (2026-11-13): Supabase-backed, `lib/jobs.ts`, off until `JOB_QUEUE=1`. Test it on the real database before turning it on
+- [x] Keep rate limits in a shared store (2026-11-13): Supabase `hit_rate_limit`, keys hashed, falls back to per-process if the SQL hasn't run
 - [ ] Scheduled jobs (Vercel Cron or a system cron) instead of the cPanel cron
 
 ### Accounts
@@ -175,7 +175,7 @@ Tick items as you go (`- [x]`).
 - [x] Trend charts per engine (ChatGPT, Claude, Perplexity, Gemini, Google AI Overviews)
 - [x] Share of voice against competitors
 - [x] Sentiment: how the brand is described
-- [ ] Which sources get cited, and which ones cite competitors but not you
+- [x] Which sources get cited, and which ones cite competitors but not you (2026-11-13): flagged in AI visibility, with a "reach these first" list
 - [x] Prompt gap list: prompts where competitors appear and you don't
 - [x] Alerts when visibility drops
 
@@ -196,14 +196,14 @@ Tick items as you go (`- [x]`).
 ### AI bot traffic (rare outside enterprise tools)
 
 - [x] Upload a server log and see which AI bots visit, which pages they read, and what gets blocked (`/tools/ai-bot-log-analyzer`, runs in the browser)
-- [ ] Or a small script or Cloudflare Worker to count bot visits live
+- [x] Or a small script or Cloudflare Worker to count bot visits live (2026-11-13): "AI bot visits" in Websites, with Worker, PHP and Node snippets
 - [x] AI referral traffic: GA4 regex builder (`/tools/ga4-ai-traffic-regex`) and AI referrals in the log analyzer
 
 ### Integrations
 
 - [x] Google Search Console: real clicks and impressions next to the findings
 - [x] GA4: organic and AI referral traffic
-- [ ] Bing Webmaster Tools and IndexNow
+- [x] Bing Webmaster Tools and IndexNow (2026-11-13): Bing data per site in Websites, IndexNow per site, and `npm run indexnow` for this site
 
 ### Issue tracking
 
@@ -222,7 +222,7 @@ Tick items as you go (`- [x]`).
 
 ### Content and marketing
 
-- [ ] Comparison pages ("vs Otterly", "vs Peec", "SEOptimer alternative")
+- [x] Comparison pages "vs Otterly" and "vs Peec" (2026-11-13, facts from their own pricing pages, in `lib/compare.ts`). SEOptimer added the same day from its pricing page, copied by hand
 - [x] Free mini-tools that bring in search traffic: 16 live at `/tools`, including the accessibility checker (ADA / WCAG 2.2) and the AI bot log analyzer
 - [x] Accessibility (WCAG) group in the main audit: zoom, landmarks and skip link, frame titles, ARIA and keyboard order, media
 - [x] Embeddable score badge (`/api/badge?url=`), offered in reports scoring 70+
@@ -230,6 +230,14 @@ Tick items as you go (`- [x]`).
 - [ ] Launch on Product Hunt and Hacker News, and post in Reddit communities (see the marketing plan in `APP-FEATURES.md`)
 
 ---
+
+### Keywords & content (built 2026-11-13)
+
+- [x] Keyword rank tracking from Search Console (weekly, `lib/rankTracking.ts`)
+- [x] Backlinks from Bing Webmaster Tools (`lib/bing.ts`)
+- [x] AI writer with saved drafts (`lib/ai/writer.ts`, 3 credits an article)
+- [ ] Rank tracking for keywords the site doesn't rank for yet (needs a paid search-results API such as SerpApi or DataForSEO)
+- [ ] Backlinks beyond Bing's index (needs a paid backlink API; only once customers ask)
 
 ## Needs you (nothing more to build until these are done)
 

@@ -14,7 +14,7 @@ export interface Account { user: SessionUser; org: Org; role: Role }
 export interface Scores { overall: number; seo: number; aeo: number; geo: number }
 export interface IssueRef { id: string; title: string; status: "fail" | "warn"; category: string; weight: number; detail: string }
 export interface BotRef { bot: string; purpose: string; allowed: boolean }
-export interface ScoreExtras { reportId?: string; fails?: number; issues?: IssueRef[]; bots?: BotRef[] }
+export interface ScoreExtras { reportId?: string; fails?: number; issues?: IssueRef[]; bots?: BotRef[]; /** Average PageSpeed score of the top pages, from a full report. */ speed?: number }
 
 /** What the dashboard keeps from a page audit besides the scores: the top problems and AI crawler access. */
 export function extrasFromAudit(r: AuditResult): ScoreExtras {
@@ -37,7 +37,7 @@ export interface SiteSummary {
   delta: number | null;
   issues: IssueRef[];
   bots: BotRef[];
-  history: (Scores & { at: string })[];
+  history: (Scores & { at: string; speed?: number | null })[];
 }
 
 export const MAX_SITES = 50;
@@ -90,7 +90,8 @@ export async function listSites(orgId: string): Promise<SiteSummary[]> {
   if (!sites?.length) return [];
   const { data: scores, error: e2 } = await db()
     .from("site_scores")
-    .select("site_id, overall, seo, aeo, geo, source, issues, bots, created_at")
+    // "*" so a newer column (speed) that the database doesn't have yet can't break the dashboard.
+    .select("*")
     .in("site_id", sites.map((s) => s.id))
     .order("created_at", { ascending: false })
     .limit(1000);
@@ -110,7 +111,7 @@ export async function listSites(orgId: string): Promise<SiteSummary[]> {
       delta: l && weekOld ? l.overall - weekOld.overall : null,
       issues: (withDetail?.issues ?? []) as IssueRef[],
       bots: (withDetail?.bots ?? []) as BotRef[],
-      history: mine.slice(0, 40).reverse().map((x) => ({ at: x.created_at, overall: x.overall, seo: x.seo, aeo: x.aeo, geo: x.geo })),
+      history: mine.slice(0, 40).reverse().map((x) => ({ at: x.created_at, overall: x.overall, seo: x.seo, aeo: x.aeo, geo: x.geo, speed: typeof x.speed === "number" ? x.speed : null })),
     };
   });
 }
@@ -152,7 +153,15 @@ export async function siteForDomain(orgId: string, domain: string): Promise<stri
 }
 
 export async function recordScore(siteId: string, s: Scores, source: "page-check" | "report" | "monitor", x: ScoreExtras = {}): Promise<void> {
-  await insertRow("site_scores", { site_id: siteId, overall: s.overall, seo: s.seo, aeo: s.aeo, geo: s.geo, source, report_id: x.reportId, fails: x.fails, issues: x.issues, bots: x.bots });
+  const row = { site_id: siteId, overall: s.overall, seo: s.seo, aeo: s.aeo, geo: s.geo, source, report_id: x.reportId, fails: x.fails, issues: x.issues, bots: x.bots };
+  if (x.speed === undefined) return insertRow("site_scores", row);
+  // The speed column arrived in a later schema.sql. If it hasn't been run yet, keep the score without it.
+  try {
+    await insertRow("site_scores", { ...row, speed: x.speed });
+  } catch (e) {
+    if (!/speed/i.test(e instanceof Error ? e.message : "")) throw e;
+    await insertRow("site_scores", row);
+  }
 }
 
 /** Records a page check against a saved site, when the signed-in user's organisation has one for that domain. */
@@ -169,10 +178,10 @@ export async function linkReport(orgId: string, reportId: string, url: string): 
 }
 
 /** When a full report finishes, add its score to the saved site's history (if the report belongs to an organisation). */
-export async function recordReportScore(reportId: string, s: Scores, home?: AuditResult): Promise<void> {
+export async function recordReportScore(reportId: string, s: Scores, home?: AuditResult, speed?: number | null): Promise<void> {
   const { data, error } = await db().from("org_reports").select("site_id").eq("report_id", reportId).maybeSingle();
   if (error) failed("read", error);
-  if (data?.site_id) await recordScore(data.site_id as string, s, "report", { reportId, ...(home ? { issues: extrasFromAudit(home).issues, bots: extrasFromAudit(home).bots } : {}) });
+  if (data?.site_id) await recordScore(data.site_id as string, s, "report", { reportId, ...(home ? { issues: extrasFromAudit(home).issues, bots: extrasFromAudit(home).bots } : {}), ...(typeof speed === "number" ? { speed } : {}) });
 }
 
 export interface ReportSummary { id: string; url: string; createdAt: string; status: string; score: number | null }

@@ -6,7 +6,7 @@ import { ArrowUp } from "lucide-react";
 /** Blocks that fade up when they scroll into view. Siblings get a small stagger. */
 const REVEAL = [
   ".section-head", ".feature", ".tool-card", ".post-card", ".post-lead", ".person-card", ".how-grid > *",
-  ".plan", ".price-cols article", ".faq-list details", ".split > *", ".pillar", ".tool-group-head", ".pre-footer-inner", ".newsletter-box", ".engines-row li",
+  ".plan", ".price-cols article", ".faq-list details", ".split > *", ".pillar", ".tool-group-head", ".pre-footer-inner", ".newsletter-box",
   ".photo", ".product-frame", ".stat", ".example-stats", ".feature-list li",
 ].join(",");
 

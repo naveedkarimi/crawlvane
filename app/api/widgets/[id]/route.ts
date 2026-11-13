@@ -22,7 +22,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const name = typeof body.name === "string" ? body.name.trim().slice(0, 120) || undefined : undefined;
   if (!url || url.length > 2048) return Response.json({ error: "Please enter your website." }, { status: 400 });
   if (!validEmail(email)) return Response.json({ error: "Please enter a valid email address." }, { status: 400 });
-  if (!rateLimit("widget:" + clientIp(req), Number(process.env.WIDGET_PER_HOUR ?? 10)))
+  if (!await rateLimit("widget:" + clientIp(req), Number(process.env.WIDGET_PER_HOUR ?? 10)))
     return Response.json({ error: "Too many checks from your network. Try again later." }, { status: 429 });
   try {
     const r = await runAudit(url);

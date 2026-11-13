@@ -6,7 +6,7 @@ The name, tagline and links live in `lib/brand.ts`. Colours, type and spacing li
 
 ## Positioning
 
-- **One line:** Get found on search engines. Get cited by AI. Say "search engines", not "Google", in marketing copy; name Google only for facts about Google itself
+- **One line:** Get found on search engines and in AI. Say "search engines", not "Google", in marketing copy; name Google only for facts about Google itself
 - **What it is:** a website audit for search engines, answer engines and AI assistants that hands you the fixes.
 - **Difference:** most AI visibility tools only track numbers. Crawlvane tells you what to change and gives you the code.
 - **Voice:** plain, confident, practical. Short sentences. No hype, no guarantees about rankings or citations.
@@ -51,7 +51,7 @@ Audit results use their own colours, never brand red or brand blue, and always c
 | `--cta`, `--link` | #235789 Vane Blue | Buttons, links, focus rings. The header Sign in is white with a white arrow in a Signal Red circle |
 | `--ink` | #122E49 Deep Navy | Dark sections, home hero, footer, dashboard sidebar |
 | `--signal` | #235789 on light, #8BB2DC on dark | Accent fills and icons: checks, step icons, progress |
-| `--signal-2`, `--secondary` | #C1292E Signal Red | Logo needle and brand moments: the "Get cited by AI." headline, kickers, sparkles, feature and menu icons, step circles, the selected tab underline, the Sign in arrow and the dashboard's selected sidebar item. Never for scores, checks, alerts or result filters |
+| `--signal-2`, `--secondary` | #C1292E Signal Red | Logo needle and brand moments: the "and in AI." headline line, kickers, sparkles, feature and menu icons, step circles, the selected tab underline, the Sign in arrow and the dashboard's selected sidebar item. Never for scores, checks, alerts or result filters |
 | `--gold` | #F8E16C Straw Gold | Highlights only |
 | `--bg` | #FDFFFC Paper | Page background |
 | `--surface` | #F1F5FA Pale Blue | Alternate sections |

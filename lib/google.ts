@@ -20,7 +20,7 @@ export const googleConfigured = () => !!(process.env.GOOGLE_OAUTH_CLIENT_ID?.tri
 // ---------- Token encryption ----------
 function key(): Buffer {
   const raw = process.env.TOKEN_ENCRYPTION_KEY?.trim();
-  if (!raw) throw new GoogleError("Google connections aren't set up yet.", 503);
+  if (!raw) throw new GoogleError("Account connections aren't set up yet (TOKEN_ENCRYPTION_KEY is missing).", 503);
   // Any length of secret works: it's hashed to the 32 bytes AES-256 needs.
   return createHash("sha256").update(raw).digest();
 }
@@ -114,6 +114,13 @@ async function gapi<T>(token: string, url: string, body?: unknown): Promise<T> {
   const j = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
   if (!res.ok) throw new GoogleError(res.status === 403 ? "This Google account can't see that property." : `Google said: ${j.error?.message ?? res.status}`, res.status === 403 ? 403 : 502);
   return j as T;
+}
+
+/** Search Console rows for one property, for rank tracking (lib/rankTracking.ts). */
+export async function gscQuery(orgId: string, property: string, body: Record<string, unknown>): Promise<{ keys?: string[]; clicks: number; impressions: number; ctr: number; position: number }[]> {
+  const token = await accessToken(orgId);
+  const r = await gapi<{ rows?: { keys?: string[]; clicks: number; impressions: number; ctr: number; position: number }[] }>(token, `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(property)}/searchAnalytics/query`, body);
+  return r.rows ?? [];
 }
 
 // ---------- Properties ----------

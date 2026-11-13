@@ -11,7 +11,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
   const a = await requireAccount(req);
   if (a instanceof Response) return a;
   if (a.role === "viewer") return Response.json({ error: "Viewers can't run checks." }, { status: 403 });
-  if (!rateLimit("visrun:" + a.org.id, 6)) return Response.json({ error: "Too many runs. Try again later." }, { status: 429 });
+  if (!await rateLimit("visrun:" + a.org.id, 6)) return Response.json({ error: "Too many runs. Try again later." }, { status: 429 });
   try {
     return Response.json(await runTrackerNow(a, (await ctx.params).id));
   } catch (e) {

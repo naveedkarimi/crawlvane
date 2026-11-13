@@ -57,7 +57,7 @@
                     <table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto">
                       <tr>
                         <td bgcolor="#235789" style="border-radius:999px">
-                          <a href="{{ .ConfirmationURL }}" target="_blank" style="display:block;text-decoration:none;border-radius:999px">
+                          <a href="{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&amp;type=email&amp;next=/dashboard" target="_blank" style="display:block;text-decoration:none;border-radius:999px">
                             <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                               <tr>
                                 <td style="padding:7px 10px 7px 26px;font-family:'DM Sans','Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;font-weight:700;line-height:1;color:#ffffff;white-space:nowrap">Sign in to Crawlvane</td>
@@ -85,7 +85,7 @@
             <td bgcolor="#122e49" style="border-radius:24px;padding:26px 32px">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr><td align="center" style="font-family:'Figtree','Segoe UI',Helvetica,Arial,sans-serif;font-size:15px;font-weight:700;color:#ffffff;padding:0 0 4px">Crawlvane</td></tr>
-                <tr><td align="center" style="font-family:'DM Sans','Segoe UI',Helvetica,Arial,sans-serif;font-size:13px;line-height:1.6;color:#bbcadb;padding:0 0 14px">Get found on search engines. Get cited by AI.</td></tr>
+                <tr><td align="center" style="font-family:'DM Sans','Segoe UI',Helvetica,Arial,sans-serif;font-size:13px;line-height:1.6;color:#bbcadb;padding:0 0 14px">Get found on search engines and in AI.</td></tr>
                 <tr>
                   <td align="center" style="font-family:'DM Sans','Segoe UI',Helvetica,Arial,sans-serif;font-size:13px;line-height:1.6;padding:0 0 14px">
                     <a href="{{ .SiteURL }}" target="_blank" style="color:#8bb2dc;text-decoration:none;font-weight:600">Website</a><span style="color:#56677a">&nbsp;&nbsp;&middot;&nbsp;&nbsp;</span><a href="https://crawlvane.com/contact" target="_blank" style="color:#8bb2dc;text-decoration:none;font-weight:600">Help</a><span style="color:#56677a">&nbsp;&nbsp;&middot;&nbsp;&nbsp;</span><a href="https://crawlvane.com/privacy" target="_blank" style="color:#8bb2dc;text-decoration:none;font-weight:600">Privacy</a>

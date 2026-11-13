@@ -17,7 +17,7 @@ export async function GET(req: Request) {
   if (!isStoreCountry(country)) return Response.json({ error: "Choose a country from the list." }, { status: 400 });
   const ref = parseAppInput(p.get("app") ?? "", store);
   if (typeof ref === "string") return Response.json({ error: ref }, { status: 400 });
-  if (!rateLimit("appcheck:" + clientIp(req), Number(process.env.APP_CHECKS_PER_HOUR ?? 20)))
+  if (!await rateLimit("appcheck:" + clientIp(req), Number(process.env.APP_CHECKS_PER_HOUR ?? 20)))
     return Response.json({ error: "Too many app checks from your network. Try again in a bit." }, { status: 429 });
   try {
     const listing = await lookupApp(ref, country);

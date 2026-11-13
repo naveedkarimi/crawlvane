@@ -15,7 +15,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
   const a = await requireAccount(req);
   if (a instanceof Response) return a;
   if (a.role === "viewer") return Response.json({ error: "Viewers can't change results." }, { status: 403 });
-  if (!rateLimit("viscorrect:" + a.org.id, 60)) return Response.json({ error: "Too many changes. Try again later." }, { status: 429 });
+  if (!await rateLimit("viscorrect:" + a.org.id, 60)) return Response.json({ error: "Too many changes. Try again later." }, { status: 429 });
   const id = (await ctx.params).id;
   const b = (await req.json().catch(() => ({}))) as { prompt?: string; engine?: string; notUs?: boolean };
   const { data: t } = await db().from("visibility_trackers").select("id, brand, competitors").eq("org_id", a.org.id).eq("id", id).maybeSingle();

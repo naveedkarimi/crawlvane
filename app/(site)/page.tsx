@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { ldJson } from "@/lib/jsonLd";
-import { ArrowRight, Bot, Check, Globe, MessageCircleQuestion, Search, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Globe, MessageCircleQuestion, ShieldCheck, Sparkles } from "lucide-react";
 import Home from "@/components/Home";
 import HowItWorks from "@/components/HowItWorks";
 import type { Metadata } from "next";
@@ -39,17 +39,9 @@ const faqs = [
   },
 ];
 
-// Names only, with generic icons: the companies' logos are trademarks we don't have permission to use.
-const engines: { name: string; kind: "search" | "ai" | "answer" }[] = [
-  { name: "Google", kind: "search" },
-  { name: "Bing", kind: "search" },
-  { name: "ChatGPT", kind: "ai" },
-  { name: "Claude", kind: "ai" },
-  { name: "Perplexity", kind: "ai" },
-  { name: "Gemini", kind: "ai" },
-  { name: "AI Overviews", kind: "answer" },
-];
-const ENGINE_ICON = { search: Search, ai: Bot, answer: Sparkles };
+// Names only, as plain text: the companies' logos are trademarks we don't have permission to use.
+// The terms and credits pages say the names belong to their owners and that we aren't affiliated.
+const engines = ["Google", "Bing", "ChatGPT", "Claude", "Perplexity", "Gemini", "AI Overviews", "Copilot"];
 
 const pillars = [
   {
@@ -93,9 +85,20 @@ export default function Page() {
     <main>
       <section className="hero hero-dark" aria-labelledby="hero-title">
         <div className="container hero-inner">
-          <h1 id="hero-title">
-            Get found on search engines.<br />
-            <span className="accent-text">Get cited by AI.</span>
+          {/* The tagline (BRAND.tagline): "AI." in solid red with a pale-blue underline that draws itself.
+              The words themselves don't animate, so the largest element paints straight away. */}
+          <h1 id="hero-title" className="hero-title">
+            <span className="hero-line">Get found on search engines</span>{" "}
+            <span className="hero-line">
+              and in{" "}
+              <span className="hero-ai">
+                AI.
+                <svg className="hero-swoosh" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true">
+                  <path d="M2 9 C 25 3, 60 2, 98 6" pathLength={1} />
+                </svg>
+                <Sparkles className="hero-spark" aria-hidden="true" />
+              </span>
+            </span>
           </h1>
           <p className="hero-sub">
             See how search engines and AI assistants like ChatGPT, Claude and Perplexity read your site, in about 20 seconds.<span className="hide-phone"> Then get an AI-powered plan of what to fix first.</span>
@@ -103,27 +106,23 @@ export default function Page() {
           <Suspense fallback={<div className="tool tool-fallback" id="audit" />}>
             <Home />
           </Suspense>
-          <ul className="hero-points">
-            <li><Check size={16} /> Free during launch</li>
-            <li><Check size={16} /> About 50 checks</li>
-            <li><Check size={16} /> AI-powered fix plan</li>
-          </ul>
+          <p className="hero-note"><ShieldCheck size={15} aria-hidden="true" /> No sign-up needed for a page check</p>
         </div>
       </section>
 
       <section className="engines-band" aria-label="Search engines and AI assistants covered">
         <div className="container engines-row">
           <span className="engines-title">Checks your readiness for</span>
-          {/* On phones the list scrolls slowly in one line; the second copy makes the loop seamless. */}
-          <div className="engines-track">
-            {[0, 1].map((copy) => (
-              <ul key={copy} className={copy ? "engines-dup" : undefined} aria-hidden={copy ? true : undefined}>
-                {engines.map((e) => {
-                  const Icon = ENGINE_ICON[e.kind];
-                  return <li key={e.name}><Icon size={16} aria-hidden="true" /> {e.name}</li>;
-                })}
-              </ul>
-            ))}
+          {/* The names glide slowly in one line, pausing on hover; the second copy makes the loop seamless.
+              With reduced motion they sit still and wrap instead. */}
+          <div className="engines-viewport">
+            <div className="engines-track">
+              {[0, 1].map((copy) => (
+                <ul key={copy} className={copy ? "engines-dup" : undefined} aria-hidden={copy ? true : undefined}>
+                  {engines.map((name) => <li key={name}>{name}</li>)}
+                </ul>
+              ))}
+            </div>
           </div>
         </div>
       </section>

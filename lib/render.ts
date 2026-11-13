@@ -25,7 +25,7 @@ export async function renderWithBrowser(raw: FetchedResource): Promise<FetchedRe
     if (!res.ok) return raw;
     const body = await res.text();
     if (body.length < 200) return raw;
-    return { ...raw, body, bytes: raw.bytes, ms: raw.ms + (Date.now() - started), rendered: true };
+    return { ...raw, body, rawBody: raw.body, bytes: raw.bytes, ms: raw.ms + (Date.now() - started), rendered: true };
   } catch {
     return raw;
   }

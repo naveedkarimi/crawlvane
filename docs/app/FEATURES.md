@@ -100,10 +100,10 @@ An all-in-one website audit for the AI-search era. It checks a site for **search
 **Tested:** Pixenlo shows red (0 words; title and description only, no headings, no text). A well-built personal site shows green (281 words, 10 headings).
 
 **Next improvements:**
-- [ ] Add "What AI sees" to the Markdown and PDF report downloads.
-- [ ] When JavaScript rendering is on, show both word counts ("people: 1,240 words, AI crawlers: 0").
-- [ ] Shareable image of the view ("my site vs what ChatGPT sees") for social posts.
-- [ ] Use the view on the free single-purpose tool page "Can ChatGPT read my site?".
+- [x] Add "What AI sees" to the Markdown and PDF report downloads (2026-11-13).
+- [x] When JavaScript rendering is on, show both word counts (2026-11-13).
+- [x] Shareable image of the view for social posts (2026-11-13): "Share image" on the report's What AI sees card, from `/api/reports/[id]/ai-image`.
+- [x] Use the view on the free single-purpose tool page "Can ChatGPT read my site?" (the AI visibility checker uses it).
 
 ---
 
@@ -119,8 +119,8 @@ An all-in-one website audit for the AI-search era. It checks a site for **search
 **Improvements:**
 - [x] Mobile / desktop toggle (the API route already supports `strategy=desktop`; the screen only shows mobile).
 - [x] Top 5 "opportunities" with estimated savings (for example "Reduce unused JavaScript, saves 1.2 s"), rewritten in plain English with who should fix it.
-- [ ] Core Web Vitals across the whole site: test the top 5 to 10 pages from the crawl, not just one.
-- [ ] Track speed over time once accounts and monitoring exist.
+- [x] Core Web Vitals across the whole site: full reports test the top 5 pages (2026-11-13; needs `PAGESPEED_API_KEY`).
+- [x] Track speed over time (2026-11-13): full reports save the top-page average; the dashboard charts it.
 
 ---
 
@@ -185,52 +185,52 @@ Ordered by value for effort. ★ marks gaps most competitors leave open.
 ### A. Quick wins that bring in users (weeks)
 
 - [ ] **Email capture** before the PDF download and for "Get notified when Pro launches".
-- [ ] ★ **Free single-purpose tools**, each a page that can rank: "Can ChatGPT read my site?" (uses What AI sees), AI crawler robots.txt checker, llms.txt generator, schema generator.
-- [ ] **Public score badge** sites can embed, linking back to their report.
-- [ ] **Sample reports gallery** of public sites (with permission).
-- [ ] **Before/after report** after a re-run.
-- [ ] **"Fix it for me" button** on each report that opens a quote request with the report attached.
+- [x] ★ **Free single-purpose tools** (built: see /tools), each a page that can rank: "Can ChatGPT read my site?" (uses What AI sees), AI crawler robots.txt checker, llms.txt generator, schema generator.
+- [x] **Public score badge** sites can embed, linking back to their report.
+- [x] **Sample reports gallery** of public sites (with permission).
+- [x] **Before/after report** after a re-run.
+- [x] **"Fix it for me" button** on each report that opens a quote request with the report attached.
 - [ ] PageSpeed improvements from section 4.
 
 ### B. Core paid features (1 to 3 months)
 
-- [ ] **Accounts, projects and history** with score trend charts.
-- [ ] **Monitoring and alerts** (switch on, then add Slack).
-- [ ] ★ **AI visibility tracking over time**: same prompts weekly across ChatGPT, Claude, Perplexity, Gemini and AI Overviews; share of voice, sentiment, cited sources. All engines on every plan.
-- [ ] **Prompt gap list**: questions where competitors are mentioned and you are not, each with a content brief.
-- [ ] **"How AI describes you"**: what ChatGPT and Claude say about the business today, next to competitors.
-- [ ] **Search Console and GA4 connection**, including AI referral traffic.
-- [ ] **Issue tracker**: mark fixed, re-check one issue, assign, export to Jira, Trello, Linear or CSV.
+- [x] **Accounts, projects and history** with score trend charts.
+- [x] **Monitoring and alerts** (switch on, then add Slack).
+- [x] ★ **AI visibility tracking over time**: same prompts weekly across ChatGPT, Claude, Perplexity, Gemini and AI Overviews; share of voice, sentiment, cited sources. All engines on every plan.
+- [x] **Prompt gap list**: questions where competitors are mentioned and you are not, each with a content brief.
+- [x] **"How AI describes you"**: what ChatGPT and Claude say about the business today, next to competitors.
+- [x] **Search Console and GA4 connection**, including AI referral traffic.
+- [x] **Issue tracker**: mark fixed, re-check one issue, assign, export to Jira, Trello, Linear or CSV.
 
 ### C. Fix automation, the strongest difference (3 to 6 months)
 
-- [ ] ★ **WordPress plugin** that applies schema, llms.txt, robots.txt and meta fixes in one click.
+- [x] ★ **WordPress plugin** (in `wordpress/`) that applies schema, llms.txt, robots.txt and meta fixes in one click.
 - [ ] **Shopify app** with the same fixes. Parked 2026-11-08: the Shopify App Store already has several AEO and llms.txt apps from about $14.50 to $19/mo.
-- [ ] **GitHub pull request** with generated files.
-- [ ] **Cloudflare Worker template** serving llms.txt, a markdown version of each page and fixed headers.
-- [ ] **Answer rewrites**: AI writes a 40 to 60 word answer under each question heading.
-- [ ] **FAQ builder** from niche research, with FAQPage schema.
+- [x] **GitHub pull request** with generated files.
+- [x] **Cloudflare Worker template** serving llms.txt, a markdown version of each page and fixed headers.
+- [x] **Answer rewrites** (AI page helpers): AI writes a 40 to 60 word answer under each question heading.
+- [x] **FAQ builder** (AI page helpers) from niche research, with FAQPage schema.
 
 ### D. Deeper analysis
 
-- [ ] **AI bot traffic** from server logs (or a small script or Worker). No longer rare: Peec includes it on every plan, and Ahrefs Bot Analytics is free in beta.
-- [ ] **Entity check**: Wikidata, knowledge panel, consistent profiles.
-- [ ] **Internal link suggestions** from the crawl.
-- [ ] **Image SEO** and **accessibility basics**.
-- [ ] **Multi-language** (hreflang) and **local SEO** modes.
+- [x] **AI bot traffic** (log analyzer tool, and live counting from 2026-11-13) from server logs (or a small script or Worker). No longer rare: Peec includes it on every plan, and Ahrefs Bot Analytics is free in beta.
+- [x] **Entity check** (2026-11-13): Wikidata lookup by official website, sameAs link check; profiles were already checked. Knowledge panel needs Google's paid API, not done.
+- [x] **Internal link suggestions** from the crawl.
+- [x] **Image SEO** and **accessibility basics**.
+- [x] **Multi-language** (hreflang) and **local SEO** checks (no separate modes).
 
 ### E. Agency features (most proven paid market)
 
-- [ ] **Embeddable audit widget** with lead form and leads to email, webhook or Zapier.
-- [ ] **White-label reports** on the agency's domain and scheduled client reports.
-- [ ] **Client portal**, **bulk CSV audits**, **public API**, **team seats**.
+- [x] **Embeddable audit widget** with lead form and leads to email, webhook or Zapier.
+- [x] **White-label reports** on the agency's domain and scheduled client reports.
+- [x] **Bulk CSV audits**, **public API**, **team seats** (a separate client portal isn't built; agency report domains cover part of it).
 
 ### F. Trust and growth
 
 - [ ] **"State of AI readiness" report** from anonymised audit data.
 - [ ] **Industry benchmarks** inside each report.
 - [ ] **Real testimonials and logos** once you have them. Never invent them.
-- [ ] **Comparison pages**: vs Otterly, vs Peec, SEOptimer alternative.
+- [x] **Comparison pages**: vs Otterly and vs Peec (2026-11-13). SEOptimer added the same day (prices copied by hand from its pricing page).
 
 ### G. Free tools roadmap (added 2026-11-06)
 

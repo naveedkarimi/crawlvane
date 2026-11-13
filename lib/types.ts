@@ -43,6 +43,8 @@ export interface FetchedResource {
   error?: string;
   /** True when the body came from a headless browser (JavaScript ran) instead of the raw HTML. */
   rendered?: boolean;
+  /** The HTML before JavaScript ran, kept when rendered so AI crawlers' view can still be counted. */
+  rawBody?: string;
 }
 
 export interface AuditFacts {
@@ -57,6 +59,8 @@ export interface AuditFacts {
   h1: string[];
   lang: string;
   wordCount: number;
+  /** Only when JavaScript was rendered: words in the raw HTML, before JavaScript ran. */
+  rawWordCount?: number;
   schemaTypes: string[];
   internalLinks: number;
   externalLinks: number;

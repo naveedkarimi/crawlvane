@@ -18,7 +18,7 @@ export async function POST(req: Request) {
   const a = await requireAccount(req);
   if (a instanceof Response) return a;
   if (a.role === "viewer") return Response.json({ error: "Viewers can't add sites." }, { status: 403 });
-  if (!rateLimit("addsite:" + a.org.id, 30)) return Response.json({ error: "Too many changes. Try again in a bit." }, { status: 429 });
+  if (!await rateLimit("addsite:" + a.org.id, 30)) return Response.json({ error: "Too many changes. Try again in a bit." }, { status: 429 });
   const body = (await req.json().catch(() => ({}))) as { url?: unknown };
   // With the paywall on, the plan (plus any site packs) sets the limit; before that, the launch cap.
   const r = await addSite(a.org.id, String(body.url ?? ""), PAYWALL_ENABLED ? limitsFor(a.org).sites : MAX_SITES, PAYWALL_ENABLED);

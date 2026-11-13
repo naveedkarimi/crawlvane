@@ -188,9 +188,11 @@ export default function ReportView({ id }: { id: string }) {
               onLoadScreenshot={() => speed.run("mobile")}
               loadingScreenshot={speed.loading}
               screenshotError={speed.error}
+              shareImageUrl={r.status === "done" ? `/api/reports/${id}/ai-image` : undefined}
             />
           )}
           {r.home && on("pagespeed") && !printAll && <SpeedTest url={r.home.facts.finalUrl} speed={speed} />}
+          {r.speed ? <SiteSpeedCard speed={r.speed} /> : null}
           <div className="card">
             <h3>Top priorities</h3>
             <ul className="plain">
@@ -255,6 +257,7 @@ export default function ReportView({ id }: { id: string }) {
         <section>
           {printAll && <h2 className="print-h">Social & brand presence</h2>}
           {r.social && <SocialCard social={r.social} />}
+          {r.entity?.checked && <EntityCard e={r.entity} />}
           {r.socialPosts && <PostsCard posts={r.socialPosts} />}
         </section>
       ) : null}
@@ -855,6 +858,71 @@ function KeyPagesBotTest({ r }: { r: Report }) {
         })}
       </ul>
       <button type="button" className="btn btn-sm" disabled={busy || !chosen.length} onClick={run}>{busy ? "Testing…" : `Test ${chosen.length} page${chosen.length === 1 ? "" : "s"}`}</button>
+    </div>
+  );
+}
+
+const RATING_CLASS = { good: "c-pass", ok: "c-warn", bad: "c-fail", none: "muted" } as const;
+const RATING_WORD = { good: "Good", ok: "Needs work", bad: "Poor", none: "Not enough data" } as const;
+
+/** Google PageSpeed (mobile) on the site's top pages, with the fixes that help several pages at once. */
+function SiteSpeedCard({ speed }: { speed: NonNullable<Report["speed"]> }) {
+  if ("error" in speed) return <div className="card"><h3>Speed across your top pages</h3><p className="c-fail small">{speed.error}</p></div>;
+  const path = (u: string) => { try { return new URL(u).pathname || "/"; } catch { return u; } };
+  return (
+    <div className="card site-speed">
+      <div className="site-speed-head">
+        <div>
+          <h3>Speed across your top pages</h3>
+          <p className="muted small">Google PageSpeed on mobile, for the homepage and the pages your site links to most. Lab tests vary a few points between runs.</p>
+        </div>
+        {speed.average !== null && <div className="site-speed-avg"><span className={RATING_CLASS[speed.average >= 90 ? "good" : speed.average >= 50 ? "ok" : "bad"]}>{speed.average}</span><small>average score</small></div>}
+      </div>
+      <div className="table-wrap">
+        <table>
+          <thead><tr><th>Page</th><th>Score</th><th>LCP</th><th>CLS</th><th>Blocking time</th><th>Real visitors</th></tr></thead>
+          <tbody>
+            {speed.pages.map((p) => (
+              <tr key={p.url}>
+                <td className="mono small"><a href={p.reportUrl} target="_blank" rel="noopener noreferrer">{path(p.url)}</a></td>
+                {p.error ? <td colSpan={5} className="muted small">{p.error}</td> : (
+                  <>
+                    <td><strong className={RATING_CLASS[p.rating]}>{p.performance}</strong></td>
+                    <td>{p.lcp ?? "–"}</td><td>{p.cls ?? "–"}</td><td>{p.tbt ?? "–"}</td>
+                    <td className={`small ${RATING_CLASS[p.field]}`}>{RATING_WORD[p.field]}</td>
+                  </>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {speed.shared.length > 0 && (
+        <div className="site-speed-shared">
+          <h4>Fix once, speed up several pages</h4>
+          <ul>{speed.shared.map((x) => <li key={x.title}>{x.title} <span className="muted small">· {x.pages} pages · {x.who}</span></li>)}</ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Is the business a known entity on Wikidata, and does the site's schema point to it? */
+function EntityCard({ e }: { e: NonNullable<Report["entity"]> }) {
+  return (
+    <div className="card entity-card">
+      <h3>Entity check</h3>
+      {e.item ? (
+        <>
+          <p className="small"><span className="c-pass">✓</span> On Wikidata as <a href={e.item.url} target="_blank" rel="noopener noreferrer"><strong>{e.item.label}</strong> ({e.item.id})</a>{e.item.description ? ` — ${e.item.description}` : ""}.</p>
+          {e.linkedInSchema
+            ? <p className="small"><span className="c-pass">✓</span> Your schema&apos;s <code>sameAs</code> links to it, so AI and search engines can tie your site to this entity.</p>
+            : <p className="small"><span className="c-warn">!</span> Add <code>{e.item.url}</code> to the <code>sameAs</code> list in your Organization schema, so AI and search engines connect your site to this entity.</p>}
+          {e.others > 0 && <p className="muted small">{e.others} other Wikidata item{e.others === 1 ? " also lists" : "s also list"} this site as the official website. If they&apos;re duplicates, they can be merged on Wikidata.</p>}
+        </>
+      ) : (
+        <p className="small"><span className="c-warn">!</span> No Wikidata item lists this site as its official website. AI assistants use Wikidata to tell businesses apart. If your organisation meets Wikidata&apos;s notability rules (for example, it&apos;s covered by independent sources), an item with your official website helps; otherwise, keep your profiles consistent and listed in <code>sameAs</code>.</p>
+      )}
     </div>
   );
 }

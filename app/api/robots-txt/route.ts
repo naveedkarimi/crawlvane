@@ -28,7 +28,7 @@ export async function GET(req: Request) {
   }
   const hit = cache.get(origin);
   if (hit && Date.now() - hit.at < CACHE_MS) return Response.json(hit.data);
-  if (!rateLimit("robots:" + clientIp(req), Number(process.env.TOOL_PER_HOUR ?? 40)))
+  if (!await rateLimit("robots:" + clientIp(req), Number(process.env.TOOL_PER_HOUR ?? 40)))
     return Response.json({ error: "Too many checks from your network. Try again in a bit." }, { status: 429 });
 
   const r = await safeFetch(`${origin}/robots.txt`, { timeoutMs: 8000, accept: "text/plain,*/*" });

@@ -165,5 +165,9 @@ export interface Report {
   research?: ResearchResult | { error: string };
   social?: SocialPresence;
   socialPosts?: SocialPosts | { error: string };
+  /** Google PageSpeed (mobile) on the top pages; only when a PageSpeed key is set. */
+  speed?: import("./siteSpeed").SiteSpeed | { error: string };
+  /** Wikidata entity check for the site's domain. */
+  entity?: import("./entity").EntityCheck;
   error?: string;
 }
