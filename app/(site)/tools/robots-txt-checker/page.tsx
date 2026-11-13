@@ -3,9 +3,9 @@ import ToolPage from "@/components/ToolPage";
 import RobotsTool from "./RobotsTool";
 
 export const metadata: Metadata = {
-  title: "AI robots.txt checker and generator (GPTBot, ClaudeBot, PerplexityBot)",
+  title: "AI robots.txt checker and generator",
   description:
-    "Free tool: see which search and AI crawlers your robots.txt allows, test any path, then build a new robots.txt that lets AI search cite you and handles training bots your way.",
+    "See which search and AI crawlers your robots.txt allows, test any path, and build one that lets AI search cite you while you choose on training bots.",
   alternates: { canonical: "/tools/robots-txt-checker" },
 };
 

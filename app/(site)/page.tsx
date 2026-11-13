@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { ldJson } from "@/lib/jsonLd";
 import { ArrowRight, Bot, Check, Globe, MessageCircleQuestion, Search, Sparkles } from "lucide-react";
 import Home from "@/components/Home";
 import HowItWorks from "@/components/HowItWorks";
@@ -280,7 +281,7 @@ export default function Page() {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
+            __html: ldJson({
               "@context": "https://schema.org",
               "@type": "FAQPage",
               url: `${BRAND.url}/`,

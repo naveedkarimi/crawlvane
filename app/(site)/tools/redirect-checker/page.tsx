@@ -3,7 +3,7 @@ import ToolPage from "@/components/ToolPage";
 import RedirectTool from "./RedirectTool";
 
 export const metadata: Metadata = {
-  title: "Redirect checker: trace 301 and 302 chains, canonical and www",
+  title: "Redirect checker: 301, 302 chains and canonicals",
   description: "Follow every redirect hop with its HTTP status, check http to https, www and non-www, and whether your canonical tag points to a working page. Free.",
   alternates: { canonical: "/tools/redirect-checker" },
 };

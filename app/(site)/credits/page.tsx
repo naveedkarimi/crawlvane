@@ -5,7 +5,7 @@ import { posts } from "@/lib/blog";
 import { pexelsUrl, POST_IMAGES } from "@/lib/blog/images";
 
 export const metadata: Metadata = {
-  title: "Credits",
+  title: "Credits and acknowledgements",
   description: `The photos, open-source software, fonts, data services and research ${BRAND.name} is built on, with thanks.`,
   alternates: { canonical: "/credits" },
 };

@@ -3,8 +3,8 @@ import ToolPage from "@/components/ToolPage";
 import LogTool from "./LogTool";
 
 export const metadata: Metadata = {
-  title: "AI bot log analyzer: see GPTBot, ClaudeBot and PerplexityBot visits",
-  description: "Upload your server access log and see which AI crawlers visit, which pages they read, which get blocked, and how many visitors ChatGPT and Perplexity send you. Runs in your browser.",
+  title: "AI bot log analyzer: GPTBot and ClaudeBot visits",
+  description: "Upload your server log to see which AI crawlers visit, what they read, what gets blocked and how many visitors ChatGPT and Perplexity send. Runs in-browser.",
   alternates: { canonical: "/tools/ai-bot-log-analyzer" },
 };
 

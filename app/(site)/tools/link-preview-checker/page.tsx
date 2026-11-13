@@ -3,7 +3,7 @@ import ToolPage from "@/components/ToolPage";
 import PreviewTool from "./PreviewTool";
 
 export const metadata: Metadata = {
-  title: "Link preview checker: Open Graph and Google snippet preview",
+  title: "Link preview checker: Open Graph and snippets",
   description:
     "See how your link looks on Google, LinkedIn, Facebook, X, Slack and WhatsApp. Checks your title, meta description, og:image and Twitter card. Free.",
   alternates: { canonical: "/tools/link-preview-checker" },

@@ -3,7 +3,7 @@ import ToolPage from "@/components/ToolPage";
 import AnswersTool from "./AnswersTool";
 
 export const metadata: Metadata = {
-  title: "Answer readiness checker: can AI Overviews quote your page? (AEO)",
+  title: "Answer readiness checker (AEO) for AI Overviews",
   description:
     "Free AEO tool: lists the questions your page answers, checks each answer is short and direct enough to quote, and suggests headings to rephrase as questions.",
   alternates: { canonical: "/tools/answer-readiness-checker" },

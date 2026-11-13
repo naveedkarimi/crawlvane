@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ldJson } from "@/lib/jsonLd";
 import { ArrowRight, Check } from "lucide-react";
 import { BRAND, contactLink } from "@/lib/brand";
 import LeadForm from "@/components/LeadForm";
@@ -11,7 +12,7 @@ import { Minus } from "lucide-react";
 import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
-  title: "Pricing",
+  title: "Pricing and plans",
   description: `${BRAND.name} is free during launch. See what's in the free plan and what's coming in Pro and Agency.`,
   alternates: { canonical: "/pricing" },
 };
@@ -114,7 +115,7 @@ export default function PricingPage() {
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{
-              __html: JSON.stringify({
+              __html: ldJson({
                 "@context": "https://schema.org",
                 "@type": "FAQPage",
                 url: `${BRAND.url}/pricing`,

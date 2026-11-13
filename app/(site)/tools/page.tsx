@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ldJson } from "@/lib/jsonLd";
 import { ArrowRight } from "lucide-react";
 import { ToolGrid } from "@/components/ToolPage";
 import HeroDecor from "@/components/HeroDecor";
@@ -8,7 +9,7 @@ import { TOOL_GROUPS, TOOLS, toolUrl } from "@/lib/tools";
 export const metadata: Metadata = {
   title: "Free SEO and AI search tools",
   description:
-    "Free tools to check whether ChatGPT, Claude and Perplexity can read and cite your site: AI visibility checker, AI bot checker, robots.txt and llms.txt generators, schema generator.",
+    "Free tools to check whether ChatGPT, Claude and Perplexity can read and cite your site: AI visibility, AI bots, robots.txt, llms.txt and schema.",
   alternates: { canonical: "/tools" },
 };
 
@@ -44,7 +45,7 @@ export default function Page() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: ldJson({
             "@context": "https://schema.org",
             "@type": "CollectionPage",
             name: "Free SEO and AI search tools",

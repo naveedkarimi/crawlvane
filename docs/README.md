@@ -6,6 +6,8 @@
 - [Product guide](app/APP-FEATURES.md)
 - [Plans, pricing and growth](app/PLANS.md): what each level gets, billing, and money ideas
 - [Accounts, dashboard and payments build plan](app/ACCOUNTS-PLAN.md)
+- [Accounts to create](app/ACCOUNTS-TO-CREATE.md): every outside service to sign up for, with its settings
+- [What it costs](app/COSTS.md): what to buy, when, and rough prices
 - [Product master document](app/FEATURES.md)
 - [Brand guide](app/BRAND.md)
 - [Roadmap](app/ROADMAP.md)

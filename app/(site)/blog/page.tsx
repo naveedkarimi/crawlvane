@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ldJson } from "@/lib/jsonLd";
 import { BRAND } from "@/lib/brand";
 import { posts } from "@/lib/blog";
 import PostCard from "@/components/PostCard";
@@ -7,7 +8,7 @@ import NewsletterBox from "@/components/NewsletterBox";
 
 export const metadata: Metadata = {
   title: "Blog: SEO, answer engines and AI search, explained",
-  description: `Practical guides on SEO, AEO and GEO: how ChatGPT, Claude and Perplexity read websites, which AI crawlers to allow, Core Web Vitals and more. From the ${BRAND.name} team.`,
+  description: `Practical guides on SEO, AEO and GEO: how ChatGPT, Claude and Perplexity read websites, which AI crawlers to allow, Core Web Vitals and more.`,
   alternates: { canonical: "/blog" },
 };
 
@@ -34,7 +35,7 @@ export default function BlogIndex() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: ldJson({
             "@context": "https://schema.org",
             "@type": "Blog",
             name: `${BRAND.name} blog`,

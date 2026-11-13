@@ -4,11 +4,12 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { ArrowLeft, ArrowRight, Mail } from "lucide-react";
 import type { Provider } from "@supabase/supabase-js";
 import { browserAuth } from "@/lib/supabaseBrowser";
+import { safeNextPath } from "@/lib/safeNext";
 
 /** Where to go after signing in: the ?next= path if it's on this site, otherwise the dashboard. */
 function nextPath(): string {
   const n = new URLSearchParams(window.location.search).get("next") ?? "/dashboard";
-  return n.startsWith("/") && !n.startsWith("//") ? n : "/dashboard";
+  return safeNextPath(n);
 }
 const callback = () => `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath())}`;
 

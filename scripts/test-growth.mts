@@ -257,3 +257,13 @@ console.log("✓ cited sources and recounts after a correction");
 
 assert.equal(sign("whsec_test", '{"a":1}'), "sha256=" + (await import("node:crypto")).createHmac("sha256", "whsec_test").update('{"a":1}').digest("hex"));
 console.log("✓ webhook requests are signed");
+
+// ---------- Security: sign-in redirects stay on this site ----------
+const { safeNextPath } = await import("../lib/safeNext");
+for (const bad of ["//evil.example", "/\\evil.example", "/\\/evil.example", "https://evil.example", "javascript:alert(1)", "/%0d%0aSet-Cookie:x", "/dash\u0000board", "", null]) {
+  const out = safeNextPath(bad as string | null);
+  assert.ok(out === "/dashboard" || out.startsWith("/%0d"), `rejected ${JSON.stringify(bad)} → ${out}`);
+}
+assert.equal(safeNextPath("/dashboard?tab=plan&buy=pro"), "/dashboard?tab=plan&buy=pro");
+assert.equal(safeNextPath("/invite/abc#x"), "/invite/abc#x");
+console.log("✓ sign-in redirects can't leave the site");

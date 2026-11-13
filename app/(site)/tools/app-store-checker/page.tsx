@@ -4,9 +4,9 @@ import ToolPage from "@/components/ToolPage";
 import AppCheck from "@/components/AppCheck";
 
 export const metadata: Metadata = {
-  title: "App Check: free App Store and Google Play listing audit (ASO)",
+  title: "App Store and Google Play listing checker (ASO)",
   description:
-    "Free tool: check any app's App Store or Google Play listing in any country. See its rating, screenshots, freshness and search basics, and get a score with what to fix.",
+    "Free App Store and Google Play listing check for any country: rating, screenshots, freshness and search basics, with a score and what to fix.",
   alternates: { canonical: "/tools/app-store-checker" },
 };
 

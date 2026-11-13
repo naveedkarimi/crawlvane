@@ -5,7 +5,7 @@ import SpeedTool from "./SpeedTool";
 export const metadata: Metadata = {
   title: "Free mobile page speed test (Core Web Vitals)",
   description:
-    "Test your page speed on mobile and desktop with Google PageSpeed data: performance score, LCP, INP and CLS from real visitors, and the top fixes in plain English.",
+    "Test your page speed on mobile and desktop with Google PageSpeed data: performance score, LCP, INP and CLS from real visitors, plus the top fixes.",
   alternates: { canonical: "/tools/page-speed-test" },
 };
 
