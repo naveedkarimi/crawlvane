@@ -182,7 +182,7 @@ export default function SiteHeader({ guides }: { guides: GuideLink[] }) {
                       {guides.slice(0, 2).map((g) => (
                         <a key={g.slug} href={`/blog/${g.slug}`} className="mega-post">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          {g.img && <img src={g.img} alt="" loading="lazy" />}
+                          {g.img && <img src={g.img} alt="" width={1200} height={750} loading="lazy" decoding="async" />}
                           <small>{g.tag}</small>
                           <strong>{g.title}</strong>
                         </a>

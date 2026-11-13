@@ -105,7 +105,7 @@ export function comparisonMarkdown(c: Comparison): string {
   return `
 ${c.name} and ${BRAND.name} both ${c.common}, but they start from different places. ${c.name} is ${lowerFirst(c.what)} ${BRAND.name} audits your site for search engines, answer engines and AI assistants, then gives you the fixes to paste in.
 
-## At a glance
+## How do they compare at a glance?
 
 | | ${BRAND.name} | ${c.name} |
 |---|---|---|
@@ -115,15 +115,15 @@ ${c.name} and ${BRAND.name} both ${c.common}, but they start from different plac
 | AI engines | ChatGPT, Claude, Perplexity and Gemini (each needs its provider key) | ${c.engines} |
 | Fixes | Writes robots.txt, llms.txt, schema and meta tags for your site | ${c.fixes} |
 
-## Choose ${c.name} if
+## When should you choose ${c.name}?
 
 ${c.theyWin.map((x) => `- ${x}`).join("\n")}
 
-## Choose ${BRAND.name} if
+## When should you choose ${BRAND.name}?
 
 ${c.weWin.map((x) => `- ${x}`).join("\n")}
 
-## Use both
+## Can you use both?
 
 They fit together: ${c.together}
 

@@ -293,7 +293,13 @@ export function agentReadiness(html: string): AgentReport {
   const h1 = $("h1").length;
   checks.push(h1 === 1 ? { status: "pass", title: "One main heading", detail: "Exactly one H1." } : { status: "warn", title: "One main heading", detail: `${h1} H1 headings.`, fix: "Use one H1 that says what the page is for." });
 
-  const fields = $("input,select,textarea").filter((_, el) => !/^(hidden|submit|button|reset|image)$/i.test($(el).attr("type") ?? ""));
+  // Hidden fields (spam honeypots, inert sections) aren't for people or agents, so they don't need a label.
+  const fields = $("input,select,textarea").filter((_, el) => {
+    const f = $(el);
+    if (/^(hidden|submit|button|reset|image)$/i.test(f.attr("type") ?? "")) return false;
+    if (f.closest('[aria-hidden="true"], [hidden], [inert]').length) return false;
+    return !(f.attr("aria-hidden") === "true" && f.attr("tabindex") === "-1");
+  });
   const unlabelled = fields.filter((_, el) => {
     const f = $(el);
     const id = f.attr("id");
