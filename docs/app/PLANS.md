@@ -163,18 +163,26 @@ Run `npm test` afterwards: `scripts/test-tiers.mts` and `scripts/test-entitlemen
 
 ---
 
-## Ideas not built yet
+## Ideas: built and still open
 
-Roughly in order of how much they'd earn for the effort.
+Built on 2026-11-11 (switch on with the settings in `ACCOUNTS-PLAN.md`):
 
-1. **Upgrade emails at the right moments:** after a weekly check finds a drop ("see what changed, and track competitors on Pro"), three days before a trial ends, and when a free team hits a limit.
-2. **Buy one report without an account:** "Get this site's full report for $39" right on the page check, with checkout before sign-up. People who won't subscribe often pay once.
-3. **Priced done-for-you work:** quote per issue type inside reports ("fix these 4 schema issues for $X") instead of a free-text form.
-4. **Referrals:** a free month for each paying team someone refers.
-5. **Agency add-ons:** extra seats and extra sites as paid add-ons, so an agency's bill grows with its client list.
-6. **Annual-only discount for Agency,** to lock in the biggest customers.
-7. **Google Search Console and GA4 connection** for Pro: real clicks, impressions and AI referral traffic next to the scores. It makes the product hard to cancel.
-8. **Usage-based AI visibility:** sell extra questions per site as credit packs instead of a hard limit.
+- **Upgrade emails** after a weekly check finds a drop (Free teams), 3 days before a trial ends, and when a team hits a limit (`lib/lifecycle.ts`, once per team per period).
+- **Buy one report without an account:** "Get the full report for $X" on the page check; pay, sign in, and it runs (`PRICE_REPORT_LABEL`).
+- **Priced done-for-you work:** "From $X" per fix type in reports, from `lib/fixPrices.ts`.
+- **Referrals:** a link per team; one free month (Stripe credit) for each referred team that starts paying.
+- **Agency add-ons:** extra seats ($10 a month each) and site packs ($20 a month per 10 sites) on the Agency subscription.
+- **Google Search Console and GA4 connection** for every team: clicks, impressions, top searches and AI referral visits per site.
+- **AI visibility gaps:** questions where competitors are named and you aren't, with a content brief (credits).
+
+Next, from the capability extensions review (`FEATURES.md`, section 16): quick adds that reuse data the app already has, such as Search Console opportunities (high impressions and low click rate, positions 8 to 20), GA4 landing pages next to audit issues, report comparison with an executive summary, and webhooks. None of them change current plans or limits; which plan each sits in is suggested there.
+
+Still open:
+
+1. **Annual-only discount for Agency.** Pricing only: set a yearly Agency price in Stripe (`STRIPE_PRICE_AGENCY_YEARLY`).
+2. **Usage-based AI visibility:** extra questions per site sold as credit packs instead of a hard limit.
+3. **Comparison pages** (vs Otterly, vs Peec). Check competitors' prices and features on their own sites first.
+4. **Industry benchmarks and a "State of AI readiness" report**, once there's enough real audit data. Never estimate.
 
 ## Before taking money
 

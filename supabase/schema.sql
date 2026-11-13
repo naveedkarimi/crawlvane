@@ -408,6 +408,8 @@ declare
 begin
   delete from public.documents d
   where d.collection = 'reports'
+    -- Reports published as samples (with the site owner's permission) are kept.
+    and not exists (select 1 from public.sample_reports s where s.report_id = d.id)
     and (
       d.updated_at < now() - make_interval(days => p_paid_days)
       or (
@@ -426,6 +428,88 @@ $$;
 revoke all on function public.prune_reports(integer, integer) from public, anon, authenticated;
 grant execute on function public.prune_reports(integer, integer) to service_role;
 grant execute on function public.bump_usage(uuid, text, text, integer) to service_role;
+
+-- ---------- Growth (2026-11-11): referrals, add-ons, Slack, one-off reports, issue owners, upgrade emails ----------
+alter table public.organizations add column if not exists referral_code text unique;
+alter table public.organizations add column if not exists referred_by uuid references public.organizations (id) on delete set null;
+alter table public.organizations add column if not exists slack_webhook text;
+alter table public.organizations add column if not exists extra_seats integer not null default 0;
+alter table public.organizations add column if not exists extra_site_packs integer not null default 0;
+
+alter table public.organizations add column if not exists webhook_url text;
+alter table public.organizations add column if not exists webhook_secret text;
+
+-- One free month for the referrer when a referred team first pays. Pending until the referrer has a subscription to credit.
+create table if not exists public.referral_rewards (
+  id bigint generated always as identity primary key,
+  referrer_org uuid not null references public.organizations (id) on delete cascade,
+  referred_org uuid not null unique references public.organizations (id) on delete cascade,
+  status text not null default 'pending' check (status in ('pending', 'applied')),
+  created_at timestamptz not null default now(),
+  applied_at timestamptz
+);
+alter table public.referral_rewards enable row level security;
+
+-- A one-off report bought before signing in, linked to the team that claimed it (each payment once).
+create table if not exists public.guest_report_claims (
+  session_id text primary key,
+  org_id uuid not null references public.organizations (id) on delete cascade,
+  claimed_at timestamptz not null default now()
+);
+alter table public.guest_report_claims enable row level security;
+
+-- Who on the team is fixing an issue on a saved site, how far it has got, and a short note.
+create table if not exists public.issue_assignments (
+  site_id uuid not null references public.sites (id) on delete cascade,
+  check_id text not null,
+  assignee uuid references auth.users (id) on delete cascade,
+  assigned_by uuid references auth.users (id) on delete set null,
+  created_at timestamptz not null default now(),
+  primary key (site_id, check_id)
+);
+alter table public.issue_assignments enable row level security;
+alter table public.issue_assignments alter column assignee drop not null;
+alter table public.issue_assignments add column if not exists status text not null default 'open';
+alter table public.issue_assignments add column if not exists note text;
+alter table public.issue_assignments drop constraint if exists issue_assignments_status_check;
+alter table public.issue_assignments add constraint issue_assignments_status_check check (status in ('open', 'doing', 'done'));
+
+-- Emails left on the AI free tools ("How does AI describe my business?") are leads of kind 'tool'.
+alter table public.leads drop constraint if exists leads_kind_check;
+alter table public.leads add constraint leads_kind_check check (kind in ('waitlist', 'fix', 'contact', 'tool'));
+
+-- Public sample reports: real reports shown on /examples, with the site owner's permission. Kept past the usual deletion.
+create table if not exists public.sample_reports (
+  report_id text primary key,
+  site text not null,
+  title text not null,
+  summary text,
+  permission text not null,
+  added_at timestamptz not null default now()
+);
+alter table public.sample_reports enable row level security;
+
+-- Google Search Console and GA4, read-only. The refresh token is encrypted by the app before it's stored.
+create table if not exists public.google_connections (
+  org_id uuid primary key references public.organizations (id) on delete cascade,
+  email text,
+  refresh_token text not null,
+  scopes text,
+  created_at timestamptz not null default now()
+);
+alter table public.google_connections enable row level security;
+alter table public.sites add column if not exists gsc_property text;
+alter table public.sites add column if not exists ga4_property text;
+
+-- Upgrade and trial emails, so each one is sent once per team per period.
+create table if not exists public.lifecycle_emails (
+  org_id uuid not null references public.organizations (id) on delete cascade,
+  kind text not null,
+  period text not null,
+  sent_at timestamptz not null default now(),
+  primary key (org_id, kind, period)
+);
+alter table public.lifecycle_emails enable row level security;
 
 -- Bring across anything already saved in documents.
 insert into public.leads (id, kind, email, name, url, message, source, created_at)

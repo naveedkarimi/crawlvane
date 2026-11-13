@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     url: BRAND.url,
     siteName: BRAND.name,
     title: `${BRAND.name}: ${BRAND.tagline}`,
-    description: "Check if your site is ready for Google, Bing, ChatGPT, Claude, Perplexity and AI Overviews, and get the fixes.",
+    description: "Check if your site is ready for search engines, ChatGPT, Claude, Perplexity and AI Overviews, and get the fixes.",
   },
   twitter: { card: "summary_large_image" },
   authors: [{ name: BRAND.name, url: BRAND.url }],

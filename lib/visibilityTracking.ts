@@ -60,6 +60,8 @@ export function visibilityAlert(prev: VisibilityRun | null, next: VisibilityRun)
   return null;
 }
 
+export { promptGaps, type PromptGap } from "./promptGaps";
+
 export async function listTrackers(orgId: string): Promise<Tracker[]> {
   const { data: ts, error } = await db().from("visibility_trackers").select("id, site_id, brand, prompts, competitors, last_run_at, sites!inner(domain)").eq("org_id", orgId).order("created_at");
   if (error) failed("read", error);

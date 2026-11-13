@@ -3,6 +3,7 @@ import { BRAND } from "@/lib/brand";
 import { posts } from "@/lib/blog";
 import PostCard from "@/components/PostCard";
 import PageHero from "@/components/PageHero";
+import NewsletterBox from "@/components/NewsletterBox";
 
 export const metadata: Metadata = {
   title: "Blog: SEO, answer engines and AI search, explained",
@@ -25,6 +26,8 @@ export default function BlogIndex() {
           <div className="post-grid">
             {rest.map((p) => <PostCard key={p.slug} post={p} heading="h2" />)}
           </div>
+
+          <NewsletterBox />
         </div>
       </section>
 

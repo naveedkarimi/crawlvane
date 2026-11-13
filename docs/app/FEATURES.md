@@ -1,15 +1,15 @@
-# Findable: product master document
+# Crawlvane: product master document
 
 Last updated 2026-11-06. Everything we have decided and discussed about the product in one place: features, findings, the business case, launch plan, growth, brand and domain. Update this file whenever a decision changes.
 
 Related files: `TODO.md` (step-by-step work plan with checkboxes), `BRAND.md` (look, voice and the Claude Design prompt), `APP-FEATURES.md` (setup and switches), `README.md` (developer notes).
 
 **Contents**
-1. What Findable is
+1. What Crawlvane is
 2. Feature inventory
 3. "What AI sees" (built 2026-11-06)
 4. Site speed test (PageSpeed)
-5. Findable audited by Findable
+5. Crawlvane audited by Crawlvane
 6. Real example: Pixenlo
 7. Features to add
 8. How to make people come back
@@ -23,11 +23,11 @@ Related files: `TODO.md` (step-by-step work plan with checkboxes), `BRAND.md` (l
 
 ---
 
-## 1. What Findable is
+## 1. What Crawlvane is
 
 An all-in-one website audit for the AI-search era. It checks a site for **search engines (SEO)**, **answer engines (AEO)** and **AI assistants (GEO)**, then hands over the fixes instead of just a score.
 
-**Positioning:** most AI visibility tools only track numbers. Findable tells you what to change, gives you the code, and shows you what AI actually sees.
+**Positioning:** most AI visibility tools only track numbers. Crawlvane tells you what to change, gives you the code, and shows you what AI actually sees.
 
 ### How the features fit together
 
@@ -124,7 +124,7 @@ An all-in-one website audit for the AI-search era. It checks a site for **search
 
 ---
 
-## 5. Findable audited by Findable
+## 5. Crawlvane audited by Crawlvane
 
 The app's own analyzer run against its pages (production build).
 
@@ -314,7 +314,7 @@ Social media brings first visits. People return when the product gives them a re
 4. **Timely alerts**: "OpenAI added a new crawler; here is whether your site allows it."
 5. **Public score badge** that also brings new visitors.
 
-## What makes Findable unique
+## What makes Crawlvane unique
 
 - **What AI sees** (built): people view vs AI crawler view in one picture.
 - **Fixes, not just scores**: copy-paste code today, one-click WordPress fixes next.
@@ -339,7 +339,7 @@ Rules: never post fake numbers; get permission before naming private businesses 
 
 ## 10. Business: can it make money?
 
-**Honest view:** as a pure subscription tool the odds are modest; the market is crowded with funded players. A common rule of thumb for free-to-paid conversion in tools like this is 1 to 3% (not measured for Findable). Illustration only: 1,000 free audits a month × 2% × $49 ≈ $1,000 a month.
+**Honest view:** as a pure subscription tool the odds are modest; the market is crowded with funded players. A common rule of thumb for free-to-paid conversion in tools like this is 1 to 3% (not measured for Crawlvane). Illustration only: 1,000 free audits a month × 2% × $49 ≈ $1,000 a month.
 
 **Better odds come from combining:**
 1. **Leads for your services**: one $500 to $1,500 implementation job beats dozens of subscriptions.
@@ -424,7 +424,7 @@ MAX_CONCURRENT_JOBS=2
 
 ### Name and domain
 
-- **"Findable" is a working name only.** Every domain checked is registered: findable.com, .ai, .app, .io, .so, getfindable.com, usefindable.com, tryfindable.com, findableai.com, findablehq.com (whois, 2026-11-05).
+- **"Crawlvane" is a working name only.** Every domain checked is registered: findable.com, .ai, .app, .io, .so, getfindable.com, usefindable.com, tryfindable.com, findableai.com, findablehq.com (whois, 2026-11-05).
 - About 30 alternatives were checked; most `.com` names are taken. **Looked unregistered:** `rankcite.ai`, `quotewise.ai`, `cite-ready.com` (avoid the hyphen). Whois is a hint; confirm at a registrar. `.ai` usually costs more per year than `.com`.
 - **Switching domain is one setting:** `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_APP_NAME` in `.env`, then rebuild (tested with a fake domain: no old references remain). If the old domain was ever public, 301-redirect it.
 
@@ -544,12 +544,12 @@ Status as of 2026-11-06. ✅ done · 🔨 building now · ⏳ next.
 |---|---|
 | 2026-11-05 | Product reviewed; to-do list created (`TODO.md`). |
 | 2026-11-05 | Phase 0 fixes done: pricing page, broken sections, one design system, committed on branch `seo-audit-findable`. |
-| 2026-11-05 | Working name "Findable"; logo is a lens with a spark. |
+| 2026-11-05 | Working name "Crawlvane"; logo is a lens with a spark. |
 | 2026-11-05 | Palette changed twice; final: Rustic Autumn. CTA band kept plain. |
 | 2026-11-05 | Real product screenshots and Pexels photos replace mock-ups and stock-only images. |
 | 2026-11-05 | Self-audit: home 88 → 98, pricing 88 → 97; three analyzer false results fixed. |
 | 2026-11-05 | Launch with the free plan; paid features stay off until accounts and Stripe exist. |
-| 2026-11-05 | Separate domain and full brand planned; "Findable" domains all taken; domain made a single setting. |
+| 2026-11-05 | Separate domain and full brand planned; "Crawlvane" domains all taken; domain made a single setting. |
 | 2026-11-06 | "What AI sees" built (page check and full report). |
 | 2026-11-06 | Site speed test: keep the existing PageSpeed feature and improve it (API key, desktop toggle, opportunities) instead of cloning pagespeed.web.dev. |
 | 2026-11-06 | Speed test finished: mobile/desktop, plain-English top fixes with savings and owner, whole-site field data fallback, 15-minute cache. |
@@ -591,3 +591,66 @@ Google has no public listing API, and reading Play pages directly risks breaking
 **Not built yet:** weekly app monitoring with email alerts. It needs the monitoring feature (`FEATURE_MONITORING`) switched on first.
 
 **Stored:** `app_checks` table (store, app, country, score, failed checks), deleted after 12 months.
+
+---
+
+## 16. Capability extensions review (2026-11-12)
+
+A review of `docs/CRAWLVANE-CAPABILITY-EXTENSIONS.md` against the code. Built items are ticked in that file. Its rules still apply to everything below: new work is added alongside existing checks, never changes current scores, plans or limits, sits behind a feature flag until it's tested, and says where its data came from.
+
+### Already built
+
+| Area | What's there | Where |
+|---|---|---|
+| Crawl and site structure | Duplicate titles and descriptions, thin pages, pages more than 3 clicks deep, orphan pages, pages missing from the sitemap, sitemap entries that aren't indexable, broken links with their source pages, internal links that redirect, pages blocked by bot protection, slow pages | Full report → Issues (`lib/crawl.ts`) |
+| Internal links | Suggested links between related pages, with anchor text, for poorly linked pages | Full report → Pages (`lib/linkSuggest.ts`) |
+| Change detection | Before/after against the last check (new and fixed issues); monitoring alerts list page-by-page changes to title, description, canonical, H1, noindex, robots and schema | Page check, weekly checks (`lib/drift.ts`) |
+| Technical tools | Sitemap validator (lastmod, size, other-host and duplicate URLs), redirect and canonical checker (http/https, www), security headers incl. X-Robots-Tag noindex, hreflang and local business checks in the audit | Free tools, audit checks |
+| AEO | Answer readiness (question headings, answer length), topic coverage, answer rewrites, FAQ builder | Free tool, AI helpers |
+| Content drafts | Title and description ideas, answer passages, FAQs; mark a fix as done and re-check that one issue | AI helpers, page check |
+| GEO and AI visibility | Questions you choose, tracked weekly across assistants: mention, citation and cited URLs, competitor mentions, sentiment, history per assistant, share of voice, prompt gaps with content briefs | Dashboard → AI visibility |
+| AI crawlers | Access map for 19 crawlers by purpose (search, user-triggered, training), live test as 14 bots, server-log analyzer | Audit, free tools |
+| Search data | Search Console (clicks, impressions, CTR, position, top searches and pages) and GA4 visits from AI assistants, per saved site | Dashboard → Websites |
+| Workflow | Assign fixes to teammates, export for Jira, Linear or CSV, Slack alerts, scheduled client reports, API keys, roles | Dashboard |
+
+### Quick adds (a few hours to a day each, no new data provider)
+
+**All 14 built on 2026-11-12** (tests in `scripts/test-growth.mts`). Q1 to Q6 and Q10 are the full report's new Diagnostics tab and Pages exports; Q7 and Q8 are in the dashboard's Search Console and GA4 panel; Q9 is in AI visibility; Q11 is Settings → Webhook; Q12 is the Fixes list; Q13 and Q14 are the Summary card at the top of a report. None of them changes a score, check, plan or limit.
+
+These reuse data the app already collects. Each would ship behind a feature flag, outside the score.
+
+| # | Quick add | Builds on | Plan |
+|---|---|---|---|
+| Q1 | **Crawl coverage summary:** discovered, crawled, failed, blocked and skipped URL counts with the reason for each, plus a CSV export | Crawl results already hold status, errors and blocks | Free (full report) |
+| Q2 | **Page groups:** pages sharing a title, description or H1 shown as groups, plus exact-duplicate pages (same main text) | Page summaries; add a text hash per page | Free |
+| Q3 | **Soft 404s:** pages that return 200 but look like error pages ("not found" title or H1, almost no text), labelled as likely | Page audits in the crawl | Free |
+| Q4 | **URL consistency:** the same page reached with and without a trailing slash, or in different letter case | The crawled URL set | Free |
+| Q5 | **Links to pages that shouldn't get them:** internal links pointing at noindex pages or at a different canonical | Link map, noindex and canonical per page | Free |
+| Q6 | **Links in and out per page** in the Pages table, and CSV exports of pages and link suggestions | Link map | Free |
+| Q7 | **Search Console opportunities:** pages with many impressions but a low click rate, and searches in positions 8 to 20; country and device split | The existing Google connection | Free account |
+| Q8 | **GA4 landing pages:** top landing pages with sessions and engaged sessions, next to each page's audit issues | The existing Google connection | Free account |
+| Q9 | **AI visibility detail:** which competitor domains get cited per question, and a "this isn't us" button to correct a wrong brand match | Visibility rows already store cited URLs | Pro |
+| Q10 | **AI crawler access for key pages:** run the existing bot test on up to 5 chosen URLs, not only the home page | `runBotTest` | Free account |
+| Q11 | **Webhooks:** a team webhook for alerts and finished reports, for Zapier and similar | Slack sending code | Pro |
+| Q12 | **Status and notes on fixes:** open, in progress or done, with a short note, next to the assignee | `issue_assignments` | Free account |
+| Q13 | **Compare two reports** of the same site: new and resolved site-wide issues and score change | Stored reports | Pro |
+| Q14 | **Executive summary** at the top of a report: top 3 issues and what changed since the last report | Q13 | Free |
+
+Suggested order: Q1, Q2, Q5, Q6 (report quality), then Q7, Q8 (connected data, high value now that Google is connected), then Q12, Q13, Q14, then the rest.
+
+### Bigger pieces (days to weeks)
+
+| Item | Why it's bigger |
+|---|---|
+| Near-duplicate content and topic clusters | Needs text similarity across every crawled page, and a page-group view |
+| Raw HTML vs rendered DOM comparison | Needs JavaScript rendering (Browserless) for each compared page |
+| Entity inventory and citation-readiness across the site | AI assessment per page, with evidence; credits and caps |
+| Migration mode | Old and new URL sets, redirect mapping and before/after comparison |
+| Content backlog with stages (draft, review, published, re-check) | New workflow screens and data |
+| Activity log, report templates and annotations, client approvals | New agency screens and data |
+| Bing Webmaster Tools | Its own API key and connection flow |
+| Verified crawler visits from logs (reverse DNS) | Server-side log processing and verification |
+
+### Needs a paid data provider (not planned until one is chosen)
+
+Keyword volumes and difficulty, rank and SERP-feature tracking, backlinks and referring domains, external listing consistency for local SEO, and question datasets. The extensions file's rule applies: never invent these numbers.

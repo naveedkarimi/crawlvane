@@ -1,3 +1,6 @@
+import { createHash } from "node:crypto";
+import { suggestLinks } from "./linkSuggest";
+import { diagnose } from "./siteDiagnostics";
 import * as cheerio from "cheerio";
 import { BotBlockedError, auditFetched, fetchPage, type SiteContext } from "./audit";
 import type { AuditResult, Check } from "./types";
@@ -60,6 +63,8 @@ function summarize(r: AuditResult, depth: number, inlinks: number): PageSummary 
     fails: perPage.filter((c) => c.status === "fail").map((c) => c.id),
     warns: perPage.filter((c) => c.status === "warn").map((c) => c.id),
     inlinks,
+    // A short fingerprint of the page's main text, to spot exact duplicates without storing the text.
+    textKey: r.facts.textExcerpt && r.facts.wordCount >= 30 ? createHash("sha1").update(r.facts.textExcerpt.replace(/\s+/g, " ").trim()).digest("hex").slice(0, 16) : undefined,
   };
 }
 
@@ -83,6 +88,8 @@ export async function crawlSite(startUrl: string, ctx: SiteContext, home: AuditR
   const inlinks = new Map<string, Set<string>>(); // target -> sources
   const queue: string[] = [];
   const results = new Map<string, { audit?: AuditResult; status: number; error?: string; redirectedTo?: string; depth: number; blocked?: boolean }>();
+  /** Found but not web pages (PDFs, feeds…), for the coverage summary. */
+  const skipped: string[] = [];
 
   const enqueue = (u: string, depth: number, from?: string) => {
     if (from) {
@@ -136,6 +143,7 @@ export async function crawlSite(startUrl: string, ctx: SiteContext, home: AuditR
           continue;
         }
         if (/not an HTML page/.test(msg)) {
+          skipped.push(url);
           await opts.onProgress?.(++finished, target(), url, "skipped, not a web page");
           continue; // PDFs, feeds etc. aren't broken, just not pages
         }
@@ -148,7 +156,7 @@ export async function crawlSite(startUrl: string, ctx: SiteContext, home: AuditR
   };
   await Promise.all(Array.from({ length: Math.max(1, opts.concurrency) }, worker));
 
-  return { results, inlinks, discovered: seen.size, start };
+  return { results, inlinks, discovered: seen.size, start, seen, skipped };
 }
 
 function groupIssues(audits: AuditResult[], home: AuditResult): IssueGroup[] {
@@ -291,5 +299,16 @@ export function buildSiteAudit(
     scores: { overall: Math.round(seo * 0.45 + aeo * 0.25 + geo * 0.3), seo, aeo, geo },
     issues,
     pages,
+    diagnostics: diagnose({
+      seen: crawl.seen ? [...crawl.seen.entries()].map(([url, depth]) => ({ url, depth })) : [],
+      skipped: crawl.skipped ?? [],
+      results: [...results.entries()].map(([url, r]) => ({ url, status: r.status, error: r.error, blocked: r.blocked, redirectedTo: r.redirectedTo, depth: r.depth })),
+      pages,
+      inlinks,
+    }),
+    linkSuggestions: suggestLinks(audits.map((a) => ({
+      url: a.facts.finalUrl || a.url, title: a.facts.title, h1: a.facts.h1?.[0] ?? "", description: a.facts.metaDescription,
+      inlinks: inlinks.get(a.url)?.size ?? 0, noindex: a.checks.some((c) => c.id === "indexable" && c.status === "fail"), status: a.facts.status,
+    })), inlinks),
   };
 }

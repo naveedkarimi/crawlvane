@@ -9,7 +9,7 @@ import type { AuditResult } from "./types";
  * sites, reports and later plans and credits belong to the organisation so teams share them.
  */
 export type Role = "owner" | "editor" | "viewer";
-export interface Org { id: string; name: string; plan: string }
+export interface Org { id: string; name: string; plan: string; extra_seats?: number; extra_site_packs?: number }
 export interface Account { user: SessionUser; org: Org; role: Role }
 export interface Scores { overall: number; seo: number; aeo: number; geo: number }
 export interface IssueRef { id: string; title: string; status: "fail" | "warn"; category: string; weight: number; detail: string }
@@ -62,9 +62,11 @@ export async function ensureAccount(user: SessionUser, preferredOrgId?: string |
     const { error: e2 } = await db().from("memberships").insert({ org_id: orgId, user_id: user.id, role });
     if (e2) failed("write", e2);
   }
-  const { data: org, error: e3 } = await db().from("organizations").select("id, name, plan").eq("id", orgId).single();
+  // "*" so the add-on columns come along when they exist, and older databases still work.
+  const { data: row, error: e3 } = await db().from("organizations").select("*").eq("id", orgId).single();
   if (e3) failed("read", e3);
-  return { user, org: org as Org, role };
+  const org: Org = { id: row.id, name: row.name, plan: row.plan, extra_seats: row.extra_seats ?? 0, extra_site_packs: row.extra_site_packs ?? 0 };
+  return { user, org, role };
 }
 
 /** "Example.com/page" becomes https://example.com. Returns an error message for anything else. */
@@ -113,12 +115,12 @@ export async function listSites(orgId: string): Promise<SiteSummary[]> {
   });
 }
 
-export async function addSite(orgId: string, raw: string, maxSites = MAX_SITES): Promise<{ id: string } | string> {
+export async function addSite(orgId: string, raw: string, maxSites = MAX_SITES, planLimited = maxSites < MAX_SITES): Promise<{ id: string } | string> {
   const n = normalizeSiteUrl(raw);
   if (typeof n === "string") return n;
   const { count, error: e0 } = await db().from("sites").select("id", { count: "exact", head: true }).eq("org_id", orgId);
   if (e0) failed("read", e0);
-  if ((count ?? 0) >= maxSites) return maxSites < MAX_SITES ? `Your plan includes ${maxSites} site${maxSites === 1 ? "" : "s"}. Upgrade to add more.` : `You can save up to ${maxSites} sites.`;
+  if ((count ?? 0) >= maxSites) return planLimited ? `Your plan includes ${maxSites} site${maxSites === 1 ? "" : "s"}. Upgrade to add more.` : `You can save up to ${maxSites} sites.`;
   const { data, error } = await db().from("sites").insert({ org_id: orgId, url: n.url, domain: n.domain }).select("id").single();
   if (error) return error.code === "23505" ? "That site is already saved." : failed("write", error);
   return { id: data.id as string };

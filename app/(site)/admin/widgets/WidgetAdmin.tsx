@@ -6,7 +6,7 @@ import { adminKey, api, download } from "@/lib/client";
 interface Lead { id: string; email: string; name?: string; url: string; score: number; createdAt: string }
 interface Widget { id: string; agency: string; color: string; logoUrl?: string; notifyEmail?: string; webhookUrl?: string; ctaText: string; ctaUrl?: string; whiteLabel: boolean; createdAt: string; leads: Lead[] }
 
-const EMPTY = { agency: "", color: "#156064", logoUrl: "", notifyEmail: "", webhookUrl: "", ctaText: "Book a free call", ctaUrl: "", whiteLabel: false };
+const EMPTY = { agency: "", color: "#235789", logoUrl: "", notifyEmail: "", webhookUrl: "", ctaText: "Book a free call", ctaUrl: "", whiteLabel: false };
 
 /**
  * Admin page for agency widgets: create one, copy its embed code, see its leads.

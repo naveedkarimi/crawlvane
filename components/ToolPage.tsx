@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import EmailResult from "./EmailResult";
 import { BRAND } from "@/lib/brand";
 import { TOOLS, toolUrl } from "@/lib/tools";
 import { TOOL_ICONS } from "./toolIcons";
@@ -38,7 +39,8 @@ export default function ToolPage({
           <h1 id="tool-title" className="tool-title">{h1}</h1>
           <p className="hero-sub">{sub}</p>
           <h2 className="sr-only">{h1}: try it</h2>
-          {children}
+          <div id="tool-root">{children}</div>
+          <EmailResult tool={slug} />
         </div>
       </section>
 

@@ -33,7 +33,10 @@ Who gets each feature is in [PLANS.md](PLANS.md#what-each-level-gets).
 | **Core Web Vitals** | Google PageSpeed lab data and real-user metrics |
 | **Social & brand presence** | Linked profiles, schema `sameAs`, and how shared links look |
 | **App Check** | App Store and Google Play listing score for any country |
-| **Free tools** | robots.txt, llms.txt, schema, meta tags, link preview and more, each with its own page |
+| **Free tools** | robots.txt, llms.txt, schema, meta tags, link preview and more, each with its own page; "Email me this result" on each |
+| **AI free tools** | "How does AI describe my business?" (email needed) and the meta title and description writer, with daily limits |
+| **One-off report** | Buy one full site report before signing in (when `PRICE_REPORT_LABEL` is set) |
+| **Sample reports** | Real reports published with permission at `/examples` |
 
 ### With a free account
 
@@ -41,12 +44,19 @@ Who gets each feature is in [PLANS.md](PLANS.md#what-each-level-gets).
 |---|---|
 | **Dashboard** | Overview of every saved site: score, change since last week, SEO/AEO/GEO bars, an 8-week chart, alerts, fixes by impact and AI crawler access across sites |
 | **New check inside the app** | Page check, full site report and App Check, run without leaving the dashboard |
-| **Full site report** | Crawls up to 300 pages (50 on Free), finds site-wide issues, ready-to-paste fixes, shareable link, PDF, Markdown and JSON |
+| **Full site report** | Crawls up to 300 pages (50 on Free), finds site-wide issues, ready-to-paste fixes, shareable link, PDF, Markdown and JSON. A summary with the top 3 issues and what changed since your last report, a Diagnostics tab (crawl coverage, page groups, likely soft 404s, URL variants, links to the wrong pages, AI crawler access on key pages), links in and out per page, and CSV exports |
 | **AI fix plan** | Claude turns the findings into a prioritised plan |
 | **Saved sites and history** | Every check adds a point to the site's score history |
 | **Weekly checks and alerts** | Re-checks a site each week and emails when the score drops or new problems appear |
 | **Tracked apps** | Rating and review changes and competitor updates for App Store and Google Play apps |
-| **Account tools** | Google or email sign-in, change email, download all your data, delete the account |
+| **AI page helpers** | Topic coverage, answer rewrites, an FAQ builder and meta tag ideas for a checked page (AI credits) |
+| **Fixes for the team** | Assign each fix to a teammate, set its status (open, in progress, done) and a note, and export the list for Jira, Linear or as CSV |
+| **Webhook** | Alerts and finished reports sent as signed JSON to your own address (Zapier, Make, your code) |
+| **Slack alerts** | Every alert also posted to a Slack channel |
+| **Search Console and GA4** | Clicks, impressions, top searches, pages seen often but rarely clicked, searches in positions 8 to 20, countries and devices, visits from AI assistants, and top landing pages with their failed checks |
+| **Apply fixes faster** | Download a Cloudflare Worker, or open a GitHub pull request with a report's fixes |
+| **Referrals** | A link per team; a free month for each referred team that starts paying |
+| **Account tools** | Email code or link, Google, Microsoft or GitHub sign-in, change email, download all your data, delete the account |
 
 ### Pro
 
@@ -58,7 +68,8 @@ Who gets each feature is in [PLANS.md](PLANS.md#what-each-level-gets).
 | **AI social posts** | Ready-to-post LinkedIn, X, Facebook, Instagram and Reddit posts |
 | **JavaScript rendering** | Renders single-page apps in a real browser before auditing |
 | **App Check premium** | AI listing rewrites, review analysis and competitor comparison |
-| **API** | Run audits from your own tools with a team API key |
+| **API** | Run audits and fetch ready-to-apply fixes (`/api/v1/fixes`) with a team API key; the WordPress plugin uses it |
+| **AI visibility gaps** | Questions where competitors are named and you aren't, with a content brief for each; the sources AI cites; and a "Not us" fix for answers about a different business |
 | **Team** | Invite people as editors or viewers |
 
 ### Agency
@@ -70,10 +81,16 @@ Who gets each feature is in [PLANS.md](PLANS.md#what-each-level-gets).
 | **Your own report domain** | Report links on reports.youragency.com, checked through DNS |
 | **Monthly client reports** | A full report emailed to the client each month |
 | **Audit widget** | A free audit on your own website that sends you the leads by email or webhook, with a lead list and CSV |
+| **Add-ons** | Extra seats and extra site packs (10 sites each) on top of the Agency limits |
 
 ### Not built yet
 
-See [PLANS.md](PLANS.md#ideas-not-built-yet) for the money ideas, and [TODO.md](TODO.md) for the rest: Search Console and GA4 connection, bulk CSV audits in the dashboard, multi-language and local SEO checks.
+- Comparison pages (vs Otterly, vs Peec), once their prices and features are checked on their own sites.
+- Industry benchmarks and a "State of AI readiness" report, once there's enough real audit data.
+- A Shopify app (parked: the app store already has several cheap llms.txt and AEO apps).
+- Apple sign-in (only worth it with an iPhone app).
+
+More in [PLANS.md](PLANS.md#ideas-built-and-still-open), and the quick adds from the capability extensions review in [FEATURES.md](FEATURES.md) (section 16).
 
 ---
 

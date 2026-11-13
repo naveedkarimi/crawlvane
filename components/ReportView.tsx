@@ -13,9 +13,13 @@ import AiView from "./AiView";
 import SpeedTest, { useSpeedTest } from "./SpeedTest";
 import ReportProgress from "./ReportProgress";
 import ResultCounts from "./ResultCounts";
+import { workerScript } from "@/lib/workerTemplate";
+import { coverageCsv } from "@/lib/siteDiagnostics";
+import { topIssues, type ReportDiff } from "@/lib/reportCompare";
+import { cell as csvCell } from "@/lib/issueExport";
 
 type IssueFilter = "all" | "fail" | "warn";
-type Tab = "overview" | "issues" | "pages" | "competitors" | "fixes" | "plan" | "social" | "visibility" | "research";
+type Tab = "overview" | "issues" | "pages" | "diagnostics" | "competitors" | "fixes" | "plan" | "social" | "visibility" | "research";
 const isErr = (x: unknown): x is { error: string } => !!x && typeof x === "object" && "error" in x;
 const host = (u: string) => {
   try {
@@ -74,6 +78,7 @@ export default function ReportView({ id }: { id: string }) {
       { key: "issues", label: `Issues${r.site ? ` (${r.site.issues.length})` : ""}` },
       { key: "pages", label: `Pages${r.site ? ` (${r.site.pagesCrawled})` : ""}` },
     ];
+    if (r.site?.diagnostics) t.push({ key: "diagnostics", label: "Diagnostics" });
     if (r.competitors?.length) t.push({ key: "competitors", label: "Competitors" });
     if (r.fixes?.length) t.push({ key: "fixes", label: "Fixes" });
     if (r.plan) t.push({ key: "plan", label: "AI plan" });
@@ -174,6 +179,7 @@ export default function ReportView({ id }: { id: string }) {
       {show("overview") && (
         <section>
           {printAll && <h2 className="print-h">Overview</h2>}
+          {r.site && r.status === "done" && <ExecutiveSummary r={r} />}
           {r.home && on("aiView") && (
             <AiView
               facts={r.home.facts}
@@ -229,10 +235,12 @@ export default function ReportView({ id }: { id: string }) {
 
       {show("issues") && <IssuesTab r={r} printAll={printAll} filter={issueFilter} onFilter={setIssueFilter} />}
       {show("pages") && <PagesTab r={r} printAll={printAll} />}
+      {show("diagnostics") && r.site?.diagnostics ? <DiagnosticsTab r={r} printAll={printAll} /> : null}
       {show("competitors") && r.competitors?.length ? <CompetitorsTab r={r} printAll={printAll} /> : null}
       {show("fixes") && r.fixes?.length ? (
         <section>
           {printAll && <h2 className="print-h">Ready-to-paste fixes</h2>}
+          <FixActions r={r} />
           {r.fixes.map((f) => (
             <div key={f.id} className="card">
               <h3>{f.title}</h3>
@@ -272,7 +280,7 @@ function IssuesTab({ r, printAll, filter, onFilter }: { r: Report; printAll: boo
             </button>
           ))}
         </div>
-        <div className="tabs small-tabs" role="group" aria-label="Filter issues by result">
+        <div className="tabs small-tabs status-tabs" role="group" aria-label="Filter issues by result">
           {([["all", "All results"], ["fail", "Failed"], ["warn", "Warnings"]] as const).map(([k, label]) => (
             <button key={k} type="button" className={status === k ? "on" : ""} aria-pressed={status === k} onClick={() => onFilter(k)}>
               {label}
@@ -318,9 +326,25 @@ function PagesTab({ r, printAll }: { r: Report; printAll: boolean }) {
   const pages = [...r.site!.pages].sort((a, b) =>
     sort === "score" ? a.scores.overall - b.scores.overall : sort === "words" ? a.wordCount - b.wordCount : a.depth - b.depth,
   );
+  const links = r.site!.linkSuggestions ?? [];
+  const path = (u: string) => { try { const x = new URL(u); return x.pathname + x.search || "/"; } catch { return u; } };
   return (
     <section>
       {printAll && <h2 className="print-h">Pages</h2>}
+      {links.length > 0 && (
+        <div className="card link-suggest">
+          <h3>Internal links to add</h3>
+          <p className="muted small">These pages have few links pointing to them, so search engines and AI crawlers find them less often. Each is matched with related pages that don&apos;t link to it yet.</p>
+          <ol className="link-suggest-list">
+            {links.map((l) => (
+              <li key={l.target}>
+                <div><strong>{l.targetTitle || path(l.target)}</strong> <span className="mono muted small">{path(l.target)}</span> <span className="muted small">· {l.inlinks} link{l.inlinks === 1 ? "" : "s"} in</span></div>
+                <p className="small">Link to it from {l.from.map((f, i) => <span key={f.url}>{i > 0 && (i === l.from.length - 1 ? " and " : ", ")}<a href={f.url} target="_blank" rel="noopener noreferrer">{f.title || path(f.url)}</a></span>)}, with text like &ldquo;{l.anchor}&rdquo;.</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
       <div className="card">
         <div className="row no-print" style={{ marginBottom: 10 }}>
           <span className="muted small">Sort:</span>
@@ -329,6 +353,10 @@ function PagesTab({ r, printAll }: { r: Report; printAll: boolean }) {
               {k}
             </button>
           ))}
+          <span className="pages-export">
+            <button type="button" className="chip" onClick={() => download("pages.csv", pagesCsv(pages), "text/csv")}>Pages CSV</button>
+            {links.length > 0 && <button type="button" className="chip" onClick={() => download("internal-links-to-add.csv", linksCsv(links), "text/csv")}>Link ideas CSV</button>}
+          </span>
         </div>
         <div className="table-wrap">
           <table>
@@ -338,6 +366,7 @@ function PagesTab({ r, printAll }: { r: Report; printAll: boolean }) {
                 <th>Status</th>
                 <th>Score</th>
                 <th>Words</th>
+                <th title="Internal links pointing to this page, and links on it">Links in / out</th>
                 <th>Issues</th>
               </tr>
             </thead>
@@ -351,6 +380,7 @@ function PagesTab({ r, printAll }: { r: Report; printAll: boolean }) {
                   <td className={p.status >= 400 || !p.status ? "c-fail" : ""}>{p.status || "err"}{p.noindex ? " · noindex" : ""}</td>
                   <td><span className={`score-chip ${p.scores.overall >= 85 ? "good" : p.scores.overall >= 60 ? "ok" : "bad"}`}>{p.scores.overall}</span></td>
                   <td>{p.wordCount}</td>
+                  <td className="small">{p.inlinks} / {p.outlinks ?? "–"}</td>
                   <td className="small"><span className="c-fail">{p.fails.length}</span> / <span className="c-warn">{p.warns.length}</span></td>
                 </tr>
               ))}
@@ -609,5 +639,222 @@ function ResearchTab({ rs, printAll }: { rs: ResearchResult | { error: string };
         {rs.sources.length > 0 && <p className="muted tiny">Researched from: {rs.sources.slice(0, 12).map(host).join(", ")}</p>}
       </div>
     </section>
+  );
+}
+
+/** Ways to apply the fixes without copying each one: a Cloudflare Worker, or a GitHub pull request. */
+function FixActions({ r }: { r: Report }) {
+  const [repo, setRepo] = useState("");
+  const [base, setBase] = useState("");
+  const [dir, setDir] = useState("public");
+  const [token, setToken] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string; url?: string } | null>(null);
+  const llms = r.fixes?.find((f) => f.id === "llms")?.content;
+  const robots = r.fixes?.find((f) => f.id === "robots")?.content;
+  const openPr = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    setMsg(null);
+    try {
+      const pr = await api<{ url: string; number: number }>("/api/me/github-pr", { method: "POST", body: JSON.stringify({ reportId: r.id, repo, base, dir, token }) });
+      setMsg({ ok: true, text: `Pull request #${pr.number} is open.`, url: pr.url });
+      setToken("");
+    } catch (x) {
+      setMsg({ ok: false, text: x instanceof Error ? x.message : "That didn't work." });
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="card fix-actions no-print">
+      <h3>Apply the fixes faster</h3>
+      <div className="fix-action-row">
+        <div>
+          <strong>Cloudflare Worker</strong>
+          <p className="muted small">If your site runs through Cloudflare, this Worker serves your llms.txt and robots.txt without touching the site itself.</p>
+        </div>
+        <button type="button" className="btn btn-sm" disabled={!llms && !robots} onClick={() => download("fixes-worker.js", workerScript({ llmsTxt: llms, robotsTxt: robots }), "text/javascript")}>Download the Worker</button>
+      </div>
+      <details className="fix-action-gh">
+        <summary><strong>Open a GitHub pull request</strong> <span className="muted small">with these files added to your repository</span></summary>
+        <form onSubmit={openPr} className="gh-form">
+          <label><span>Repository</span><input className="field" placeholder="owner/name" value={repo} onChange={(e) => setRepo(e.target.value)} required /></label>
+          <label><span>Branch <span className="muted">(default if empty)</span></span><input className="field" placeholder="main" value={base} onChange={(e) => setBase(e.target.value)} /></label>
+          <label><span>Folder for robots.txt and llms.txt</span><input className="field" placeholder="public" value={dir} onChange={(e) => setDir(e.target.value)} /></label>
+          <label><span>GitHub token</span><input className="field" type="password" autoComplete="off" placeholder="github_pat_…" value={token} onChange={(e) => setToken(e.target.value)} required /></label>
+          <p className="muted tiny">Use a fine-grained token for this one repository with Contents and Pull requests set to read and write. It&apos;s used for this request only and never stored.</p>
+          <button className="btn btn-primary btn-sm" disabled={busy}>{busy ? "Opening…" : "Open pull request"}</button>
+        </form>
+      </details>
+      {msg && <p className={`small ${msg.ok ? "c-pass" : "c-fail"}`} role={msg.ok ? "status" : "alert"}>{msg.text} {msg.url && <a href={msg.url} target="_blank" rel="noopener noreferrer">View it on GitHub</a>}</p>}
+    </div>
+  );
+}
+
+const toCsv = (rows: unknown[][]) => rows.map((r) => r.map(csvCell).join(",")).join("\r\n") + "\r\n";
+const pagesCsv = (pages: NonNullable<Report["site"]>["pages"]) =>
+  toCsv([["URL", "Status", "Title", "Words", "Score", "Click depth", "Links in", "Links out", "Failed checks", "Warnings"], ...pages.map((p) => [p.url, p.status, p.title, p.wordCount, p.scores.overall, p.depth === 9 ? "sitemap only" : p.depth, p.inlinks, p.outlinks ?? "", p.fails.length, p.warns.length])]);
+const linksCsv = (links: NonNullable<NonNullable<Report["site"]>["linkSuggestions"]>) =>
+  toCsv([["Link to (page)", "Page title", "Links in now", "Add a link from", "Suggested anchor text"], ...links.flatMap((l) => l.from.map((f) => [l.target, l.targetTitle, l.inlinks, f.url, l.anchor]))]);
+
+const OUTCOME_LABEL = { ok: "Crawled", redirected: "Redirected", failed: "Failed", blocked: "Blocked", skipped: "Skipped (not a page)", "not-reached": "Not reached" } as const;
+const GROUP_LABEL = { content: "Same main text", title: "Same title", h1: "Same H1", description: "Same description" } as const;
+
+/** Crawl coverage, page groups, likely soft 404s, URL variants and links to the wrong pages. Not part of the score. */
+function DiagnosticsTab({ r, printAll }: { r: Report; printAll: boolean }) {
+  const d = r.site!.diagnostics!;
+  const path = (u: string) => { try { const x = new URL(u); return x.pathname + x.search || "/"; } catch { return u; } };
+  const c = d.coverage;
+  const tiles: [string, number][] = [["Found", c.discovered], ["Crawled", c.ok], ["Redirected", c.redirected], ["Failed", c.failed], ["Blocked", c.blocked], ["Skipped", c.skipped], ["Not reached", c.notReached]];
+  const [showAll, setShowAll] = useState(false);
+  const notOk = c.rows.filter((x) => x.outcome !== "ok");
+  const list = showAll ? c.rows : notOk.slice(0, 50);
+  return (
+    <section>
+      {printAll && <h2 className="print-h">Diagnostics</h2>}
+      <p className="muted small">Extra findings from the crawl. They explain the issues above and don&apos;t change any score.</p>
+
+      <div className="card">
+        <div className="card-head"><h3>Crawl coverage</h3><button type="button" className="chip no-print" onClick={() => download("crawl-coverage.csv", coverageCsv(d), "text/csv")}>Coverage CSV</button></div>
+        <div className="diag-tiles">{tiles.map(([k, v]) => <div key={k}><span>{k}</span><strong>{v}</strong></div>)}</div>
+        {list.length > 0 && (
+          <div className="table-wrap">
+            <table>
+              <thead><tr><th>URL</th><th>What happened</th><th>Why</th></tr></thead>
+              <tbody>{list.map((x) => <tr key={x.url}><td className="mono small">{path(x.url)}</td><td>{OUTCOME_LABEL[x.outcome]}</td><td className="small">{x.reason}</td></tr>)}</tbody>
+            </table>
+          </div>
+        )}
+        <button type="button" className="link no-print" onClick={() => setShowAll(!showAll)}>{showAll ? "Show only URLs with a problem" : `Show all ${c.rows.length} URLs`}</button>
+      </div>
+
+      <KeyPagesBotTest r={r} />
+
+      {d.groups.length > 0 && (
+        <div className="card">
+          <h3>Page groups ({d.groups.length})</h3>
+          <p className="muted small">Pages that share a title, H1 or description, or have exactly the same main text. Each should usually be unique; same text may mean duplicate pages.</p>
+          <ul className="diag-list">{d.groups.map((g, i) => <li key={i}><strong>{GROUP_LABEL[g.kind]}:</strong> {g.kind === "content" ? g.value : `"${g.value.slice(0, 90)}"`} <span className="muted small">· {g.urls.length} pages: {g.urls.slice(0, 4).map(path).join(", ")}{g.urls.length > 4 ? "…" : ""}</span></li>)}</ul>
+        </div>
+      )}
+
+      {d.soft404.length > 0 && (
+        <div className="card">
+          <h3>Likely soft 404s ({d.soft404.length})</h3>
+          <p className="muted small">These pages say &ldquo;OK&rdquo; to search engines but look like error or empty pages. Check each one: return a real 404, redirect it, or add content.</p>
+          <ul className="diag-list">{d.soft404.map((x) => <li key={x.url}><span className="mono small">{path(x.url)}</span> <span className="muted small">· {x.reason}</span></li>)}</ul>
+        </div>
+      )}
+
+      {d.urlVariants.length > 0 && (
+        <div className="card">
+          <h3>Same page, different addresses ({d.urlVariants.length})</h3>
+          <p className="muted small">Links use more than one version of these addresses. Pick one, link to it everywhere, and redirect the others.</p>
+          <ul className="diag-list">{d.urlVariants.map((x, i) => <li key={i}><span className="mono small">{x.urls.map(path).join("  ·  ")}</span> <span className="muted small">· {x.reason}</span></li>)}</ul>
+        </div>
+      )}
+
+      {d.badLinkTargets.length > 0 && (
+        <div className="card">
+          <h3>Links to the wrong pages ({d.badLinkTargets.length})</h3>
+          <p className="muted small">Internal links pointing at pages hidden from search or at a URL whose canonical is elsewhere. Point them at the final, indexable URL.</p>
+          <ul className="diag-list">{d.badLinkTargets.map((x) => <li key={x.url}><span className="mono small">{path(x.url)}</span> <span className="muted small">· {x.reason}. Linked from {x.from.map(path).join(", ")}</span></li>)}</ul>
+        </div>
+      )}
+    </section>
+  );
+}
+
+const signed = (n: number) => (n > 0 ? `+${n}` : `${n}`);
+
+/** At the top of a report: the 3 biggest issues and, for your team's reports, what changed since the last one. */
+function ExecutiveSummary({ r }: { r: Report }) {
+  const [cmp, setCmp] = useState<{ previous: { id: string; createdAt: string } | null; diff?: ReportDiff | null } | null>(null);
+  useEffect(() => {
+    // Only works for reports your team ran; a shared link to someone else's report just shows the top issues.
+    fetch(`/api/me/reports/compare?id=${encodeURIComponent(r.id)}`).then((x) => (x.ok ? x.json() : null)).then((j) => setCmp(j)).catch(() => {});
+  }, [r.id]);
+  const s = r.site!;
+  const top = topIssues(s.issues, 3);
+  const d = cmp?.diff;
+  const when = (iso: string) => new Date(iso).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  return (
+    <div className="card exec-summary">
+      <h3>Summary</h3>
+      <p>
+        {s.pagesCrawled} page{s.pagesCrawled === 1 ? "" : "s"} checked, overall score <strong>{s.scores.overall}</strong>.
+        {top.length ? " Start with these:" : " No site-wide problems were found."}
+      </p>
+      {top.length > 0 && (
+        <ol className="exec-top">
+          {top.map((i) => <li key={i.id}><strong>{i.title}</strong> <span className="muted small">· {i.count} page{i.count === 1 ? "" : "s"}{i.status === "fail" ? ", failing" : ""}</span></li>)}
+        </ol>
+      )}
+      {d && cmp?.previous && (
+        <div className="exec-change">
+          <h4>Since your report on {when(cmp.previous.createdAt)}</h4>
+          <p>
+            Overall <strong className={d.scores.overall > 0 ? "c-pass" : d.scores.overall < 0 ? "c-fail" : ""}>{signed(d.scores.overall)}</strong>
+            <span className="muted small"> (SEO {signed(d.scores.seo)}, answers {signed(d.scores.aeo)}, AI search {signed(d.scores.geo)})</span>
+            {d.pagesAdded || d.pagesGone ? <span className="muted small"> · {d.pagesAdded} page{d.pagesAdded === 1 ? "" : "s"} new, {d.pagesGone} gone</span> : null}
+          </p>
+          <ul className="exec-list">
+            {d.resolved.map((i) => <li key={`r-${i.id}`} className="c-pass">Fixed: {i.title}</li>)}
+            {d.better.map((i) => <li key={`b-${i.id}`}>Fewer pages: {i.title} ({i.before} → {i.after})</li>)}
+            {d.newIssues.map((i) => <li key={`n-${i.id}`} className="c-fail">New: {i.title} ({i.count} page{i.count === 1 ? "" : "s"})</li>)}
+            {d.worse.map((i) => <li key={`w-${i.id}`} className="c-warn">More pages: {i.title} ({i.before} → {i.after})</li>)}
+          </ul>
+          {!d.resolved.length && !d.newIssues.length && !d.worse.length && !d.better.length && <p className="muted small">The same site-wide issues as last time.</p>}
+          <a className="small" href={`/dashboard?tab=report&id=${encodeURIComponent(cmp.previous.id)}`}>Open the previous report</a>
+        </div>
+      )}
+    </div>
+  );
+}
+
+type BotResult = { url: string; rows: { bot: string; purpose: string; live: string; robotsAllowed: boolean | null }[]; summary: { verdict: "good" | "warn" | "bad"; text: string } };
+
+/** Run the AI crawler test on up to 5 important pages, not only the home page. */
+function KeyPagesBotTest({ r }: { r: Report }) {
+  const home = r.home?.facts.finalUrl;
+  const candidates = r.site!.pages.filter((p) => p.status === 200 && !p.noindex && p.url !== home).sort((a, b) => b.inlinks - a.inlinks).slice(0, 5).map((p) => p.url);
+  const [chosen, setChosen] = useState<string[]>(candidates);
+  const [results, setResults] = useState<Record<string, BotResult | { error: string }>>({});
+  const [busy, setBusy] = useState(false);
+  if (!candidates.length) return null;
+  const run = async () => {
+    setBusy(true);
+    for (const url of chosen) {
+      try {
+        const res = await fetch(`/api/bot-test?url=${encodeURIComponent(url)}`);
+        const j = await res.json();
+        setResults((x) => ({ ...x, [url]: res.ok ? (j as BotResult) : { error: j.error ?? "Test failed" } }));
+        if (res.status === 429) break;
+      } catch {
+        setResults((x) => ({ ...x, [url]: { error: "Test failed" } }));
+      }
+    }
+    setBusy(false);
+  };
+  const path = (u: string) => { try { return new URL(u).pathname || "/"; } catch { return u; } };
+  return (
+    <div className="card no-print">
+      <h3>AI crawler access on key pages</h3>
+      <p className="muted small">The home page is tested in every check. This tests your most-linked pages too, requesting each as AI crawlers do. Uses 1 test per page from your hourly allowance.</p>
+      <ul className="keypages">
+        {candidates.map((u) => {
+          const res = results[u];
+          const blocked = res && "rows" in res ? res.rows.filter((x) => x.purpose !== "browser" && (x.live === "blocked" || x.live === "challenge" || x.robotsAllowed === false)).map((x) => x.bot) : [];
+          return (
+            <li key={u}>
+              <label><input type="checkbox" checked={chosen.includes(u)} disabled={busy} onChange={(e) => setChosen((c) => (e.target.checked ? [...c, u] : c.filter((x) => x !== u)))} /> <span className="mono small">{path(u)}</span></label>
+              {res && ("error" in res ? <span className="c-fail small"> · {res.error}</span> : <span className={`small ${res.summary.verdict === "good" ? "c-pass" : res.summary.verdict === "bad" ? "c-fail" : "c-warn"}`}> · {blocked.length ? `Blocked for ${blocked.join(", ")}` : "All tested crawlers got the page"}</span>)}
+            </li>
+          );
+        })}
+      </ul>
+      <button type="button" className="btn btn-sm" disabled={busy || !chosen.length} onClick={run}>{busy ? "Testing…" : `Test ${chosen.length} page${chosen.length === 1 ? "" : "s"}`}</button>
+    </div>
   );
 }

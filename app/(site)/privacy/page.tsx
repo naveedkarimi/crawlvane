@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/privacy" },
 };
 
-const UPDATED = "2026-11-10";
+const UPDATED = "2026-11-12";
 
 const body = `
 ${BRAND.name} ("we") is a website audit. This page explains what happens to your data when you use ${BRAND.host}. The short version: we collect as little as we can, we don't use tracking cookies, and we don't sell data.
@@ -24,7 +24,7 @@ ${BRAND.legalName ? `${BRAND.name} is run by ${BRAND.legalName}${BRAND.legalAddr
 
 **Page checks.** A single page check is processed and returned to your browser. We don't save the full result on our server. We use your browser's local storage (not cookies) to keep a short history of the pages you checked, with scores and the issues you marked as fixed, so it can show before-and-after results. It never leaves your device, and you can clear it by clearing this site's data in your browser.
 
-**Forms.** When you join the waitlist, ask us to fix your site or use the contact form, we store your email address, what you wrote, the website (if you gave one) and the page you sent it from, so we can reply.
+**Forms.** When you join the waitlist, ask us to fix your site or use the contact form, we store your email address, what you wrote, the website (if you gave one) and the page you sent it from, so we can reply. The "How does AI describe my business?" tool asks for your email too, and any free tool can email you its result if you ask. We store your email with the tool and the website you checked, send the result once, and may email you related tips, with an unsubscribe link in every email.
 
 **Newsletter.** If you subscribe, we store your email address, the page you signed up from and the date, so we can send you SEO and AI search tips. Every email has an unsubscribe link.
 
@@ -42,7 +42,7 @@ ${BRAND.legalName ? `${BRAND.name} is run by ${BRAND.legalName}${BRAND.legalAddr
 
 **App store checker.** When you check an app, we send the app link, ID or name you entered and the country to Apple (for the App Store) or SerpApi (for Google Play) to read the public store listing. We record the store, the app, the country, its score and which checks failed, with nothing about you. App icons load straight from Apple's or Google's servers, so they can see your IP address.
 
-**Accounts.** If you sign in, we store your email address and your team, the sites you save, their score history (scores, failing checks and AI crawler access) and links to the reports you run. Sign-in uses an emailed link, or your Google account if you choose it, handled by Supabase, so there's no password. With Google, Google gives us your email address, name and profile picture link, which Supabase stores with your account. Signing in sets a cookie that keeps you signed in; it's needed for the account to work and isn't used for tracking. You can change your email, download everything we hold about you and your team as a file, or delete your account from the dashboard. If you're the last member of a team, deleting your account deletes the team and everything in it.
+**Accounts.** If you sign in, we store your email address and your team, the sites you save, their score history (scores, failing checks and AI crawler access), which teammate each issue is assigned to, and links to the reports you run. Sign-in uses a one-time code or link we email you, or your Google, Microsoft or GitHub account if you choose one, handled by Supabase, so there's no password. If you use one of those accounts, that company gives us your email address and name, and Google and GitHub also give a profile picture link (GitHub adds your username); Supabase stores these with your account. Signing in sets a cookie that keeps you signed in; it's needed for the account to work and isn't used for tracking. You can change your email, download everything we hold about you and your team as a file, or delete your account from the dashboard. If you're the last member of a team, deleting your account deletes the team and everything in it.
 
 **Teams.** When a team owner invites someone, we store that person's email address, their role and who invited them, and email them a link. The invite is deleted after 14 days, whether or not it was used. Everyone on a team can see the other members' email addresses.
 
@@ -52,9 +52,15 @@ ${BRAND.legalName ? `${BRAND.name} is run by ${BRAND.legalName}${BRAND.legalAddr
 
 **API keys.** If your team creates a key for our API, we store its name, its first characters, a one-way fingerprint of it (never the key itself) and how often it's used. Audits run with a key of your team's are added to your saved sites' history.
 
+**Google Search Console and Analytics.** If a team owner connects Google, we store the Google account's email address and an encrypted token that lets us read (never change) Search Console and Google Analytics data, plus which property belongs to each saved site. When you look at a site's search data, we fetch clicks, impressions, top searches, top pages and visits by source for the last 28 days from Google and show them; we don't store that data. Disconnecting deletes the token and revokes our access at Google.
+
+**GitHub pull requests.** If you open a pull request with your fixes, the GitHub token you paste is used for that one request to create a branch, add the fix files and open the pull request, and is never stored.
+
 **Agency tools.** An agency team can save a name, logo and colour for its client reports, and a domain of its own for report links. To connect the domain we check its public DNS records. Audit widgets an agency creates are stored with the settings it chose, and the leads they collect are described under "Widgets on other websites". Deleting a widget deletes its leads.
 
-**Payments.** Paid plans and credit packs are handled by Stripe. We send Stripe your email address and your team's ID. You enter card details on Stripe's page, and we never see or store them. We store your Stripe customer and subscription IDs, your plan, its status and renewal date, the credits you've bought and how much you've used this month.
+**Payments.** Paid plans and credit packs are handled by Stripe. We send Stripe your email address and your team's ID. You enter card details on Stripe's page, and we never see or store them. We store your Stripe customer and subscription IDs, your plan, its status and renewal date, any add-ons (extra seats or sites), the credits you've bought and how much you've used this month. If you buy a one-off report before signing in, Stripe collects your email address and payment on its page, and we keep the payment's ID and the website address you paid for, so we can add the report to your account once you sign in.
+
+**Referrals.** Each team has a referral link. If you open someone's link, your browser keeps the referral code in local storage (not a cookie) for up to 30 days, and after you sign up we record which team referred yours, so they can get their reward. When a team you referred starts paying, we record that too, and add one month's credit to your Stripe account.
 
 **Tools that run in your browser.** The schema generator and the robots.txt builder work in your browser. What you type there isn't sent to us.
 
@@ -62,7 +68,7 @@ ${BRAND.legalName ? `${BRAND.name} is run by ${BRAND.legalName}${BRAND.legalAddr
 
 - No advertising or tracking cookies. The only cookies are the ones that keep you signed in and remember which team you're viewing. If we measure visits, we use Plausible Analytics, which sets no cookies and doesn't collect personal data
 - No selling or renting of data
-- No passwords: you sign in with an emailed link
+- No passwords: you sign in with an emailed code or link, or a Google, Microsoft or GitHub account
 
 ## Services that receive data
 
@@ -71,10 +77,16 @@ Some features need another service. They receive only what the feature needs:
 | Service | When | What they receive |
 |---|---|---|
 | Google PageSpeed Insights | Speed test and screenshots | The URL being tested |
-| Anthropic (Claude) | AI fix plan, AI research and AI app features, when you use them; AI visibility tracking | The URL and a summary of the audit findings; for AI visibility tracking, excerpts of AI answers that mention your brand |
+| Anthropic (Claude) | AI fix plan, AI page helpers, the AI free tools, AI research and AI app features, when you use them; AI visibility tracking and its content briefs | The URL and a summary of the audit findings; for the page helpers and AI free tools, the page's title, headings and an excerpt of its text; for AI visibility tracking, excerpts of AI answers that mention your brand |
 | Google (sign-in) | Only if you choose "Continue with Google" | The sign-in request. Google tells us your email address, name and profile picture link |
-| Our email provider | Sign-in links, alerts, team invites, scheduled reports and replies | The recipient's email address and the message |
-| Stripe | When you buy a plan, report or credit pack, or manage billing | Your email address and your team's ID. Card details go straight to Stripe |
+| Microsoft (sign-in) | Only if you choose "Continue with Microsoft" | The sign-in request. Microsoft tells us your email address and name |
+| GitHub (sign-in) | Only if you choose "Continue with GitHub" | The sign-in request. GitHub tells us your email address, name, username and profile picture link |
+| Our email provider | Sign-in codes and links, alerts, trial and plan-limit reminders, team invites, scheduled reports and replies | The recipient's email address and the message |
+| Stripe | When you buy a plan, report, credit pack or add-on, or manage billing | Your email address and your team's ID (none for a one-off report bought before signing in). Card details go straight to Stripe |
+| Google (Search Console and Analytics) | Only if a team owner connects Google | The connection token, and requests for your sites' search and visit data |
+| GitHub | Only when you open a pull request with your fixes | The fix files and the pull request text, sent to the repository you chose |
+| Your team's webhook | Only if your team sets one | Alert titles and details, and the address, scores and link of each finished full report, sent to the address you chose |
+| Slack | Only if your team connects a Slack channel | Alert titles and details for your team's sites and apps, sent to the channel you chose |
 | Plausible Analytics (if enabled) | Page views and events such as "audit started" | The page address, referrer, browser type and country, without cookies or IP storage |
 | Our hosting provider | Always | Requests to this site, as with any website |
 | Supabase (database and sign-in) | When you send a form, subscribe, sign in, or save a report, site or monitor | What you sent us, stored in our database |
@@ -101,7 +113,7 @@ Each service handles data under its own privacy policy.
 
 ## Where data is processed
 
-Some services we use are based in the United States, including Anthropic, Google, Apple, SerpApi and Stripe, and OpenAI, Perplexity and Browserless when those features are on. Our hosting and database providers may also process data outside your country. Where the law requires a safeguard for these transfers, we rely on the EU-US Data Privacy Framework if the provider is certified, or on Standard Contractual Clauses (and the UK Addendum) if not.
+Some services we use are based in the United States, including Anthropic, Google, Microsoft, GitHub, Apple, SerpApi, Slack and Stripe, and OpenAI, Perplexity and Browserless when those features are on. Our hosting and database providers may also process data outside your country. Where the law requires a safeguard for these transfers, we rely on the EU-US Data Privacy Framework if the provider is certified, or on Standard Contractual Clauses (and the UK Addendum) if not.
 
 ## How long we keep data
 

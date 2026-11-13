@@ -2,8 +2,8 @@ import { BRAND } from "@/lib/brand";
 
 /**
  * The C-Vane: an open ring that forms the C and echoes the score ring, with a needle
- * pointing up and to the right. Drawn from design/Design system planning/logo/crawlvane-mark.svg.
- * The ring is Stormy Teal on light backgrounds; set --logo-ring for dark ones.
+ * pointing up and to the right. Drawn from design/Design System 2.0/logo/crawlvane-mark.svg.
+ * The ring is Vane Blue and the needle Signal Red on light backgrounds; dark sections set --logo-ring and --logo-needle.
  */
 export function LogoMark({ size = 30 }: { size?: number }) {
   return (

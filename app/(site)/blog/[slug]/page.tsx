@@ -7,6 +7,7 @@ import { renderMarkdown } from "@/lib/blog/markdown";
 import { postImage } from "@/lib/blog/images";
 import PostCard from "@/components/PostCard";
 import PageHero from "@/components/PageHero";
+import NewsletterBox from "@/components/NewsletterBox";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -95,6 +96,7 @@ export default async function PostPage({ params }: Params) {
 
       <section className="section">
         <div className="container">
+          <NewsletterBox />
           <div className="section-head left"><h2>Keep reading</h2></div>
           <div className="post-grid">
             {related.map((p) => <PostCard key={p.slug} post={p} />)}

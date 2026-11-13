@@ -1,14 +1,14 @@
 /** Free single-purpose tools. Used by /tools, the sitemap, llms.txt, the footer and the home page. */
 
-export type ToolIcon = "eye" | "shield" | "file" | "list" | "braces" | "gauge" | "share" | "message" | "markdown" | "bot" | "redirect" | "sitemap" | "lock" | "chart" | "logs" | "a11y" | "phone";
+export type ToolIcon = "eye" | "shield" | "file" | "list" | "braces" | "gauge" | "share" | "message" | "markdown" | "bot" | "redirect" | "sitemap" | "lock" | "chart" | "logs" | "a11y" | "phone" | "sparkle" | "type";
 
 export type ToolGroup = "apps" | "ai" | "content" | "seo";
 
 export const TOOL_GROUPS: { key: ToolGroup; title: string; intro: string }[] = [
   { key: "apps", title: "Apps in the stores", intro: "SEO for apps: how your App Store and Google Play listing looks, ranks and converts." },
+  { key: "seo", title: "Search basics", intro: "Speed, previews and structured data that help in every search engine." },
   { key: "ai", title: "Can AI find and read you?", intro: "Crawler access, JavaScript and agents: the reasons AI assistants never see a site." },
   { key: "content", title: "Answers and content", intro: "Make your pages easy for answer engines and language models to quote." },
-  { key: "seo", title: "Search basics", intro: "Speed, previews and structured data that help in Google and everywhere else." },
 ];
 
 export interface Tool {
@@ -94,6 +94,22 @@ export const TOOLS: Tool[] = [
     group: "content",
     summary: "Find the questions your page answers and check each answer is short and direct enough for AI Overviews to quote.",
     icon: "message",
+  },
+  {
+    slug: "ai-brand-description",
+    name: "How does AI describe my business?",
+    short: "How AI describes you",
+    group: "content",
+    summary: "See what an AI assistant says about your business from its own knowledge, next to what your website says, with what to fix.",
+    icon: "sparkle",
+  },
+  {
+    slug: "meta-tag-writer",
+    name: "Meta title and description writer",
+    short: "Meta tag writer",
+    group: "seo",
+    summary: "Get title tags and meta descriptions written from your page that fit in search results, with character counts.",
+    icon: "type",
   },
   {
     slug: "page-to-markdown",

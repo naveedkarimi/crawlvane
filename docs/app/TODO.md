@@ -2,6 +2,8 @@
 
 **The order of work is in `ROADMAP.md`.** This file keeps the detail for each phase.
 
+> **Status 2026-11-12:** accounts, Stripe, monitoring, teams, agency features, AI tracking and the growth features are built (see `ACCOUNTS-PLAN.md`). Unticked items below are setup you still have to do, or genuinely not built yet.
+
 From the product review on 2026-11-05. Work top to bottom: each phase builds on the one before it.
 
 Tick items as you go (`- [x]`).
@@ -65,7 +67,7 @@ Tick items as you go (`- [x]`).
 - [x] Add a "See a sample report" link: "Open the full sample report" in the Real example section runs the live audit of Pixenlo
 - [x] Add proof: audit counter (`data/stats/`, shown in the pricing preview once it passes 1,000) and before/after scores in every report
 - [ ] Testimonials once you have them
-- [ ] New page order:
+- [x] New page order:
   - [x] Hero with URL box
   - [x] Results screenshot
   - [x] 3-step how it works
@@ -111,32 +113,32 @@ Tick items as you go (`- [x]`).
 ### Infrastructure
 
 - [ ] Move hosting off shared cPanel to Vercel or a small VPS (background crawls, cron jobs and headless Chrome don't fit cPanel well)
-- [ ] Finish moving to Supabase: leads, widget leads, newsletter and site statistics have their own tables; reports and monitors are still JSON in `documents`
-  - [ ] Tables: users, projects, reports, monitors, ai_visibility_runs, leads
+- [x] Finish moving to Supabase: leads, widget leads, newsletter and site statistics have their own tables; reports and monitors are still JSON in `documents`
+  - [x] Tables: users, projects, reports, monitors, ai_visibility_runs, leads
 - [ ] A job queue for crawls and AI runs (for example Inngest, Trigger.dev or a database-backed queue)
 - [ ] Keep rate limits in a shared store (Redis or the database) instead of per server process
 - [ ] Scheduled jobs (Vercel Cron or a system cron) instead of the cPanel cron
 
 ### Accounts
 
-- [ ] Sign up and log in (Auth.js, Clerk or Supabase Auth)
-- [ ] Projects: save a site and see its report history
-- [ ] Dashboard: list of sites, latest scores, score trend
+- [x] Sign up and log in (Auth.js, Clerk or Supabase Auth)
+- [x] Projects: save a site and see its report history
+- [x] Dashboard: list of sites, latest scores, score trend
 - [ ] Switch on `FEATURE_ACCOUNTS`
 
 ### Billing
 
-- [ ] Stripe Checkout and the customer portal
-- [ ] Fill in `planAllows()` in `lib/config.ts` with the user's plan
+- [x] Stripe Checkout and the customer portal
+- [x] Fill in `planAllows()` in `lib/config.ts` with the user's plan (done as `planAllowsFor()` in `lib/entitlements.ts`)
 - [ ] Turn on `PAYWALL_ENABLED`
-- [ ] Usage limits per plan (sites, pages per crawl, AI visibility credits)
+- [x] Usage limits per plan (sites, pages per crawl, AI visibility credits)
 - [ ] Plans to start with (check competitor prices on their own pages first):
   - [ ] **Free:** quick check, crawler map, Core Web Vitals, social check
   - [ ] **One-off report, about $39:** full crawl, competitors, fixes, AI plan, PDF
   - [ ] **Pro, $29–49/mo:** 3 sites, monitoring, AI visibility tracking, research, social posts
   - [ ] **Agency, $49–79/mo and up:** embeddable widget, white-label, 10+ sites, JavaScript rendering, team seats
   - [ ] **Done-for-you:** quote form
-- [ ] Credits for AI visibility checks (each prompt × engine costs API money; don't make it unlimited)
+- [x] Credits for AI visibility checks (each prompt × engine costs API money; don't make it unlimited)
 - [x] Track API cost so you can set prices from real numbers: tokens and searches per day, provider and feature in `data/usage/`, see `/api/usage` (admin). Set `AI_PRICE_*` for dollar estimates and `AI_DAILY_TOKEN_CAP` as a safety net
 
 ### Switch on built features
@@ -159,27 +161,27 @@ Tick items as you go (`- [x]`).
 - [x] The agency's branding on the widget (colour, logo, button text and link, optional white label). Branding on the full report: still to do
 - [x] Send leads to email and a webhook (works with Zapier and Make webhooks)
 - [x] Lead list per widget at `/admin/widgets` with CSV (admin only until accounts exist; agencies get their own dashboard with accounts)
-- [ ] Agency's own domain for reports (for example `reports.agency.com`)
+- [x] Agency's own domain for reports (for example `reports.agency.com`)
 
 ### White-label reports
 
-- [ ] Logo, colours and agency name on PDF and web reports
-- [ ] Remove the app's branding on Agency plans
-- [ ] Scheduled client reports emailed monthly
+- [x] Logo, colours and agency name on PDF and web reports
+- [x] Remove the app's branding on Agency plans
+- [x] Scheduled client reports emailed monthly
 
 ### AI visibility tracking over time
 
-- [ ] Re-run the same prompts every week
-- [ ] Trend charts per engine (ChatGPT, Claude, Perplexity, Gemini, Google AI Overviews)
-- [ ] Share of voice against competitors
-- [ ] Sentiment: how the brand is described
+- [x] Re-run the same prompts every week
+- [x] Trend charts per engine (ChatGPT, Claude, Perplexity, Gemini, Google AI Overviews)
+- [x] Share of voice against competitors
+- [x] Sentiment: how the brand is described
 - [ ] Which sources get cited, and which ones cite competitors but not you
-- [ ] Prompt gap list: prompts where competitors appear and you don't
-- [ ] Alerts when visibility drops
+- [x] Prompt gap list: prompts where competitors appear and you don't
+- [x] Alerts when visibility drops
 
 ### Team
 
-- [ ] Invite team members with roles (owner, editor, viewer)
+- [x] Invite team members with roles (owner, editor, viewer)
 
 ---
 
@@ -187,9 +189,9 @@ Tick items as you go (`- [x]`).
 
 ### Apply fixes, not just list them
 
-- [ ] WordPress plugin that applies schema, llms.txt, robots.txt and meta fixes in one click
+- [x] WordPress plugin that applies schema, llms.txt, robots.txt and meta fixes in one click
 - [ ] Shopify app with the same fixes (it also gets you into their app directory)
-- [ ] GitHub integration that opens a pull request with the fixes
+- [x] GitHub integration that opens a pull request with the fixes
 
 ### AI bot traffic (rare outside enterprise tools)
 
@@ -199,15 +201,15 @@ Tick items as you go (`- [x]`).
 
 ### Integrations
 
-- [ ] Google Search Console: real clicks and impressions next to the findings
-- [ ] GA4: organic and AI referral traffic
+- [x] Google Search Console: real clicks and impressions next to the findings
+- [x] GA4: organic and AI referral traffic
 - [ ] Bing Webmaster Tools and IndexNow
 
 ### Issue tracking
 
 - [x] Mark an issue as fixed (kept in the browser until accounts exist)
 - [x] Re-check a single issue without a full re-crawl
-- [ ] Assign issues to a person
+- [x] Assign issues to a person
 - [x] Export to CSV, and "Copy as ticket" Markdown on every issue for Jira, Linear, Trello or GitHub (direct integrations still to do)
 - [x] History: before/after against the last run on this browser (server-side history comes with accounts)
 

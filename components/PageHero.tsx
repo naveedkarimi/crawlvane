@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import HeroDecor from "./HeroDecor";
 
 /**
- * The page heading used everywhere except the home page: pale mint background, floating
+ * The page heading used everywhere except the home page: pale blue background, floating
  * details, centred label and title, and a wavy bottom edge. Same look as the Free tools page.
  */
 export default function PageHero({
