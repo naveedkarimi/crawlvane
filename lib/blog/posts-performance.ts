@@ -51,7 +51,7 @@ Run a mobile speed test, take the top three fixes by estimated savings, and re-t
   {
     slug: "ai-referral-traffic-ga4",
     title: "How much traffic does ChatGPT send? And how to track it in GA4",
-    description: "AI assistants send about 0.3 to 1% of website traffic, mostly from ChatGPT. Here's what the 2026 data says and how to measure AI referrals in Google Analytics 4.",
+    description: "AI assistants send about 0.3 to 1% of website traffic, mostly from ChatGPT. Here's what the 2026 data says and how to measure AI referrals in GA4.",
     date: "2026-11-06",
     tags: ["GEO", "Analytics"],
     cta: "audit",

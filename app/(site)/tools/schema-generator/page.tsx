@@ -3,9 +3,9 @@ import ToolPage from "@/components/ToolPage";
 import SchemaTool from "./SchemaTool";
 
 export const metadata: Metadata = {
-  title: "Schema markup generator (JSON-LD) for SEO and AI search",
+  title: "Schema markup generator (JSON-LD)",
   description:
-    "Free JSON-LD generator for Organization, LocalBusiness, Person, Article, FAQPage and Product schema. Fill in a short form, copy the code, paste it into your page.",
+    "Free JSON-LD generator for Organization, LocalBusiness, Person, Article, FAQPage and Product schema. Fill in a short form, then copy the code into your page.",
   alternates: { canonical: "/tools/schema-generator" },
 };
 

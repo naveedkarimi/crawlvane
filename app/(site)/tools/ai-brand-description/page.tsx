@@ -5,7 +5,7 @@ import BrandTool from "./BrandTool";
 export const metadata: Metadata = {
   title: "How does AI describe my business? Free AI brand check",
   description:
-    "Free tool: see what an AI assistant says about your business from its own knowledge, compared with what your website says, plus the changes that help AI describe you correctly.",
+    "Free tool: see what an AI assistant says about your business, next to what your website says, and the changes that help AI describe you correctly.",
   alternates: { canonical: "/tools/ai-brand-description" },
 };
 

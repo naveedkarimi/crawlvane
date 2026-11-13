@@ -3,8 +3,8 @@ import ToolPage from "@/components/ToolPage";
 import A11yTool from "./A11yTool";
 
 export const metadata: Metadata = {
-  title: "Website accessibility checker: free ADA and WCAG 2.2 test",
-  description: "Check a page for common ADA and WCAG 2.2 problems: missing alt text, unlabelled forms, blocked zoom, heading order, landmarks, ARIA errors and autoplaying media. Free.",
+  title: "Free website accessibility checker (WCAG 2.2)",
+  description: "Free ADA and WCAG 2.2 check: missing alt text, unlabelled forms, blocked zoom, heading order, landmarks, ARIA errors and autoplaying media.",
   alternates: { canonical: "/tools/accessibility-checker" },
 };
 

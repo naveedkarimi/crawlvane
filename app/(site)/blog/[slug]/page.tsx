@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ldJson } from "@/lib/jsonLd";
 import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { BRAND } from "@/lib/brand";
@@ -20,7 +21,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const p = getPost((await params).slug);
   if (!p) return {};
   return {
-    title: p.title,
+    // Long titles drop the "| Crawlvane" suffix so search results don't cut off the topic words.
+    title: p.title.length + BRAND.name.length + 3 > 60 ? { absolute: p.title } : p.title,
     description: p.description,
     alternates: { canonical: `/blog/${p.slug}` },
     authors: [{ name: BRAND.name, url: BRAND.url }],
@@ -107,7 +109,7 @@ export default async function PostPage({ params }: Params) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: ldJson({
             "@context": "https://schema.org",
             "@graph": [
               {

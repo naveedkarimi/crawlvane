@@ -3,7 +3,7 @@ import ToolPage from "@/components/ToolPage";
 import SitemapTool from "./SitemapTool";
 
 export const metadata: Metadata = {
-  title: "XML sitemap validator: check URLs, lastmod and broken entries",
+  title: "XML sitemap validator: URLs, lastmod, errors",
   description: "Find your XML sitemap, check it's listed in robots.txt, validate URLs and lastmod dates, and spot-check that listed pages load without redirects. Free.",
   alternates: { canonical: "/tools/sitemap-validator" },
 };

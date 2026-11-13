@@ -8,7 +8,7 @@ import { BRAND } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: "Features: SEO, answer engine and AI search audits",
-  description: `Everything in ${BRAND.name}'s free launch plan: page checks, full-site crawls, AI crawler access, competitor comparison, ready-to-paste fixes and an AI fix plan. Built for site owners, consultants and agencies.`,
+  description: `Page checks, full-site crawls, AI crawler access, competitor comparison, ready-to-paste fixes and an AI fix plan, for site owners, consultants and agencies.`,
   alternates: { canonical: "/features" },
 };
 

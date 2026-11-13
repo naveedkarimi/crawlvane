@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { ldJson } from "@/lib/jsonLd";
 import { DM_Sans, Figtree, Geist_Mono } from "next/font/google";
 import { BRAND } from "@/lib/brand";
 import "./globals.css";
@@ -70,7 +71,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" href="/favicon.ico" sizes="48x48" />
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: ldJson(jsonLd) }} />
         {/* Privacy-friendly analytics, only when a Plausible domain is configured (no cookies). */}
         {PLAUSIBLE && (
           <>

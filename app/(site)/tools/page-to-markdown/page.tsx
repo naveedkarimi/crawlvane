@@ -5,7 +5,7 @@ import MarkdownTool from "./MarkdownTool";
 export const metadata: Metadata = {
   title: "Webpage to Markdown converter for LLMs (free)",
   description:
-    "Convert any web page to clean Markdown: the main content without menus, scripts or footers, with word and token counts. See what an AI model reads, then copy or download it.",
+    "Turn any web page into clean Markdown, without menus or scripts, with word and token counts. See what an AI model reads, then copy or download it.",
   alternates: { canonical: "/tools/page-to-markdown" },
 };
 

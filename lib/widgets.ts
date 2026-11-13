@@ -1,4 +1,4 @@
-import { assertPublicUrl } from "./safeFetch";
+import { assertPublicUrl, guardedFetch } from "./safeFetch";
 import { db, insertRow, listIds, listJsonWhere, listRowsNewestFirst, newId, readJson, removeJson, writeJson } from "./store";
 import { mailConfigured, sendMail } from "./mail";
 import type { AuditResult } from "./types";
@@ -141,8 +141,10 @@ export async function saveWidgetLead(w: Widget, lead: Omit<WidgetLead, "id" | "c
   const payload = { event: "lead.created", widget: { id: w.id, agency: w.agency }, lead: l, report: summary };
   if (w.webhookUrl) {
     // Re-check at send time: DNS could have changed since the widget was saved.
+    // guardedFetch connects only to public addresses, so a DNS change after the check can't reach a private one.
     assertPublicUrl(w.webhookUrl)
-      .then(() => fetch(w.webhookUrl!, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload), signal: AbortSignal.timeout(8000), redirect: "manual" }))
+      .then((target) => guardedFetch(target, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload), signal: AbortSignal.timeout(8000), redirect: "manual" }))
+      .then((res) => res.body?.cancel())
       .catch(() => {});
   }
   if (w.notifyEmail && mailConfigured()) {

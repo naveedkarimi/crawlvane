@@ -3,9 +3,9 @@ import ToolPage from "@/components/ToolPage";
 import AgentTool from "./AgentTool";
 
 export const metadata: Metadata = {
-  title: "AI agent readiness checker: can AI agents use your website?",
+  title: "AI agent readiness checker for websites",
   description:
-    "Free check for the agent era: page landmarks, labelled forms, named buttons, link text, contact details and prices as text, structured data and server-rendered content.",
+    "Free check for the agent era: landmarks, labelled forms, named buttons, link text, prices and contact details as text, schema and server-rendered content.",
   alternates: { canonical: "/tools/ai-agent-readiness" },
 };
 

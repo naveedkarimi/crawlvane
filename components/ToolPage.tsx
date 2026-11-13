@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { ldJson } from "@/lib/jsonLd";
 import EmailResult from "./EmailResult";
 import { BRAND } from "@/lib/brand";
 import { TOOLS, toolUrl } from "@/lib/tools";
@@ -81,7 +82,7 @@ export default function ToolPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: ldJson({
             "@context": "https://schema.org",
             "@graph": [
               {

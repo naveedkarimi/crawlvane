@@ -3,7 +3,7 @@ import ToolPage from "@/components/ToolPage";
 import RegexTool from "./RegexTool";
 
 export const metadata: Metadata = {
-  title: "GA4 AI traffic regex: track ChatGPT, Perplexity and Claude visits",
+  title: "GA4 AI traffic regex for ChatGPT and Perplexity",
   description: "Build the regex for a GA4 channel that groups visits from ChatGPT, Perplexity, Claude, Gemini, Copilot and other AI assistants, with step-by-step setup. Free.",
   alternates: { canonical: "/tools/ga4-ai-traffic-regex" },
 };

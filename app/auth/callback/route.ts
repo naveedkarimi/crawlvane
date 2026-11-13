@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { safeNextPath } from "@/lib/safeNext";
 import { authClient, authConfigured } from "@/lib/auth";
 
 export const runtime = "nodejs";
@@ -9,7 +10,7 @@ export async function GET(req: Request) {
   const u = new URL(req.url);
   const code = u.searchParams.get("code");
   const next = u.searchParams.get("next") ?? "/dashboard";
-  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
+  const safeNext = safeNextPath(next);
   const back = (kind: "link" | "oauth") => NextResponse.redirect(new URL(`/login?error=${kind}&next=${encodeURIComponent(safeNext)}`, u.origin));
   // Google, Microsoft or GitHub send ?error= when someone cancels or the provider refuses.
   if (u.searchParams.get("error")) return back("oauth");

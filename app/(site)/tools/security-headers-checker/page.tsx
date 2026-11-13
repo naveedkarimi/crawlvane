@@ -3,7 +3,7 @@ import ToolPage from "@/components/ToolPage";
 import HeadersTool from "./HeadersTool";
 
 export const metadata: Metadata = {
-  title: "Security headers checker: HSTS, CSP, X-Frame-Options",
+  title: "Security headers checker: HSTS, CSP and more",
   description: "Check your site's HTTP security headers: HSTS, Content-Security-Policy, clickjacking protection, nosniff and version leaks, with the exact header to add. Free.",
   alternates: { canonical: "/tools/security-headers-checker" },
 };
