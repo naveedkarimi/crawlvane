@@ -39,6 +39,8 @@ export interface SocialPresence {
     url: string;
   };
   checks: { title: string; status: "pass" | "warn" | "fail"; detail: string; fix?: string }[];
+  /** Every sameAs URL in the page's JSON-LD (added 2026-11-13; older reports don't have it). */
+  sameAs?: string[];
 }
 
 export function analyzeSocial(html: string, pageUrl: string): SocialPresence {
@@ -126,7 +128,7 @@ export function analyzeSocial(html: string, pageUrl: string): SocialPresence {
       fix: "You don't need every network — but if you have these profiles, link them. LinkedIn and YouTube carry the most weight in AI answers for most businesses.",
     });
 
-  return { profiles, missingImportant, schemaOnly, share, checks };
+  return { profiles, missingImportant, schemaOnly, share, checks, sameAs: [...new Set(sameAs)].slice(0, 40) };
 }
 
 export interface SocialPosts {

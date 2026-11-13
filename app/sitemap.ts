@@ -1,3 +1,4 @@
+import { CHECKED, COMPARISONS } from "@/lib/compare";
 import type { MetadataRoute } from "next";
 import { BRAND } from "@/lib/brand";
 import { posts } from "@/lib/blog";
@@ -15,6 +16,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...TOOLS.map((t) => ({ url: `${BRAND.url}/tools/${t.slug}`, lastModified, changeFrequency: "monthly" as const, priority: 0.8 })),
     { url: `${BRAND.url}/blog`, lastModified, changeFrequency: "weekly", priority: 0.8 },
     ...["contact", "privacy", "terms", "accessibility", "credits"].map((p) => ({ url: `${BRAND.url}/${p}`, lastModified, changeFrequency: "yearly" as const, priority: 0.2 })),
+    ...COMPARISONS.map((c) => ({ url: `${BRAND.url}/compare/${c.slug}`, lastModified: new Date(CHECKED), changeFrequency: "monthly" as const, priority: 0.5 })),
     ...posts.map((p) => ({ url: `${BRAND.url}/blog/${p.slug}`, lastModified: new Date(p.updated ?? p.date), changeFrequency: "monthly" as const, priority: 0.7 })),
   ];
 }

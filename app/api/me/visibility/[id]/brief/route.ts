@@ -14,7 +14,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
   const a = await requireAccount(req);
   if (a instanceof Response) return a;
   if (!process.env.ANTHROPIC_API_KEY) return Response.json({ error: "Briefs need the AI to be set up." }, { status: 503 });
-  if (!rateLimit("gapbrief:" + a.org.id, 20)) return Response.json({ error: "Too many briefs. Try again later." }, { status: 429 });
+  if (!await rateLimit("gapbrief:" + a.org.id, 20)) return Response.json({ error: "Too many briefs. Try again later." }, { status: 429 });
   const id = (await ctx.params).id;
   const { prompt } = (await req.json().catch(() => ({}))) as { prompt?: string };
   const { data: t } = await db().from("visibility_trackers").select("id, brand, sites!inner(domain)").eq("org_id", a.org.id).eq("id", id).maybeSingle();

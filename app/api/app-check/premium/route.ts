@@ -25,7 +25,7 @@ export async function POST(req: Request) {
   if (!isStoreCountry(country)) return Response.json({ error: "Choose a country from the list." }, { status: 400 });
   const ref = parseAppInput(String(body.app ?? ""), store);
   if (typeof ref === "string") return Response.json({ error: ref }, { status: 400 });
-  if (!rateLimit("apppremium:" + clientIp(req), 10)) return Response.json({ error: "Too many requests. Try again in a bit." }, { status: 429 });
+  if (!await rateLimit("apppremium:" + clientIp(req), 10)) return Response.json({ error: "Too many requests. Try again in a bit." }, { status: 429 });
   const acc = await optionalAccount(req);
   if (PAYWALL_ENABLED && !planAllowsFor(acc?.org, "appPremium")) return Response.json({ error: acc ? "App Check premium is part of the Pro plan." : "Sign in to use App Check premium.", upgrade: true }, { status: acc ? 402 : 401 });
   try {

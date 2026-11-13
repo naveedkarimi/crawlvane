@@ -25,7 +25,8 @@ Tick each box as you go. Set every setting **once** in `.env.local`: a second, e
   2. Run `supabase/schema.sql` in the SQL editor (again after every update).
   3. Authentication → URL Configuration: set the Site URL to the app address, and add `/auth/callback` for every domain (`https://app.crawlvane.com/auth/callback` and `http://localhost:3000/auth/callback`).
   4. Authentication → Emails → SMTP: paste your email service's details (next account).
-  5. Authentication → Emails → Templates: paste the branded templates from `design/email-templates/` (subject lines and steps in its README). The sign-in ones include the code (`{{ .Token }}`) the sign-in page asks for.
+  5. Authentication → Emails → Templates: paste the branded templates from `design/email-templates/` (subject lines and steps in its README). The sign-in ones include the code (`{{ .Token }}`) the sign-in page asks for. Paste them again whenever they change: the sign-up, sign-in and reset links now use `{{ .TokenHash }}` so they work on any device.
+  6. Authentication → Providers → Email: keep **Email** on and **Confirm email** on. Set the minimum password length to 10 (the sign-up page asks for at least 10) and, on a paid plan, turn on leaked password protection.
 - **Settings:** `SUPABASE_URL`, `SUPABASE_SECRET_KEY` (the **service_role** key), `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (the **anon** key). Then `FEATURE_ACCOUNTS=1`.
 
 ### ☐ Email sending service (Resend or Postmark)

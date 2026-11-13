@@ -22,7 +22,7 @@ export async function GET(req: Request) {
   const key = url.origin;
   const hit = cache.get(key);
   if (hit && Date.now() - hit.at < CACHE_MS) return Response.json(hit.result);
-  if (!rateLimit("llms:" + clientIp(req), Number(process.env.LLMS_TOOL_PER_HOUR ?? 10)))
+  if (!await rateLimit("llms:" + clientIp(req), Number(process.env.LLMS_TOOL_PER_HOUR ?? 10)))
     return Response.json({ error: "Too many requests from your network. Try again in a bit." }, { status: 429 });
 
   try {

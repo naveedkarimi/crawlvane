@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   if (!featureEnabled("aiPlan", req)) return Response.json({ error: "Not available." }, { status: 404 });
   if (!process.env.ANTHROPIC_API_KEY)
     return Response.json({ error: "AI fix plan isn't configured yet (missing ANTHROPIC_API_KEY)." }, { status: 503 });
-  if (!rateLimit("advice:" + clientIp(req), 10))
+  if (!await rateLimit("advice:" + clientIp(req), 10))
     return Response.json({ error: "AI fix plan limit reached — try again later." }, { status: 429 });
 
   let body: AuditResult;

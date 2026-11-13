@@ -1,6 +1,6 @@
 "use client";
 
-import { citedSources, promptGaps } from "@/lib/promptGaps";
+import { citedSources, outreachTargets, promptGaps } from "@/lib/promptGaps";
 import type { GapBrief } from "@/lib/ai/helpers";
 
 import { useCallback, useEffect, useState } from "react";
@@ -125,13 +125,7 @@ export default function VisibilityPanel({ canEdit }: { canEdit: boolean }) {
                 </div>
               )}
               {last?.rows && last.rows.length > 0 && <PromptGaps trackerId={t.id} rows={last.rows} canEdit={canEdit} />}
-              {last?.rows && citedSources(last.rows, t.domain).length > 0 && (
-                <div>
-                  <h4 className="vis-h">Sources AI cites (latest run)</h4>
-                  <p className="muted small">Other sites the assistants linked to in their answers. Being mentioned on these, or publishing something they'd cite, helps you appear.</p>
-                  <ul className="cited-list">{citedSources(last.rows, t.domain).map((c) => <li key={c.domain}><strong>{c.domain}</strong> <span className="muted small">· cited {c.times} time{c.times === 1 ? "" : "s"}, for {c.prompts.length} question{c.prompts.length === 1 ? "" : "s"}</span></li>)}</ul>
-                </div>
-              )}
+              {last?.rows && <CitedSources rows={last.rows} domain={t.domain} competitors={t.competitors.map((c) => c.domain)} />}
               {last?.rows && last.rows.length > 0 && (
                 <details>
                   <summary>Latest answers ({last.rows.length})</summary>
@@ -227,6 +221,34 @@ function PromptGaps({ trackerId, rows, canEdit }: { trackerId: string; rows: Par
         ))}
       </ul>
       {err && <p className="c-fail small" role="alert">{err}</p>}
+    </div>
+  );
+}
+
+/** Sites the assistants cite, with the ones that favour competitors flagged, and who to reach first. */
+function CitedSources({ rows, domain, competitors }: { rows: Parameters<typeof citedSources>[0]; domain: string; competitors: string[] }) {
+  const sources = citedSources(rows, domain, 12, competitors);
+  if (!sources.length) return null;
+  const targets = outreachTargets(sources);
+  return (
+    <div>
+      <h4 className="vis-h">Sources AI cites (latest run)</h4>
+      <p className="muted small">Other sites the assistants linked to in their answers. Being mentioned on these, or publishing something they&apos;d cite, helps you appear.</p>
+      {targets.length > 0 && (
+        <div className="cited-targets">
+          <p className="small"><strong>Reach these first.</strong> They were cited in answers that named a competitor but not you:</p>
+          <ul>{targets.map((c) => <li key={c.domain}><strong>{c.domain}</strong> <span className="muted small">· {c.withoutYou} answer{c.withoutYou === 1 ? "" : "s"} without you</span></li>)}</ul>
+        </div>
+      )}
+      <ul className="cited-list">
+        {sources.map((c) => (
+          <li key={c.domain}>
+            <strong>{c.domain}</strong>
+            {c.competitor && <span className="cited-tag">Competitor&apos;s site</span>}
+            <span className="muted small"> · cited {c.times} time{c.times === 1 ? "" : "s"}, for {c.prompts.length} question{c.prompts.length === 1 ? "" : "s"}{c.withoutYou > 0 && !c.competitor ? `, ${c.withoutYou} without you` : ""}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

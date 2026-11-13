@@ -19,7 +19,7 @@ export async function GET() {
 /** POST { email, tool, page, text } emails a free tool's result once, and saves the email as a tool lead. */
 export async function POST(req: Request) {
   if (!mailConfigured()) return Response.json({ error: "Email isn't set up yet." }, { status: 503 });
-  if (!rateLimit("emailresult:" + clientIp(req), 5)) return Response.json({ error: "Too many emails. Try again later." }, { status: 429 });
+  if (!await rateLimit("emailresult:" + clientIp(req), 5)) return Response.json({ error: "Too many emails. Try again later." }, { status: 429 });
   const b = (await req.json().catch(() => ({}))) as { email?: string; tool?: string; page?: string; text?: string };
   const email = String(b.email ?? "").trim().slice(0, 254);
   if (!EMAIL.test(email)) return Response.json({ error: "Enter a valid email address." }, { status: 400 });

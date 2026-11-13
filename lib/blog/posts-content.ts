@@ -146,7 +146,7 @@ All of this only works if crawlers can read it. If your page builds its content 
   {
     slug: "structured-data-for-ai-search",
     updated: "2026-11-08",
-    title: "Structured data for AI search: the schema that actually helps",
+    title: "Structured data for AI search: which schema actually helps",
     description: "Which schema types help search engines and AI assistants understand your business in 2026, and which rich results Google no longer shows.",
     date: "2026-11-06",
     tags: ["SEO", "GEO", "Schema"],

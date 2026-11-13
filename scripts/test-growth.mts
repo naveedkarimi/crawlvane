@@ -254,16 +254,224 @@ assert.deepEqual(citedSources(vRows, "ex.com").map((c) => [c.domain, c.times]), 
 assert.deepEqual(recountSummary(vRows), [{ engine: "ChatGPT", answered: 2, mentionRate: 50, citationRate: 50 }, { engine: "Claude", answered: 0, mentionRate: 0, citationRate: 0 }]);
 assert.deepEqual(recountShareOfVoice(vRows, "Ex", []), [{ name: "Ex", mentions: 1 }]);
 console.log("✓ cited sources and recounts after a correction");
+{
+  const { outreachTargets } = await import("../lib/promptGaps");
+  const rows = [
+    { prompt: "best crm", engine: "ChatGPT", mentioned: false, competitorsMentioned: ["Rival"], citedUrls: ["https://g2.com/a", "https://rival.com/x", "https://blog.example/b"] },
+    { prompt: "crm for agencies", engine: "Claude", mentioned: false, competitorsMentioned: ["Rival"], citedUrls: ["https://g2.com/c"] },
+    { prompt: "best crm", engine: "Claude", mentioned: true, competitorsMentioned: ["Rival"], citedUrls: ["https://g2.com/d", "https://wiki.example/e"] },
+  ];
+  const src = citedSources(rows, "ex.com", 10, ["www.rival.com"]);
+  const g2 = src.find((x) => x.domain === "g2.com")!;
+  assert.equal(g2.times, 3);
+  assert.equal(g2.withoutYou, 2, "only answers naming a rival but not you count");
+  assert.equal(src.find((x) => x.domain === "rival.com")!.competitor, true);
+  assert.deepEqual(outreachTargets(src).map((x) => x.domain), ["g2.com", "blog.example"], "rival's own site and sources cited alongside you are left out");
+}
+console.log("✓ sources that favour competitors are flagged for outreach");
+{
+  const { pickSpeedPages, summariseSpeed, ratingFor } = await import("../lib/siteSpeed");
+  const pg = (url: string, depth: number, inlinks: number, extra: object = {}) => ({ url, status: 200, depth, inlinks, noindex: false, ms: 1, title: "", description: "", h1: "", wordCount: 100, canonical: "", scores: { overall: 1, seo: 1, aeo: 1, geo: 1 }, fails: [], warns: [], ...extra });
+  const picked = pickSpeedPages([
+    pg("https://ex.com/", 0, 9), pg("https://ex.com/deep", 3, 50), pg("https://ex.com/pricing", 1, 20), pg("https://ex.com/about", 1, 5),
+    pg("https://ex.com/hidden", 1, 99, { noindex: true }), pg("https://ex.com/gone", 1, 99, { status: 404 }), pg("https://ex.com/blog", 2, 30),
+  ] as never, "https://ex.com", 4);
+  assert.deepEqual(picked, ["https://ex.com", "https://ex.com/pricing", "https://ex.com/about", "https://ex.com/blog"], "homepage once, then shallow and well-linked; noindex and errors skipped");
+  assert.equal(ratingFor(95), "good"); assert.equal(ratingFor(50), "ok"); assert.equal(ratingFor(49), "bad"); assert.equal(ratingFor(null), "none");
+  const page = (url: string, performance: number | null) => ({ url, performance, rating: ratingFor(performance), lcp: null, cls: null, tbt: null, field: "none" as const, reportUrl: "" });
+  const opp = (title: string) => ({ id: title, title, googleTitle: title, savings: null, savingsMs: 0, what: "", fix: "", who: "Developer" as const });
+  const sum = summariseSpeed([
+    { page: page("a", 80), psi: { opportunities: [opp("Compress images"), opp("Remove unused JavaScript")] } as never },
+    { page: page("b", 40), psi: { opportunities: [opp("Compress images")] } as never },
+    { page: page("c", null) },
+  ]);
+  assert.equal(sum.average, 60, "failed pages don't drag the average");
+  assert.deepEqual(sum.shared, [{ title: "Compress images", pages: 2, who: "Developer" }], "only fixes seen on several pages");
+}
+console.log("✓ speed test picks the top pages and finds shared fixes");
+{
+  const { aiViewVerdict, aiViewMarkdown } = await import("../lib/aiView");
+  assert.equal(aiViewVerdict({ wordCount: 12 }).tone, "bad");
+  assert.equal(aiViewVerdict({ wordCount: 120 }).tone, "warn");
+  assert.equal(aiViewVerdict({ wordCount: 900 }).tone, "good");
+  assert.equal(aiViewVerdict({ wordCount: 5, rendered: true }).tone, "info");
+  assert.match(aiViewVerdict({ wordCount: 1240, rendered: true, rawWordCount: 0 }).text, /People see 1,240 words, but AI crawlers get 0/);
+  assert.equal(aiViewVerdict({ wordCount: 1000, rendered: true, rawWordCount: 400 }).tone, "warn");
+  assert.equal(aiViewVerdict({ wordCount: 1000, rendered: true, rawWordCount: 900 }).tone, "good");
+  const { htmlWords } = await import("../lib/analyze");
+  assert.equal(htmlWords("<html><body><nav>Menu here</nav><main>One two three</main><script>var x = 1</script></body></html>"), 3, "counts main content like the page check");
+  const md = aiViewMarkdown({
+    finalUrl: "https://ex.com/", title: "Ex", metaDescription: "", wordCount: 30, outline: [{ level: 1, text: "Hello" }, { level: 2, text: "Sub" }],
+    textExcerpt: "Hello world", bots: [{ bot: "GPTBot", owner: "OpenAI", purpose: "search", allowed: false, matchedGroup: "*" }, { bot: "CCBot", owner: "Common Crawl", purpose: "training", allowed: true, matchedGroup: "*" }],
+  } as never).join("\n");
+  assert.match(md, /## What AI sees/);
+  assert.match(md, /almost nothing: 30 words/);
+  assert.match(md, /AI crawlers allowed:\*\* 0 of 1/, "training bots aren't counted as answer bots");
+  assert.match(md, /  - H2: Sub/);
+  assert.match(md, /> Hello world/);
+}
+console.log("✓ What AI sees is in the Markdown download");
+{
+  const { matchBot, summariseBotHits, botSnippets, botRegexSource, isBotToken, TRACKED_BOTS } = await import("../lib/botHits");
+  assert.equal(matchBot("Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Claude-SearchBot/1.0; +https://anthropic.com)"), "Claude-SearchBot", "the longer name wins");
+  assert.equal(matchBot("Mozilla/5.0 (compatible; GPTBot/1.2; +https://openai.com/gptbot)"), "GPTBot");
+  assert.equal(matchBot("Mozilla/5.0 (Macintosh) Safari/605"), null, "people aren't counted");
+  assert.equal(matchBot(42), null);
+  assert.ok(!TRACKED_BOTS.includes("Google-Extended"), "robots.txt-only tokens aren't user agents");
+  const re = new RegExp(botRegexSource(), "i");
+  assert.ok(re.test("PerplexityBot/1.0") && re.test("chatgpt-user/1.0") && !re.test("Firefox/120"), "the snippet's pattern is valid and matches bots");
+  const sn = botSnippets("https://app.example/api/bot-hits", "a".repeat(48));
+  for (const k of ["worker", "php", "node"] as const) assert.ok(sn[k].includes("https://app.example/api/bot-hits") && sn[k].includes("a".repeat(48)), `${k} snippet has the endpoint and token`);
+  assert.ok(isBotToken("f".repeat(48)) && !isBotToken("f".repeat(47)) && !isBotToken("../x"));
+  const sum = summariseBotHits([{ day: "2026-11-13", bot: "GPTBot", hits: 5 }, { day: "2026-11-12", bot: "GPTBot", hits: 2 }, { day: "2026-11-13", bot: "ClaudeBot", hits: 1 }], 3, new Date("2026-11-13T12:00:00Z"));
+  assert.equal(sum.total, 8);
+  assert.deepEqual(sum.daily, [{ day: "2026-11-11", hits: 0 }, { day: "2026-11-12", hits: 2 }, { day: "2026-11-13", hits: 6 }], "missing days are zero");
+  assert.equal(sum.bots[0].bot, "GPTBot");
+  assert.equal(sum.lastDay, "2026-11-13");
+}
+console.log("✓ AI bot visits: matching, snippets and daily totals");
+{
+  const { hashedKey, localRateLimit } = await import("../lib/rateLimit");
+  const k = hashedKey("audit:203.0.113.9", "secret-a");
+  assert.ok(!k.includes("203.0.113.9") && k.length === 32, "the database never sees the IP");
+  assert.equal(k, hashedKey("audit:203.0.113.9", "secret-a"), "same key, same hash");
+  assert.notEqual(k, hashedKey("audit:203.0.113.9", "secret-b"), "depends on the server secret");
+  const key = "t:" + Math.random();
+  assert.ok(localRateLimit(key, 2) && localRateLimit(key, 2) && !localRateLimit(key, 2), "fallback limiter stops at the limit");
+}
+console.log("✓ shared rate limits hash their keys and fall back safely");
+{
+  const { websiteVariants, searchQuery, sameAsLinks } = await import("../lib/entity");
+  assert.deepEqual(websiteVariants("https://www.Ex.com/about"), ["https://ex.com", "https://ex.com/", "https://www.ex.com", "https://www.ex.com/", "http://ex.com", "http://ex.com/", "http://www.ex.com", "http://www.ex.com/"]);
+  assert.match(searchQuery("ex.com"), /^haswbstatement:P856=https:\/\/ex\.com\|P856=/);
+  assert.ok(sameAsLinks(["https://www.wikidata.org/wiki/Q42"], "Q42") && !sameAsLinks(["https://www.wikidata.org/wiki/Q420"], "Q42"), "Q42 isn't Q420");
+}
+console.log("✓ entity check builds the Wikidata lookup and spots sameAs links");
+{
+  const { drainWith, shouldGiveUp, MAX_ATTEMPTS } = await import("../lib/jobs");
+  const queue = [
+    { id: "1", kind: "report", ref_id: "a", attempts: 1 },
+    { id: "2", kind: "report", ref_id: "b", attempts: 1 },
+    { id: "3", kind: "report", ref_id: "c", attempts: MAX_ATTEMPTS + 1 },
+    { id: "4", kind: "report", ref_id: "d", attempts: 1 },
+  ];
+  const finished: [string, boolean][] = [];
+  const gaveUp: string[] = [];
+  let live = 0, peak = 0;
+  const ran = await drainWith(
+    { claim: async () => queue.shift() ?? null, extend: async () => {}, finish: async (id, ok) => { finished.push([id, ok]); } },
+    async (job, keepAlive) => {
+      live++; peak = Math.max(peak, live);
+      await keepAlive();
+      await new Promise((r) => setTimeout(r, 5));
+      live--;
+      if (job.ref_id === "b") throw new Error("crawl failed");
+    },
+    async (job) => { gaveUp.push(job.ref_id); },
+    2,
+  );
+  assert.equal(ran, 3, "three jobs ran; the over-tried one didn't");
+  assert.equal(peak, 2, "never more than the concurrency limit");
+  assert.deepEqual(gaveUp, ["c"]);
+  assert.deepEqual(finished.sort(), [["1", true], ["2", false], ["3", false], ["4", true]], "a failure is recorded, not thrown");
+  assert.ok(shouldGiveUp({ attempts: MAX_ATTEMPTS + 1 }) && !shouldGiveUp({ attempts: MAX_ATTEMPTS }));
+}
+console.log("✓ job queue: claims, limits concurrency, records failures and gives up after retries");
+{
+  const { cleanKeyword, keywordTrend, weekOf } = await import("../lib/rankTracking");
+  assert.equal(cleanKeyword("  Boiler   Service LEEDS "), "boiler service leeds");
+  assert.equal(cleanKeyword("x"), null);
+  assert.equal(weekOf(new Date("2026-11-13T10:00:00Z")), "2026-11-09", "weeks start on Monday");
+  assert.equal(weekOf(new Date("2026-11-09T00:00:00Z")), "2026-11-09");
+  const t = keywordTrend([{ week: "2026-11-09", position: 6.2, clicks: 3, impressions: 90 }, { week: "2026-11-02", position: 9.5, clicks: 1, impressions: 60 }]);
+  assert.equal(t.latest?.week, "2026-11-09");
+  assert.equal(t.change, 3.3, "moving from 9.5 to 6.2 is 3.3 places better");
+  assert.equal(keywordTrend([{ week: "2026-11-09", position: null, clicks: 0, impressions: 0 }, { week: "2026-11-02", position: 4, clicks: 0, impressions: 0 }]).change, null, "no change number when it stopped ranking");
+
+  const { groupByDomain } = await import("../lib/bing");
+  assert.deepEqual(groupByDomain([{ from: "https://www.a.com/x", anchor: "" }, { from: "https://a.com/y", anchor: "" }, { from: "https://b.org/", anchor: "" }, { from: "nope", anchor: "" }]), [{ domain: "a.com", links: 2 }, { domain: "b.org", links: 1 }]);
+
+  const { cleanInput, slugify, findPlaceholders, WriterError } = await import("../lib/ai/writer");
+  assert.throws(() => cleanInput({ topic: "ab" }), WriterError);
+  assert.deepEqual(cleanInput({ topic: " Boiler costs ", length: "huge" }), { topic: "Boiler costs", notes: "", audience: "", length: "medium" });
+  assert.equal(slugify("How much does a Boiler Service cost? (2026)"), "how-much-does-a-boiler-service-cost-2026");
+  assert.deepEqual(findPlaceholders("From [your price], see [1] and [our guide](/x). Call [phone number]."), ["[your price]", "[phone number]"], "links and footnotes aren't placeholders");
+
+  const { renderMarkdown } = await import("../lib/blog/markdown");
+  const html = renderMarkdown("[a](javascript:alert(1)) [b](https://x.com/\"y) <img src=x onerror=alert(1)>").html;
+  assert.ok(!/href="javascript/i.test(html) && !html.includes('"y') && !html.includes("<img"), "AI drafts can't inject links or HTML");
+}
+console.log("✓ rank tracking, backlinks and AI writer helpers");
 
 assert.equal(sign("whsec_test", '{"a":1}'), "sha256=" + (await import("node:crypto")).createHmac("sha256", "whsec_test").update('{"a":1}').digest("hex"));
 console.log("✓ webhook requests are signed");
 
 // ---------- Security: sign-in redirects stay on this site ----------
 const { safeNextPath } = await import("../lib/safeNext");
-for (const bad of ["//evil.example", "/\\evil.example", "/\\/evil.example", "https://evil.example", "javascript:alert(1)", "/%0d%0aSet-Cookie:x", "/dash\u0000board", "", null]) {
+for (const bad of ["/.//evil.example", "/..//evil.example", "/a/..//evil.example", "/%2e//evil.example", "/%2E%2E//evil.example", "//evil.example", "/\\evil.example", "/\\/evil.example", "https://evil.example", "javascript:alert(1)", "/%0d%0aSet-Cookie:x", "/dash\u0000board", "", null]) {
   const out = safeNextPath(bad as string | null);
   assert.ok(out === "/dashboard" || out.startsWith("/%0d"), `rejected ${JSON.stringify(bad)} → ${out}`);
 }
 assert.equal(safeNextPath("/dashboard?tab=plan&buy=pro"), "/dashboard?tab=plan&buy=pro");
 assert.equal(safeNextPath("/invite/abc#x"), "/invite/abc#x");
 console.log("✓ sign-in redirects can't leave the site");
+
+const { passwordProblem, linkType, afterLink, authHref, MIN_PASSWORD } = await import("../lib/authLinks");
+assert.equal(MIN_PASSWORD, 10);
+assert.match(passwordProblem("short") ?? "", /at least 10 characters\. You have 5/);
+assert.equal(passwordProblem("correct horse battery"), null);
+assert.ok(passwordProblem("          "), "only spaces is refused");
+assert.ok(passwordProblem("x".repeat(73)), "over bcrypt's 72 bytes is refused");
+assert.ok(passwordProblem("é".repeat(40)), "72 bytes, not 72 characters");
+assert.equal(linkType("recovery"), "recovery");
+assert.equal(linkType("email"), "email");
+assert.equal(linkType("admin"), null);
+assert.equal(linkType(null), null);
+assert.equal(afterLink("recovery", "/dashboard?tab=plan"), "/reset-password", "reset links always go to the new-password page");
+assert.equal(afterLink("email", "/dashboard?tab=plan"), "/dashboard?tab=plan");
+assert.equal(authHref("/signup", "/dashboard"), "/signup");
+assert.equal(authHref("/signup", "/invite/abc"), "/signup?next=%2Finvite%2Fabc");
+console.log("✓ password rules and emailed sign-in links");
+
+const { bingDate, summariseBing, isBingKey, isBingSiteUrl } = await import("../lib/bing");
+assert.equal(bingDate("/Date(1316156400000-0700)/"), 1316156400000);
+assert.ok(Number.isNaN(bingDate("garbage")));
+assert.ok(isBingKey("a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6") && !isBingKey("short") && !isBingKey("has spaces in it and more"));
+assert.ok(isBingSiteUrl("https://example.com/") && !isBingSiteUrl("javascript:alert(1)"));
+{
+  const now = Date.UTC(2026, 10, 13), old = now - 60 * 86400000, recent = now - 3 * 86400000;
+  const d = (t: number) => `/Date(${t}-0000)/`;
+  const sum = summariseBing(
+    [{ Date: d(old), Clicks: 99, Impressions: 999 }, { Date: d(recent), Clicks: 10, Impressions: 200 }],
+    [
+      { Date: d(recent), Query: "seo audit", Clicks: 4, Impressions: 100, AvgImpressionPosition: 6 },
+      { Date: d(recent), Query: "seo audit", Clicks: 2, Impressions: 300, AvgImpressionPosition: 10 },
+      { Date: d(recent), Query: "ai check", Clicks: 5, Impressions: 50 },
+      { Date: d(old), Query: "old query", Clicks: 50, Impressions: 500 },
+    ],
+    [{ Date: d(recent), Query: "https://example.com/a", Clicks: 3, Impressions: 30 }],
+    now - 28 * 86400000, 28,
+  );
+  assert.equal(sum.clicks, 10, "rows older than the window are left out");
+  assert.equal(sum.ctr, 0.05);
+  assert.deepEqual(sum.queries.map((q) => q.query), ["seo audit", "ai check"], "grouped and sorted by clicks");
+  assert.equal(sum.queries[0].position, 9, "position averaged by impressions: (6×100 + 10×300) / 400");
+  assert.equal(sum.queries[1].position, null);
+  assert.equal(sum.pages[0].page, "https://example.com/a");
+}
+console.log("✓ Bing data is added up over the last 28 days");
+
+const { cleanUrls, indexNowResult, isIndexNowKey, makeIndexNowKey, keyFileUrl } = await import("../lib/indexNow");
+assert.ok(isIndexNowKey(makeIndexNowKey()) && !isIndexNowKey("../etc") && !isIndexNowKey("short"));
+assert.equal(keyFileUrl("https://example.com/blog/", "abc12345"), "https://example.com/abc12345.txt");
+{
+  const r = cleanUrls("https://example.com/", ["https://example.com/a#x", "https://example.com/a", "https://evil.example/b", "ftp://example.com/c", "not a url", "https://EXAMPLE.com/d"]);
+  assert.deepEqual(r.urls, ["https://example.com/a", "https://example.com/d"]);
+  assert.equal(r.rejected, 3);
+  const many = cleanUrls("https://example.com/", Array.from({ length: 1005 }, (_, i) => `https://example.com/p${i}`));
+  assert.equal(many.urls.length, 1000);
+  assert.equal(many.rejected, 5);
+}
+assert.ok(indexNowResult(202).ok && indexNowResult(200).ok && !indexNowResult(403).ok && !indexNowResult(0).ok);
+assert.match(indexNowResult(422).message, /same site/);
+console.log("✓ IndexNow keeps URLs on the site and explains each answer");

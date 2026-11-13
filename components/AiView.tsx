@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Bot, Eye, Loader2 } from "lucide-react";
+import { Bot, Download, Eye, Loader2 } from "lucide-react";
 import type { AuditFacts } from "@/lib/types";
+import { aiViewVerdict, answerBots } from "@/lib/aiView";
 import { api } from "@/lib/client";
 
 /**
@@ -17,8 +18,11 @@ export default function AiView({
   onLoadScreenshot,
   loadingScreenshot,
   screenshotError,
+  shareImageUrl,
 }: {
   facts: AuditFacts;
+  /** A finished report's share image ("my site vs what AI sees"), for social posts. */
+  shareImageUrl?: string;
   canScreenshot: boolean;
   /** Pass these when the parent already runs PageSpeed (the page check does). */
   screenshot?: string | null;
@@ -50,16 +54,10 @@ export default function AiView({
   const words = facts.wordCount;
   const outline = facts.outline ?? [];
   const excerpt = (facts.textExcerpt ?? "").trim();
-  const aiBots = facts.bots.filter((b) => b.purpose === "search" || b.purpose === "user-fetch");
+  const aiBots = answerBots(facts);
   const aiAllowed = aiBots.filter((b) => b.allowed).length;
 
-  const verdict = facts.rendered
-    ? { tone: "info", text: "This audit ran JavaScript first, so the text below is what a browser sees. Run it without JavaScript rendering to see what most AI crawlers get." }
-    : words < 50
-      ? { tone: "bad", text: `AI crawlers get almost nothing: ${words} words of text in the HTML. The content most likely appears only after JavaScript runs.` }
-      : words < 250
-        ? { tone: "warn", text: `AI crawlers get a thin page: ${words} words of text in the HTML. Add the key facts and answers as plain HTML text.` }
-        : { tone: "good", text: `AI crawlers can read your content: ${words} words of text are in the HTML.` };
+  const verdict = aiViewVerdict(facts);
 
   return (
     <div className="card aiview">
@@ -71,6 +69,11 @@ export default function AiView({
             Left: your page in a real browser. Right: the text those crawlers actually get.
           </p>
         </div>
+        {shareImageUrl && (
+          <a className="btn btn-sm no-print aiview-share" href={`${shareImageUrl}?download=1`} download>
+            <Download size={15} aria-hidden="true" /> Share image
+          </a>
+        )}
       </div>
 
       <div className={`aiview-verdict ${verdict.tone}`}>{verdict.text}</div>

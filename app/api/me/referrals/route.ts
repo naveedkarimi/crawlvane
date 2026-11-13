@@ -20,7 +20,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const a = await requireAccount(req);
   if (a instanceof Response) return a;
-  if (!rateLimit("referral:" + a.org.id, 10)) return Response.json({ error: "Too many tries." }, { status: 429 });
+  if (!await rateLimit("referral:" + a.org.id, 10)) return Response.json({ error: "Too many tries." }, { status: 429 });
   const b = (await req.json().catch(() => ({}))) as { code?: unknown };
   const result = await applyReferral(a.org.id, String(b.code ?? "")).catch(() => "unknown" as const);
   return Response.json({ result });

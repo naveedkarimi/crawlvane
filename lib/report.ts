@@ -1,3 +1,6 @@
+import { pickSpeedPages, siteSpeed, speedEnabled } from "./siteSpeed";
+import { checkEntity } from "./entity";
+import { enqueue, kickWorker, queueEnabled } from "./jobs";
 import { recordSitePages } from "./siteChecks";
 import { auditFetched, brokenSchemaImages, fetchPage, httpErrorMessage, loadSiteContext } from "./audit";
 import { auditCompetitor, findGaps } from "./competitors";
@@ -47,7 +50,17 @@ export async function createReport(url: string, options: ReportOptions): Promise
     input: { url, options },
   };
   await writeJson(COLLECTION, report.id, report);
-  // Fire and forget; progress is persisted to disk for polling.
+  // With the job queue on (lib/jobs.ts), any process can run it and a restart doesn't lose it.
+  if (queueEnabled()) {
+    try {
+      await enqueue("report", report.id);
+      void kickWorker();
+      return report;
+    } catch (e) {
+      console.error("Job queue unavailable, running the report here:", e instanceof Error ? e.message : e);
+    }
+  }
+  // Fire and forget; progress is saved for polling.
   void runReport(report).catch(() => {});
   return report;
 }
@@ -58,6 +71,7 @@ function planStages(o: ReportOptions): ReportStage[] {
     { id: "home", label: "Load the homepage" },
     { id: "files", label: "Read robots.txt, sitemap and llms.txt" },
     { id: "crawl", label: "Crawl and check every page" },
+    ...(speedEnabled() ? [{ id: "speed", label: "Test speed on the top pages" }] : []),
     ...(o.competitors.length ? [{ id: "competitors", label: "Audit competitors" }] : []),
     { id: "fixes", label: "Write ready-to-paste fixes" },
     ...(o.aiPlan && process.env.ANTHROPIC_API_KEY ? [{ id: "plan", label: "Write the AI fix plan" }] : []),
@@ -68,10 +82,11 @@ function planStages(o: ReportOptions): ReportStage[] {
   ];
 }
 
-export async function runReport(report: Report): Promise<Report> {
+export async function runReport(report: Report, hooks: { onSave?: () => Promise<void> } = {}): Promise<Report> {
   const save = async () => {
     report.updatedAt = new Date().toISOString();
     await writeJson(COLLECTION, report.id, report);
+    await hooks.onSave?.();
   };
   const addLog = (s: string) => {
     report.progress.log.push(`${new Date().toISOString().slice(11, 19)} ${s}`);
@@ -110,6 +125,8 @@ export async function runReport(report: Report): Promise<Report> {
     await step(`Homepage scored ${home.scores.overall}/100`);
     report.home = home;
     if (isPublic("social") || o.socialPosts) report.social = analyzeSocial(page.body, page.url);
+    // Wikidata entity check (lib/entity.ts): only the domain is sent. Never stops the report.
+    report.entity = await checkEntity(new URL(page.url).hostname, report.social?.sameAs ?? []).catch(() => undefined);
     await save();
 
     // Crawl
@@ -134,6 +151,19 @@ export async function runReport(report: Report): Promise<Report> {
     });
     report.site = buildSiteAudit(crawl, ctx, home);
     await step(`Crawled ${report.site.pagesCrawled} page${report.site.pagesCrawled === 1 ? "" : "s"}`);
+
+    // Speed on the top pages (only with a PageSpeed key; see lib/siteSpeed.ts).
+    if (speedEnabled()) {
+      begin("speed");
+      const urls = pickSpeedPages(report.site.pages, page.url);
+      await step(`Testing speed on ${urls.length} top page${urls.length === 1 ? "" : "s"} with Google PageSpeed`, 0, urls.length);
+      try {
+        report.speed = await siteSpeed(urls, (d, t) => step(`Tested speed on ${d} of ${t} pages`, d, t));
+      } catch (e) {
+        report.speed = { error: e instanceof Error ? e.message : "The speed test failed." };
+      }
+      await save();
+    }
 
     // Competitors
     if (o.competitors.length) {
@@ -233,7 +263,7 @@ export async function runReport(report: Report): Promise<Report> {
     }
 
     recordSitePages(report.site.pages);
-    recordReportScore(report.id, report.site.scores, home).catch((e) => console.error("Saving the report score failed:", e));
+    recordReportScore(report.id, report.site.scores, home, report.speed && !("error" in report.speed) ? report.speed.average : null).catch((e) => console.error("Saving the report score failed:", e));
     begin("finish");
     report.status = "done";
     await step("Report ready", 1, 1);

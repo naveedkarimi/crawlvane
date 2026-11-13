@@ -17,6 +17,9 @@ Add an entry whenever something surprises you, wastes time, or breaks in a way t
 ## Open problems
 
 - **OPEN: Claude changes haven't run against the real API.** `ANTHROPIC_API_KEY` isn't set, so the higher token limits, `medium` effort, the new web search tool and paused-turn handling are only tested against a fake. Run one AI fix plan and one web search feature when the key is in. (2026-11-08)
+- **OPEN: Bing Webmaster Tools hasn't run against a real API key.** `lib/bing.ts` follows Bing's documented JSON API (`GetUserSites`, `GetRankAndTrafficStats`, `GetQueryStats`, `GetPageStats`, answers wrapped in `d`), but only the adding-up is tested. Connect one real site and check the numbers match Bing's own dashboard. (2026-11-13)
+- **OPEN: keywords, backlinks and the AI writer haven't run for real.** Rank tracking reads Search Console (`gscQuery`) and the backlinks read Bing's `GetLinkCounts` and `GetUrlLinks`; only the helpers are tested. Run the latest `schema.sql`, track a few keywords on a site linked to Search Console, open Backlinks on a site linked to Bing, and write one article with the Anthropic key in. Positions are Search Console's 7-day averages, never estimates; a keyword with no impressions shows "Not ranking". (2026-11-13)
+- **OPEN: the job queue hasn't run on the real database.** `JOB_QUEUE=1` sends full reports through `claim_job` in Supabase. Only the worker loop is tested (with fakes). Before turning it on: run `schema.sql`, start two reports, restart the server mid-report and check `/api/cron` picks it up again. The worker runs inside the Node process, so it needs a long-running server, not serverless functions. (2026-11-13)
 - **OPEN: 53 Python scripts from the old plugin are still in `scripts/`.** The app doesn't use them. Decide whether to delete them. (2026-11-08)
 
 ## AI
@@ -47,6 +50,7 @@ Add an entry whenever something surprises you, wastes time, or breaks in a way t
 - **Forms go straight to Supabase, so new form submissions send no email alert.** Check the `leads` table, or add a Supabase database webhook. (2026-11-08)
 - **Crawling, AI and speed tests can't move to the browser.** Browsers can't read other websites, and those steps use private keys. They run on the server and save straight to Supabase. (2026-11-08)
 - **Keep tables closed to the public key.** Row level security stays on with no policies. The forms work through `security definer` functions, so nobody can read the list, forge unsubscribe tokens, or test whether an email is on it. (2026-11-08)
+- **Rate limits are shared through Supabase.** `rateLimit()` is async now: always `await` it. Keys are HMAC-hashed so IPs never reach the database. Until `hit_rate_limit` exists (run the latest `schema.sql`), it quietly uses the old per-process limiter and logs that once. The bot-hit endpoint stays per-process on purpose, because it's too busy for a database call per request. (2026-11-13)
 - **The browser can't be rate limited per visitor.** Newsletter sign-ups and other forms each have a cap of 30 per minute across the whole site instead. A flood can block real sign-ups for a minute. (2026-11-08)
 - **`site_checks` saves in the background.** If saving fails, the check still works and the error only appears in the server log. (2026-11-08)
 
@@ -76,6 +80,8 @@ Add an entry whenever something surprises you, wastes time, or breaks in a way t
 - **Don't vertically centre a hero whose content changes height.** The home hero was centred, so switching between Page check, Full site report and App Check moved the headline up and down. It's now top-aligned with a minimum height for the form area. (2026-11-09)
 - **Keep tab text the same weight when selected.** A bold selected tab changes every tab's width, so the row shifts sideways. Show selection with background or the underline instead. (2026-11-09)
 - **The dashboard and the public site have separate layouts.** Public pages live in `app/(site)/` and get the header and footer from its layout. The dashboard lives in `app/(app)/`. The brackets aren't part of the URL. `app/not-found.tsx` is shown from the root layout, so it wraps itself in `SiteChrome`. Don't hide the header with CSS: it still loads and flashes. (2026-11-10)
+- **The sign-in pages have their own layout.** `/login`, `/signup`, `/forgot-password` and `/reset-password` live in `app/(auth)/`, so they're full screen with the brand panel and no site header. New sign-in routes must also go in `APP_PATHS` in `lib/hosts.ts`, or the landing address won't send them to the app. After moving a route folder, the running dev server kept rendering the old component on the server, which showed as a hydration error whose diff had the old markup. Restart `npm run dev` after moving route folders. (2026-11-12)
+- **Supabase's own email links only work in the browser that asked for them.** `{{ .ConfirmationURL }}` uses PKCE, so a password reset requested on a laptop and opened on a phone fails with "link expired". Our templates link to `/auth/callback?token_hash={{ .TokenHash }}&type=…` instead, which `verifyOtp` checks on the server. Sign-up with an email that already has an account returns a user with no identities and sends nothing; the sign-up page shows "already exists" for that. (2026-11-13)
 - **A dashboard that won't load after an update usually means the SQL hasn't run.** Missing tables or columns ("Could not find the table 'public.alerts' in the schema cache", "column sites.client_name does not exist") broke the dashboard, while sign-in still worked because the Phase 1 tables existed. The server log now says to run `supabase/schema.sql`. A `head` count request doesn't reliably report a missing table, so test with a real select. (2026-11-10)
 - **Use a real 404, not a redirect.** Sending missing pages to the homepage counts as a soft 404. `app/not-found.tsx` returns status 404 with noindex, no canonical and no schema, and links back into the site. (2026-11-08)
 
@@ -91,6 +97,8 @@ Add an entry whenever something surprises you, wastes time, or breaks in a way t
 - **Don't run parallel shell commands that use `cd`.** They can race and run in the wrong folder. (2026-11-08)
 
 ## Design
+
+- **Input borders need 3:1, so "very light" has a limit.** The sign-in pages first used #dce3eb, which looks clean but is only 1.3:1 and fails WCAG 1.4.11. Every `.field` now uses `--field-border` (#7690ae, a steel blue at 3:1 on white and on #f4f6f9) with 12px corners, a white fill, a darker border on hover and a Vane Blue ring on focus. Don't go lighter than that token; make inputs feel clean with space, corners and the focus ring instead. (2026-11-13)
 
 - **The design token file uses `--surface` differently.** In `crawlvane-tokens.css`, `--surface` is white and `--surface-2` is the alternate section colour. The app uses `--surface` for alternate sections, so copying the file over turns those sections white. Map by role, not by name. (2026-11-09)
 - **Don't redefine `--font-mono`, `--font-sans` or `--font-display`.** `next/font` sets those to load the fonts. Alias them instead (`--font-head: var(--display)`). (2026-11-09)

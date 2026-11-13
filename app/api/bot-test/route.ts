@@ -23,7 +23,7 @@ export async function GET(req: Request) {
   const hit = cache.get(key);
   if (hit && Date.now() - hit.at < CACHE_MS) return Response.json({ ...hit.result, cached: true });
 
-  if (!rateLimit("bottest:" + clientIp(req), Number(process.env.BOT_TEST_PER_HOUR ?? 10)))
+  if (!await rateLimit("bottest:" + clientIp(req), Number(process.env.BOT_TEST_PER_HOUR ?? 10)))
     return Response.json({ error: "Too many bot tests from your network. Try again in a bit." }, { status: 429 });
 
   try {

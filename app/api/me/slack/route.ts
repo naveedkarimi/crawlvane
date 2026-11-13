@@ -17,7 +17,7 @@ export async function PUT(req: Request) {
   const a = await requireAccount(req);
   if (a instanceof Response) return a;
   if (a.role !== "owner") return Response.json({ error: "Only the team owner can connect Slack." }, { status: 403 });
-  if (!rateLimit("slack:" + a.org.id, 10)) return Response.json({ error: "Too many tries. Wait a few minutes." }, { status: 429 });
+  if (!await rateLimit("slack:" + a.org.id, 10)) return Response.json({ error: "Too many tries. Wait a few minutes." }, { status: 429 });
   const b = (await req.json().catch(() => ({}))) as { url?: unknown };
   try {
     await setSlackWebhook(a.org.id, String(b.url ?? ""));

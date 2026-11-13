@@ -347,6 +347,8 @@ alter table public.visibility_runs enable row level security;
 
 -- ---------- Dashboard detail, alerts, teams and schedules (phase 6) ----------
 alter table public.site_scores add column if not exists issues jsonb;
+-- Average PageSpeed score (mobile) of the top pages, from full reports with a PageSpeed key.
+alter table public.site_scores add column if not exists speed integer;
 alter table public.site_scores add column if not exists bots jsonb;
 alter table public.sites add column if not exists client_name text;
 
@@ -501,6 +503,19 @@ alter table public.google_connections enable row level security;
 alter table public.sites add column if not exists gsc_property text;
 alter table public.sites add column if not exists ga4_property text;
 
+-- Bing Webmaster Tools, read-only. The API key is encrypted by the app before it's stored.
+create table if not exists public.bing_connections (
+  org_id uuid primary key references public.organizations (id) on delete cascade,
+  api_key text not null,
+  created_at timestamptz not null default now()
+);
+alter table public.bing_connections enable row level security;
+alter table public.sites add column if not exists bing_site text;
+-- IndexNow: the key whose file the site owner uploads, and when it was last checked and used.
+alter table public.sites add column if not exists indexnow_key text;
+alter table public.sites add column if not exists indexnow_verified_at timestamptz;
+alter table public.sites add column if not exists indexnow_sent_at timestamptz;
+
 -- Upgrade and trial emails, so each one is sent once per team per period.
 create table if not exists public.lifecycle_emails (
   org_id uuid not null references public.organizations (id) on delete cascade,
@@ -525,6 +540,130 @@ select id, data->>'widgetId', data->>'email', data->>'name', data->>'url', round
 from public.documents
 where collection = 'widget-leads'
 on conflict (id) do nothing;
+
+-- Live AI bot visits: a daily count per bot for each site. No IP, page or user agent is stored.
+alter table public.sites add column if not exists bot_token text;
+create unique index if not exists sites_bot_token_idx on public.sites (bot_token) where bot_token is not null;
+create table if not exists public.bot_hits (
+  site_id uuid not null references public.sites (id) on delete cascade,
+  day date not null,
+  bot text not null,
+  hits integer not null default 0,
+  created_at timestamptz not null default now(),
+  primary key (site_id, day, bot)
+);
+alter table public.bot_hits enable row level security;
+create or replace function public.add_bot_hit(p_site uuid, p_bot text)
+returns void
+language sql
+security definer
+set search_path = public
+as $$
+  insert into public.bot_hits (site_id, day, bot, hits)
+  values (p_site, (now() at time zone 'utc')::date, left(p_bot, 40), 1)
+  on conflict (site_id, day, bot) do update set hits = public.bot_hits.hits + 1;
+$$;
+revoke all on function public.add_bot_hit(uuid, text) from public, anon, authenticated;
+
+-- Shared rate limits (lib/rateLimit.ts). The key is a keyed hash made by the app, never a raw IP.
+create table if not exists public.rate_limits (
+  key text primary key,
+  window_start timestamptz not null default now(),
+  hits integer not null default 0
+);
+alter table public.rate_limits enable row level security;
+create or replace function public.hit_rate_limit(p_key text, p_limit integer, p_window_seconds integer)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  n integer;
+begin
+  insert into public.rate_limits as t (key, window_start, hits)
+  values (left(p_key, 64), now(), 1)
+  on conflict (key) do update set
+    window_start = case when t.window_start < now() - make_interval(secs => p_window_seconds) then now() else t.window_start end,
+    hits = case when t.window_start < now() - make_interval(secs => p_window_seconds) then 1 else t.hits + 1 end
+  returning hits into n;
+  return n <= p_limit;
+end;
+$$;
+revoke all on function public.hit_rate_limit(text, integer, integer) from public, anon, authenticated;
+
+-- Job queue (lib/jobs.ts, used when JOB_QUEUE=1): full reports survive restarts and any server can run them.
+create table if not exists public.jobs (
+  id uuid primary key default gen_random_uuid(),
+  kind text not null,
+  ref_id text not null,
+  status text not null default 'queued',
+  attempts integer not null default 0,
+  locked_until timestamptz,
+  worker text,
+  error text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists jobs_claim_idx on public.jobs (status, created_at);
+alter table public.jobs enable row level security;
+create or replace function public.claim_job(p_worker text, p_lock_seconds integer)
+returns setof public.jobs
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  return query
+  update public.jobs j
+  set status = 'running', attempts = j.attempts + 1, worker = p_worker,
+      locked_until = now() + make_interval(secs => p_lock_seconds), updated_at = now()
+  where j.id = (
+    select q.id from public.jobs q
+    where q.status = 'queued' or (q.status = 'running' and q.locked_until < now())
+    order by q.created_at
+    for update skip locked
+    limit 1
+  )
+  returning j.*;
+end;
+$$;
+revoke all on function public.claim_job(text, integer) from public, anon, authenticated;
+
+-- AI writer drafts (lib/ai/writer.ts), kept per team until deleted.
+create table if not exists public.articles (
+  id uuid primary key default gen_random_uuid(),
+  org_id uuid not null references public.organizations (id) on delete cascade,
+  site_id uuid references public.sites (id) on delete set null,
+  topic text not null,
+  title text not null,
+  words integer not null default 0,
+  body jsonb not null,
+  created_at timestamptz not null default now()
+);
+create index if not exists articles_org_idx on public.articles (org_id, created_at desc);
+alter table public.articles enable row level security;
+
+-- Keyword rank tracking (lib/rankTracking.ts): positions come from the site's own Search Console.
+create table if not exists public.tracked_keywords (
+  id uuid primary key default gen_random_uuid(),
+  org_id uuid not null references public.organizations (id) on delete cascade,
+  site_id uuid not null references public.sites (id) on delete cascade,
+  keyword text not null,
+  created_at timestamptz not null default now(),
+  unique (site_id, keyword)
+);
+alter table public.tracked_keywords enable row level security;
+create table if not exists public.keyword_positions (
+  keyword_id uuid not null references public.tracked_keywords (id) on delete cascade,
+  week date not null,
+  position real,
+  clicks integer not null default 0,
+  impressions integer not null default 0,
+  primary key (keyword_id, week)
+);
+alter table public.keyword_positions enable row level security;
+alter table public.sites add column if not exists ranks_checked_at timestamptz;
 
 -- Make the new functions available to the API straight away.
 notify pgrst, 'reload schema';

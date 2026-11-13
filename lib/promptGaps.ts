@@ -33,20 +33,47 @@ const hostOf = (u: string) => {
 };
 
 /** The domains AI answers cite most, other than your own, with the questions they were cited for. */
-export function citedSources(rows: Row[], ownDomain: string, limit = 10): { domain: string; times: number; prompts: string[] }[] {
+export interface CitedSource {
+  domain: string;
+  /** Answers that cited it. */
+  times: number;
+  prompts: string[];
+  /** Answers that cited it, named a competitor and didn't name you: the sources to reach first. */
+  withoutYou: number;
+  /** It's one of the tracked competitors' own sites. */
+  competitor: boolean;
+}
+
+/**
+ * Other sites the answers cite, most cited first. withoutYou counts the answers where the source was
+ * cited, a competitor was named and the brand wasn't, so the sources that favour rivals stand out.
+ */
+export function citedSources(rows: Row[], ownDomain: string, limit = 10, competitorDomains: string[] = []): CitedSource[] {
   const own = ownDomain.replace(/^www\./, "").toLowerCase();
-  const m = new Map<string, { times: number; prompts: Set<string> }>();
+  const rivals = competitorDomains.map((d) => d.replace(/^www\./, "").toLowerCase()).filter(Boolean);
+  const isUnder = (d: string, root: string) => d === root || d.endsWith("." + root);
+  const m = new Map<string, { times: number; withoutYou: number; prompts: Set<string> }>();
   for (const r of rows) {
     if (r.error) continue;
+    const favoursRival = !r.mentioned && (r.competitorsMentioned?.length ?? 0) > 0;
     for (const d of new Set((r.citedUrls ?? []).map(hostOf).filter(Boolean))) {
-      if (d === own || d.endsWith("." + own)) continue;
-      const e = m.get(d) ?? { times: 0, prompts: new Set<string>() };
+      if (isUnder(d, own)) continue;
+      const e = m.get(d) ?? { times: 0, withoutYou: 0, prompts: new Set<string>() };
       e.times++;
+      if (favoursRival) e.withoutYou++;
       e.prompts.add(r.prompt);
       m.set(d, e);
     }
   }
-  return [...m.entries()].map(([domain, e]) => ({ domain, times: e.times, prompts: [...e.prompts] })).sort((a, b) => b.times - a.times).slice(0, limit);
+  return [...m.entries()]
+    .map(([domain, e]) => ({ domain, times: e.times, prompts: [...e.prompts], withoutYou: e.withoutYou, competitor: rivals.some((c) => isUnder(domain, c)) }))
+    .sort((a, b) => b.times - a.times || b.withoutYou - a.withoutYou)
+    .slice(0, limit);
+}
+
+/** Sources cited only alongside competitors, not counting the competitors' own sites: who to pitch first. */
+export function outreachTargets(sources: CitedSource[], limit = 5): CitedSource[] {
+  return sources.filter((s) => s.withoutYou > 0 && !s.competitor).sort((a, b) => b.withoutYou - a.withoutYou || b.times - a.times).slice(0, limit);
 }
 
 /** Mention and citation rates per assistant, counted the same way as a tracking run. */

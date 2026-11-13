@@ -24,8 +24,8 @@ export default function OpengraphImage() {
           <div style={{ fontSize: 44, fontWeight: 700, letterSpacing: -1 }}>{BRAND.name}</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <div style={{ fontSize: 82, fontWeight: 700, letterSpacing: -3, lineHeight: 1.05 }}>Get found on search engines.</div>
-          <div style={{ fontSize: 82, fontWeight: 700, letterSpacing: -3, lineHeight: 1.05, color: "#C1292E" }}>Get cited by AI.</div>
+          <div style={{ fontSize: 82, fontWeight: 700, letterSpacing: -3, lineHeight: 1.05 }}>Get found on search engines</div>
+          <div style={{ fontSize: 82, fontWeight: 700, letterSpacing: -3, lineHeight: 1.05, color: "#C1292E" }}>and in AI.</div>
         </div>
         <div style={{ display: "flex", gap: 28, fontSize: 28, color: "#3e4f62" }}>
           <span>Free SEO, AEO and AI search audit</span>

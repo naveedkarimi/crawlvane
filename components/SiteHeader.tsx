@@ -5,6 +5,9 @@ import { ArrowRight, ChevronDown } from "lucide-react";
 import Logo from "./Logo";
 import { TOOL_ICONS } from "./toolIcons";
 import { TOOL_GROUPS, TOOLS, toolUrl } from "@/lib/tools";
+
+/** Four quick tools shown in the phone menu while no section is open. */
+const MOBILE_TRY = ["ai-visibility-checker", "robots-txt-checker", "llms-txt-generator", "page-speed-test"];
 import { ALL_FEATURES, PRODUCT, RESOURCES, SOLUTIONS, type NavGroup, type NavLink } from "./navLinks";
 import AccountLink from "./AccountLink";
 
@@ -104,7 +107,7 @@ export default function SiteHeader({ guides }: { guides: GuideLink[] }) {
   const mobileLinks = (links: NavLink[]) =>
     links.map((l) => {
       const Icon = l.icon;
-      return <a key={l.href} href={l.href} onClick={close}><Icon size={16} /> {l.label}{l.badge && <span className="nav-new">{l.badge}</span>}</a>;
+      return <a key={l.href} href={l.href} onClick={close}><span className="m-ico"><Icon size={16} aria-hidden="true" /></span> {l.label}{l.badge && <span className="nav-new">{l.badge}</span>}</a>;
     });
   const mobileGroups = (groups: NavGroup[]) =>
     groups.map((g) => (
@@ -219,7 +222,7 @@ export default function SiteHeader({ guides }: { guides: GuideLink[] }) {
                     <div className="mobile-group">{g.title}</div>
                     {TOOLS.filter((t) => t.group === g.key).map((t) => {
                       const Icon = TOOL_ICONS[t.icon];
-                      return <a key={t.slug} href={toolUrl(t.slug)} onClick={close}><Icon size={16} /> {t.short}</a>;
+                      return <a key={t.slug} href={toolUrl(t.slug)} onClick={close}><span className="m-ico"><Icon size={16} aria-hidden="true" /></span> {t.short}</a>;
                     })}
                   </div>
                 ))}
@@ -229,9 +232,20 @@ export default function SiteHeader({ guides }: { guides: GuideLink[] }) {
             {mobileSection("resources", "Resources", 3, mobileGroups(RESOURCES))}
             <a href="/pricing" style={{ ["--i" as string]: 4 }} onClick={close}>Pricing <ArrowRight size={18} aria-hidden="true" /></a>
           </nav>
+          {section === null && (
+            <div className="container mobile-try">
+              <p className="mobile-group">Try a free tool</p>
+              <div className="mobile-try-grid">
+                {MOBILE_TRY.map((slug) => TOOLS.find((t) => t.slug === slug)).filter((t): t is (typeof TOOLS)[number] => !!t).map((t) => {
+                  const Icon = TOOL_ICONS[t.icon];
+                  return <a key={t.slug} href={toolUrl(t.slug)} onClick={close}><span className="m-ico"><Icon size={16} aria-hidden="true" /></span>{t.short}</a>;
+                })}
+              </div>
+            </div>
+          )}
         </div>
         <div className="mobile-foot container">
-          <a className="btn btn-light btn-block" href="/#audit" onClick={close}>Run a free audit <ArrowRight size={16} /></a>
+          <a className="btn btn-light btn-block m-audit" href="/#audit" onClick={close}>Run a free audit <ArrowRight size={16} aria-hidden="true" /></a>
           <AccountLink variant="mobile" onNavigate={close} />
         </div>
       </div>

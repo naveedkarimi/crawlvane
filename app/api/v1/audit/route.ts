@@ -28,7 +28,7 @@ export async function GET(req: Request) {
     if (!org) return json({ error: "This API key's team no longer exists." }, 401);
     if (limitsFor(org).apiKeys < 1) return json({ error: "Your plan doesn't include the API. Upgrade in the dashboard." }, 402);
   }
-  if (!rateLimit("apikey:" + key.id, key.perHour)) return json({ error: `Rate limit reached (${key.perHour} audits per hour).` }, 429);
+  if (!await rateLimit("apikey:" + key.id, key.perHour)) return json({ error: `Rate limit reached (${key.perHour} audits per hour).` }, 429);
   const url = (new URL(req.url).searchParams.get("url") ?? "").trim();
   if (!url || url.length > 2048) return json({ error: "Add ?url=" }, 400);
   try {

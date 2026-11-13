@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Auditor from "@/components/Auditor";

@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   const a = await requireAccount(req);
   if (a instanceof Response) return a;
   if (a.role === "viewer") return Response.json({ error: "Viewers can't add apps." }, { status: 403 });
-  if (!rateLimit("addapp:" + a.org.id, 20)) return Response.json({ error: "Too many changes. Try again in a bit." }, { status: 429 });
+  if (!await rateLimit("addapp:" + a.org.id, 20)) return Response.json({ error: "Too many changes. Try again in a bit." }, { status: 429 });
   const b = (await req.json().catch(() => ({}))) as { app?: string; store?: string; country?: string };
   const country = String(b.country ?? "us").toLowerCase();
   if (!isStoreCountry(country)) return Response.json({ error: "Choose a country from the list." }, { status: 400 });

@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 /** POST { url } → { url } of a Stripe checkout for one full report, before signing in. */
 export async function POST(req: Request) {
   if (!PAYWALL_ENABLED || !guestReportOffer()) return Response.json({ error: "One-off reports aren't on sale yet." }, { status: 503 });
-  if (!rateLimit("guestcheckout:" + clientIp(req), 10)) return Response.json({ error: "Too many tries. Wait a few minutes." }, { status: 429 });
+  if (!await rateLimit("guestcheckout:" + clientIp(req), 10)) return Response.json({ error: "Too many tries. Wait a few minutes." }, { status: 429 });
   const b = (await req.json().catch(() => ({}))) as { url?: unknown };
   const site = normalizeSiteUrl(String(b.url ?? ""));
   if (typeof site === "string") return Response.json({ error: site }, { status: 400 });

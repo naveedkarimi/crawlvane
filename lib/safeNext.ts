@@ -8,7 +8,10 @@ export function safeNextPath(next: string | null | undefined, fallback = "/dashb
   try {
     const base = "https://same-origin.invalid";
     const u = new URL(next, base);
-    return u.origin === base ? u.pathname + u.search + u.hash : fallback;
+    if (u.origin !== base) return fallback;
+    // Check the result too: dot segments ("/.//host", "/%2e//host") collapse into "//host" when normalised.
+    const out = u.pathname + u.search + u.hash;
+    return /^\/[\\/]/.test(out) ? fallback : out;
   } catch {
     return fallback;
   }

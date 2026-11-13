@@ -18,7 +18,7 @@ export const APP_URL = isDev ? "" : clean(process.env.NEXT_PUBLIC_APP_URL);
 export const appUrl = (path: string) => `${APP_URL}${path}`;
 
 /** Paths that belong to the app. On the landing address they redirect to the app address. */
-export const APP_PATHS = ["/dashboard", "/login", "/auth", "/invite"];
+export const APP_PATHS = ["/dashboard", "/login", "/signup", "/forgot-password", "/reset-password", "/auth", "/invite"];
 export const isAppPath = (path: string) => APP_PATHS.some((p) => path === p || path.startsWith(`${p}/`));
 
 const hostOf = (u: string) => {

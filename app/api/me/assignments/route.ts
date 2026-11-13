@@ -18,7 +18,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const a = await requireAccount(req);
   if (a instanceof Response) return a;
-  if (!rateLimit("assign:" + a.org.id, 120)) return Response.json({ error: "Too many changes. Try again in a bit." }, { status: 429 });
+  if (!await rateLimit("assign:" + a.org.id, 120)) return Response.json({ error: "Too many changes. Try again in a bit." }, { status: 429 });
   const b = (await req.json().catch(() => ({}))) as { siteId?: unknown; checkId?: unknown; assignee?: unknown; status?: unknown; note?: unknown };
   try {
     await setAssignment(a, String(b.siteId ?? ""), String(b.checkId ?? ""), {

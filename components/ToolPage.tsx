@@ -125,10 +125,12 @@ export function ToolGrid({ tools = TOOLS }: { tools?: typeof TOOLS }) {
         const Icon = TOOL_ICONS[t.icon];
         return (
           <a key={t.slug} className="tool-card" href={toolUrl(t.slug)}>
-            <span className="feature-icon"><Icon size={22} /></span>
-            <h3>{t.name}</h3>
-            <p>{t.summary}</p>
-            <span className="tool-card-go">Open tool <ArrowRight size={15} /></span>
+            <span className="tool-card-icon" aria-hidden="true"><Icon size={18} /></span>
+            <span className="tool-card-text">
+              <h3>{t.name}</h3>
+              <p>{t.summary}</p>
+            </span>
+            <ArrowRight className="tool-card-arrow" size={16} aria-hidden="true" />
           </a>
         );
       })}

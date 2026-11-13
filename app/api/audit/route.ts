@@ -15,7 +15,7 @@ export const maxDuration = 60;
 
 export async function POST(req: Request) {
   const limit = Number(process.env.RATE_LIMIT_PER_HOUR ?? 30);
-  if (!rateLimit("audit:" + clientIp(req), limit))
+  if (!await rateLimit("audit:" + clientIp(req), limit))
     return Response.json({ error: "Too many audits from your network — try again in a bit." }, { status: 429 });
 
   let url = "";
