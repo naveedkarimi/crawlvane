@@ -15,7 +15,7 @@ These terms apply when you use ${BRAND.host}, including the audit, the free tool
 
 ## The service
 
-${BRAND.name} checks public websites for search engine, answer engine and AI search readiness and suggests fixes. It's free during launch. Paid plans, when they arrive, will have their own terms that you'll see before paying.
+${BRAND.name} checks public websites for search engine, answer engine and AI search readiness and suggests fixes. There is a free plan and there are paid Pro and Agency plans. The pricing page and checkout show what each plan includes, its price and how to cancel.
 
 ## What the results mean
 

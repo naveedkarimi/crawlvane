@@ -117,7 +117,7 @@ export default function ReportForm({ initialUrl, cfg, on, onStarted }: { initial
       <button className="primary big" disabled={busy || !url.trim()}>
         {busy ? "Starting…" : "Generate full report"}
       </button>
-      <p className="muted small center">Free during launch. Takes 1–5 minutes depending on pages and options.</p>
+      <p className="muted small center">Takes 1–5 minutes depending on pages and options.</p>
       {error && <div className="error">{error}</div>}
     </form>
   );

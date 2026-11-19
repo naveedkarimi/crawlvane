@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 /** Only facts that are true today; keep in step with the home page and pricing. */
 const FEATURE_FAQ = [
   { q: "What does " + BRAND.name + " check?", a: "About 50 checks across three areas: SEO (can search engines crawl and index the page), answer engines (does it answer questions in a way they can quote) and AI assistants (can ChatGPT, Claude, Perplexity and others read it, and which AI crawlers are allowed)." },
-  { q: "Is it free?", a: "Page checks and full site reports are free during launch, with no card needed. Paid plans will add more sites, monitoring and agency features." },
+  { q: "Is it free?", a: "There is a free plan, with no card needed. Page checks need no account. Pro and Agency are paid plans that add more sites, monitoring, AI visibility tracking and agency features." },
   { q: "Do I need an account?", a: "Not for a page check. A free account saves your reports, tracks your score over time and runs a weekly check with email alerts." },
   { q: "How is it different from a regular SEO tool?", a: "Most SEO tools check how search engines see a page. " + BRAND.name + " also checks what answer engines and AI assistants can read and quote, and writes the fixes, such as robots.txt, llms.txt and schema, for you to paste in." },
 ];
@@ -24,8 +24,8 @@ const FEATURE_FAQ = [
 export default function FeaturesPage() {
   return (
     <main>
-      <PageHero kicker="Features" title="Everything in the free launch plan.">
-        <p className="hero-sub">No account and no credit card. Monitoring, AI visibility tracking and white-label reports are coming in paid plans.</p>
+      <PageHero kicker="Features" title="Everything you need to get found.">
+        <p className="hero-sub">Page checks need no account or card. Pro and Agency add monitoring, AI visibility tracking and white-label reports.</p>
         <div className="center-actions"><a className="btn btn-primary" href="/#audit">Run a free audit <ArrowRight size={16} /></a></div>
       </PageHero>
 
@@ -43,9 +43,9 @@ export default function FeaturesPage() {
         </div>
       </section>
 
-      <HowItWorks ctaHref="/#audit" />
+      <HowItWorks ctaHref="/#audit" muted />
 
-      <section className="section section-muted" id="who" aria-labelledby="who-title">
+      <section className="section" id="who" aria-labelledby="who-title">
         <div className="container">
           <div className="section-head">
             <div className="kicker kicker-center">Who it&apos;s for</div>
@@ -65,7 +65,7 @@ export default function FeaturesPage() {
           </div>
         </div>
       </section>
-      <section className="section" aria-labelledby="features-faq">
+      <section className="section section-muted" aria-labelledby="features-faq">
         <div className="container faq-layout">
           <div className="section-head left">
             <div className="kicker">FAQ</div>

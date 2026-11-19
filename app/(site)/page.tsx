@@ -1,12 +1,15 @@
 import { Suspense } from "react";
 import { ldJson } from "@/lib/jsonLd";
-import { ArrowRight, Check, Globe, MessageCircleQuestion, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Globe, MessageCircleQuestion, Sparkles } from "lucide-react";
 import Home from "@/components/Home";
 import HowItWorks from "@/components/HowItWorks";
 import type { Metadata } from "next";
 import { BRAND, contactLink } from "@/lib/brand";
-import { plans } from "@/lib/plans";
+import { paidPlans } from "@/lib/plans";
+import { PLAN_LIMITS } from "@/lib/entitlements";
+import { appUrl } from "@/lib/hosts";
 import AuditCount from "@/components/AuditCount";
+import PlanCards from "@/components/PlanCards";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -31,7 +34,7 @@ const faqs = [
   },
   {
     q: "Is it free?",
-    a: "Yes. Every live feature is free during launch: page checks, full-site crawls, competitor comparison, ready-to-paste fixes and the AI fix plan. Paid Pro and Agency plans with monitoring and white-label reports come later.",
+    a: "There is a free plan. Page checks need no account, and a free account adds a saved site with score history and a weekly check, a few full site reports a month and some AI credits. Pro and Agency are paid plans for more sites, weekly monitoring, AI visibility tracking and white-label client reports.",
   },
   {
     q: "How is the score calculated?",
@@ -78,8 +81,6 @@ const example = {
   ],
 };
 
-/** Small hand-drawn rays beside the hero headline. Decorative only. */
-
 export default function Page() {
   return (
     <main>
@@ -106,22 +107,20 @@ export default function Page() {
           <Suspense fallback={<div className="tool tool-fallback" id="audit" />}>
             <Home />
           </Suspense>
-          <p className="hero-note"><ShieldCheck size={15} aria-hidden="true" /> No sign-up needed for a page check</p>
         </div>
-      </section>
-
-      <section className="engines-band" aria-label="Search engines and AI assistants covered">
-        <div className="container engines-row">
-          <span className="engines-title">Checks your readiness for</span>
-          {/* The names glide slowly in one line, pausing on hover; the second copy makes the loop seamless.
-              With reduced motion they sit still and wrap instead. */}
-          <div className="engines-viewport">
-            <div className="engines-track">
-              {[0, 1].map((copy) => (
-                <ul key={copy} className={copy ? "engines-dup" : undefined} aria-hidden={copy ? true : undefined}>
-                  {engines.map((name) => <li key={name}>{name}</li>)}
-                </ul>
-              ))}
+        <div className="engines-band" role="region" aria-label="Search engines and AI assistants covered">
+          <div className="container engines-row">
+            <span className="engines-title">Checks your readiness for</span>
+            {/* The names glide slowly in one line, pausing on hover; the second copy makes the loop seamless.
+                With reduced motion they sit still and wrap instead. */}
+            <div className="engines-viewport">
+              <div className="engines-track">
+                {[0, 1].map((copy) => (
+                  <ul key={copy} className={copy ? "engines-dup" : undefined} aria-hidden={copy ? true : undefined}>
+                    {engines.map((name) => <li key={name}>{name}</li>)}
+                  </ul>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -129,7 +128,7 @@ export default function Page() {
 
       <HowItWorks />
 
-      <section className="section" aria-labelledby="preview-title">
+      <section className="section section-dark" aria-labelledby="preview-title">
         <div className="container split">
           <div className="split-copy">
             <div className="kicker">The report</div>
@@ -141,7 +140,7 @@ export default function Page() {
               <li><Check size={18} /><span><strong>AI crawler map.</strong> See which AI bots can read your site, with search and training bots kept apart.</span></li>
               <li><Check size={18} /><span><strong>Ready-to-paste fixes.</strong> robots.txt, llms.txt, schema and meta tags generated for your site.</span></li>
             </ul>
-            <a className="btn btn-primary" href="#audit">Audit your site <ArrowRight size={16} /></a>
+            <a className="btn btn-light" href="#audit">Audit your site <ArrowRight size={16} /></a>
           </div>
           <figure className="product-frame">
             <div className="shot-bar">
@@ -163,7 +162,7 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="section section-dark" aria-labelledby="pillars-title">
+      <section className="section pillars-section" aria-labelledby="pillars-title">
         <div className="container">
           <div className="section-head">
             <div className="kicker">Three ways people find you</div>
@@ -186,7 +185,7 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="section section-muted" id="example" aria-labelledby="example-title">
+      <section className="section section-dark" id="example" aria-labelledby="example-title">
         <div className="container split split-example">
           <div className="split-copy">
             <div className="kicker">Real example</div>
@@ -209,7 +208,7 @@ export default function Page() {
               <li><Check size={18} /><span><strong>Images without sizes.</strong> All 3 images lack width and height, so the layout can shift as they load.</span></li>
             </ul>
             <p className="example-fix"><strong>The fix:</strong> open with a two-sentence summary, turn a few headings into the questions clients ask, add concrete facts, and give the images fixed sizes. {BRAND.name} lists each change in plain English.</p>
-            <a className="btn btn-ghost" href="#audit">Audit your own site <ArrowRight size={16} /></a>
+            <a className="btn btn-light" href="#audit">Audit your own site <ArrowRight size={16} /></a>
           </div>
           <figure className="photo-shot">
             <img
@@ -225,40 +224,23 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="section section-dark pricing-preview" aria-labelledby="pricing-title">
+      <section className="section pricing-preview" aria-labelledby="pricing-title">
         <div className="container">
           <div className="section-head">
             <div className="kicker kicker-center">Pricing</div>
-            <h2 id="pricing-title">Free while we launch.</h2>
-            <p className="lead">Every live feature costs nothing today. Pro and Agency add tracking over time and client reporting.</p>
+            <h2 id="pricing-title">Pick the plan that fits.</h2>
+            <p className="lead">The free plan covers page checks and one saved site. Pro and Agency add tracking over time and client reporting.</p>
             <AuditCount />
           </div>
-          <div className="price-cols">
-            {plans.map((p) => (
-              <article key={p.name} className={p.featured ? "featured" : ""}>
-                <div className="price-head">
-                  <h3>{p.name}</h3>
-                  {p.status === "live" && <span className="badge badge-live">Available now</span>}
-                </div>
-                <p className="price-line"><strong>{p.price}</strong>{p.period && <span> {p.period}</span>}</p>
-                <p>{p.blurb}</p>
-                <ul>
-                  {p.features.slice(p.name === "Launch" ? 0 : 1, 4).map((f) => <li key={f}><Check size={15} aria-hidden="true" /> {f}</li>)}
-                </ul>
-                <a className={`btn ${p.featured ? "btn-light" : "btn-outline-light"} btn-block plan-cta`} href={p.cta.href}>
-                  {p.cta.label} <span className="cta-circle" aria-hidden="true"><ArrowRight size={14} /></span>
-                </a>
-              </article>
-            ))}
-          </div>
+          <PlanCards plans={paidPlans(PLAN_LIMITS, appUrl)} limit={4} headingLevel={3} />
           <div className="center-actions">
-            <a className="btn btn-outline-light" href="/pricing">Compare plans <ArrowRight size={16} /></a>
-            <a className="btn btn-outline-light" href={contactLink(`${BRAND.name}: agency pilot`)}>Talk about an agency pilot</a>
+            <a className="btn" href="/pricing/compare">Compare plans <ArrowRight size={16} /></a>
+            <a className="btn" href={contactLink(`${BRAND.name}: agency pilot`)}>Talk about an agency pilot</a>
           </div>
         </div>
       </section>
 
-      <section className="section section-muted" id="faq" aria-labelledby="faq-title">
+      <section className="section faq-section" id="faq" aria-labelledby="faq-title">
         <div className="container faq-layout">
           <div className="section-head left">
             <div className="kicker">FAQ</div>

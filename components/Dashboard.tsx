@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, Fragment, Suspense, useCallback, useContext, useEffect, useMemo, useState, type MouseEvent, type ReactNode } from "react";
-import { AlertTriangle, ArrowLeft, ArrowRight, Bell, Building2, CheckCircle2, CircleMinus, ExternalLink, FileText, Globe, Info, LayoutGrid, MessageSquareText, Plus, RefreshCw, ScanSearch, Settings, Smartphone, Trash2, TrendingDown, TrendingUp, Users, Wrench, XCircle, type LucideIcon, PenLine } from "lucide-react";
+import { AlertTriangle, ArrowLeft, MoreHorizontal, X, BookOpen, ChevronUp, CreditCard, LogOut, ScrollText, Shield, ArrowRight, Bell, Building2, CheckCircle2, CircleMinus, ExternalLink, FileText, Globe, Info, LayoutGrid, MessageSquareText, Plus, RefreshCw, ScanSearch, Settings, Smartphone, Trash2, TrendingDown, TrendingUp, Users, Wrench, XCircle, type LucideIcon, PenLine } from "lucide-react";
 import { takeReferral } from "@/lib/referralClient";
 import GooglePanel from "./GooglePanel";
 import BingPanel from "./BingPanel";
@@ -18,7 +18,7 @@ import type { SiteMonitorRow } from "@/lib/orgMonitoring";
 import type { UsageSummary } from "@/lib/entitlements";
 import type { Member, Invite } from "@/lib/teams";
 import type { Schedule } from "@/lib/schedules";
-import { DEMO_ALERTS, DEMO_MONITORS, DEMO_SITES } from "@/lib/dashboardDemo";
+import { DEMO_ALERTS, DEMO_MONITORS, DEMO_REPORTS, DEMO_SITES } from "@/lib/dashboardDemo";
 import { LogoMark } from "./Logo";
 import { Ring } from "./ui";
 import LineChart from "./LineChart";
@@ -32,25 +32,29 @@ import Auditor from "./Auditor";
 import ReportForm from "./ReportForm";
 import ReportView from "./ReportView";
 import AppCheck from "./AppCheck";
+import Guide from "./Guide";
 
 interface Me { email: string; org: Org; role: string }
-type Section = "overview" | "check" | "report" | "websites" | "apps" | "visibility" | "content" | "reports" | "fixes" | "alerts" | "team" | "agency" | "plan" | "settings";
+type Section = "overview" | "check" | "report" | "websites" | "apps" | "visibility" | "content" | "reports" | "fixes" | "alerts" | "team" | "agency" | "plan" | "settings" | "help" | "about";
 
-const NAV: { key: Section; label: string; icon: LucideIcon }[] = [
-  { key: "overview", label: "Overview", icon: LayoutGrid },
-  { key: "check", label: "New check", icon: ScanSearch },
-  { key: "websites", label: "Websites", icon: Globe },
-  { key: "apps", label: "Apps", icon: Smartphone },
-  { key: "visibility", label: "AI visibility", icon: MessageSquareText },
-  { key: "content", label: "Keywords & content", icon: PenLine },
-  { key: "reports", label: "Reports", icon: FileText },
-  { key: "fixes", label: "Fixes", icon: Wrench },
-  { key: "alerts", label: "Alerts", icon: Bell },
-  { key: "team", label: "Team", icon: Users },
-  { key: "agency", label: "Agency", icon: Building2 },
-  { key: "settings", label: "Settings", icon: Settings },
+type NavGroup = "main" | "monitor" | "work" | "account";
+const NAV: { key: Section; label: string; icon: LucideIcon; group: NavGroup; short?: string }[] = [
+  { key: "overview", label: "Overview", icon: LayoutGrid, group: "main" },
+  { key: "check", label: "New check", icon: ScanSearch, group: "main", short: "Check" },
+  { key: "websites", label: "Websites", icon: Globe, group: "monitor" },
+  { key: "apps", label: "Apps", icon: Smartphone, group: "monitor" },
+  { key: "visibility", label: "AI visibility", icon: MessageSquareText, group: "monitor" },
+  { key: "alerts", label: "Alerts", icon: Bell, group: "monitor" },
+  { key: "fixes", label: "Fixes", icon: Wrench, group: "work" },
+  { key: "reports", label: "Reports", icon: FileText, group: "work" },
+  { key: "content", label: "Keywords & content", icon: PenLine, group: "work" },
+  { key: "team", label: "Team", icon: Users, group: "account" },
+  { key: "agency", label: "Agency", icon: Building2, group: "account" },
 ];
-const SECTIONS: Section[] = [...NAV.map((n) => n.key), "plan", "report"];
+const GROUP_LABEL: Record<NavGroup, string> = { main: "", monitor: "Monitor", work: "Work", account: "Account" };
+/** The phone tab bar: these four, then More for the rest. */
+const PHONE_TABS: Section[] = ["overview", "check", "fixes", "reports"];
+const SECTIONS: Section[] = [...NAV.map((n) => n.key), "plan", "report", "settings", "help", "about"];
 type CheckMode = "page" | "full" | "app";
 
 /** Where a link inside the dashboard goes. Everything stays in the app, with real URLs so Back works. */
@@ -117,6 +121,7 @@ export default function Dashboard() {
   const [monitors, setMonitors] = useState<SiteMonitorRow[]>([]);
   const [reports, setReports] = useState<ReportSummary[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [to, setTo] = useState<To>(readTo);
   const section = to.tab;
   // Changes on every navigation, so a check started from a link (with ?url=) runs again.
@@ -244,6 +249,9 @@ export default function Dashboard() {
     window.scrollTo(0, 0);
   };
   const go = (s: Section) => goTo({ tab: s });
+  const isOn = (k: Section) => section === k || (k === "reports" && section === "report");
+  // Agency tools only for the Agency plan, or for everyone while the paywall is off.
+  const nav = NAV.filter((n) => n.key !== "agency" || me?.org.plan === "agency" || (usage ? !usage.paywall : false));
   const recheckAll = async () => {
     for (const s of sites) await api(`/api/me/sites/${s.id}/check`, { method: "POST" }).catch(() => {});
     await loadData();
@@ -268,6 +276,8 @@ export default function Dashboard() {
     agency: ["Agency", "Your branding on client reports, your own report domain, and an audit widget for your website."],
     plan: ["Plan", "Your plan, this month's usage and billing."],
     settings: ["Settings", "Your account, API keys and data."],
+    help: ["How to use", "Every step, from your first check to client reports."],
+    about: ["About", `The ${BRAND.name} version you're using, and the legal pages.`],
   };
   // First-run checklist. Each step is done when the data says so, not when it's clicked.
   const setup = demo ? null : (
@@ -311,12 +321,17 @@ export default function Dashboard() {
             <select value={me.org.id} onChange={(e) => switchOrg(e.target.value)}>{orgs.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}</select>
           </label>
         )}
-        <nav className="app-nav">
-          {NAV.map(({ key, label, icon: Icon }) => (
-            <button key={key} type="button" className={section === key || (key === "reports" && section === "report") ? "on" : ""} aria-current={section === key ? "page" : undefined} onClick={() => go(key)}>
-              <Icon size={18} aria-hidden="true" /> <span>{label}</span>
-              {key === "alerts" && unread > 0 && <span className="nav-count" aria-label={`${unread} unread`}>{unread}</span>}
-            </button>
+        <nav className="app-nav" aria-label="Sections">
+          {(Object.keys(GROUP_LABEL) as NavGroup[]).map((g) => (
+            <div key={g} className="app-nav-group" role="group" aria-label={GROUP_LABEL[g] || "Start"}>
+              {GROUP_LABEL[g] && <span className="app-nav-label" aria-hidden="true">{GROUP_LABEL[g]}</span>}
+              {nav.filter((n) => n.group === g).map(({ key, label, icon: Icon }) => (
+                <button key={key} type="button" className={isOn(key) ? "on" : ""} aria-current={isOn(key) ? "page" : undefined} onClick={() => go(key)}>
+                  <Icon size={18} aria-hidden="true" /> <span>{label}</span>
+                  {key === "alerts" && unread > 0 && <span className="nav-count" aria-label={`${unread} unread`}>{unread}</span>}
+                </button>
+              ))}
+            </div>
           ))}
         </nav>
         <a className="side-link" href={siteLink("/tools")}>Free tools <ExternalLink size={14} aria-hidden="true" /></a>
@@ -326,6 +341,7 @@ export default function Dashboard() {
           {sitesLimit && <div className="side-bar"><i style={{ width: `${Math.min(100, (sites.length / sitesLimit) * 100)}%` }} /></div>}
           <button type="button" onClick={() => go("plan")}>Manage plan</button>
         </div>
+        <ProfileMenu email={me.email} demo={demo} isOn={isOn} go={go} />
       </aside>
 
       <main id="main" className="app-main">
@@ -360,12 +376,14 @@ export default function Dashboard() {
                 {sites.map((s) => <SiteCard key={s.id} s={s} active={site?.id === s.id} onSelect={() => setSelected(s.id)} />)}
               </div>
               <div className="dash-row">
-                {site && <ScoreChart s={site} />}
-                <AlertsCard alerts={alerts.slice(0, 4)} monitors={monitors} onAll={() => go("alerts")} />
-              </div>
-              <div className="dash-row">
-                {site && <FixesCard s={site} reports={reports} />}
-                <CrawlerTable sites={sites} />
+                <div className="dash-col">
+                  {site && <ScoreChart s={site} />}
+                  {site && <FixesCard s={site} reports={reports} />}
+                </div>
+                <div className="dash-col">
+                  <AlertsCard alerts={alerts.slice(0, 4)} monitors={monitors} onAll={() => go("alerts")} />
+                  <CrawlerTable sites={sites} />
+                </div>
               </div>
             </>
           )
@@ -374,30 +392,191 @@ export default function Dashboard() {
         {section === "apps" && (demo ? signInOnly("App tracking") : <AppsPanel canEdit={canEdit} />)}
         {section === "visibility" && (demo ? signInOnly("AI visibility tracking") : <VisibilityPanel canEdit={canEdit} />)}
         {section === "content" && (demo ? signInOnly("Keywords and content") : <SeoToolsPanel sites={sites} canEdit={canEdit} />)}
-        {section === "check" && <Suspense fallback={null}><CheckPanel key={navKey} mode={to.mode ?? "page"} url={to.url ?? ""} onReport={(id) => goTo({ tab: "report", id })} /></Suspense>}
+        {section === "check" && <Suspense fallback={null}><CheckPanel key={navKey} mode={to.mode ?? "page"} url={to.url ?? ""} sites={sites} onReport={(id) => goTo({ tab: "report", id })} /></Suspense>}
         {section === "report" && (to.id ? (
           <div className="dash-report">
             <AppLink className="link-btn back-link" to={{ tab: "reports" }}><ArrowLeft size={15} aria-hidden="true" /> All reports</AppLink>
             <ReportView key={to.id} id={to.id} />
           </div>
-        ) : <Reports reports={reports} />)}
-        {section === "reports" && <Reports reports={reports} />}
+        ) : <Reports reports={reports} demo={demo} />)}
+        {section === "reports" && <Reports reports={reports} demo={demo} />}
         {section === "fixes" && <AllFixes sites={sites} demo={demo} />}
         {section === "alerts" && <AlertList alerts={alerts} />}
         {section === "team" && (demo ? signInOnly("Your team") : <Team />)}
         {section === "agency" && (demo ? signInOnly("Agency tools") : <section className="dash-section" aria-label="Agency"><BrandingCard /><WidgetsCard /></section>)}
         {section === "plan" && (demo ? signInOnly("Billing") : <PlanPanel isOwner={me.role === "owner"} />)}
         {section === "settings" && (demo ? signInOnly("Settings") : <SettingsPanel me={me} reload={() => window.location.reload()} />)}
+        {section === "help" && <HelpPanel />}
+        {section === "about" && <AboutPanel />}
       </main>
+      <nav className="phone-tabs" aria-label="Sections">
+        {PHONE_TABS.map((k) => {
+          const n = NAV.find((x) => x.key === k)!;
+          const Icon = n.icon;
+          return (
+            <button key={k} type="button" className={isOn(k) ? "on" : ""} aria-current={isOn(k) ? "page" : undefined} onClick={() => go(k)}>
+              <Icon size={20} aria-hidden="true" /><span>{n.short ?? n.label}</span>
+            </button>
+          );
+        })}
+        <button type="button" className={moreOpen || !PHONE_TABS.some(isOn) ? "on" : ""} aria-expanded={moreOpen} aria-controls="phone-more" onClick={() => setMoreOpen(!moreOpen)}>
+          <MoreHorizontal size={20} aria-hidden="true" /><span>More</span>
+          {unread > 0 && <span className="nav-dot" aria-label={`${unread} unread alerts`} />}
+        </button>
+      </nav>
+      {moreOpen && (
+        <div className="phone-more-backdrop" onMouseDown={(e) => e.target === e.currentTarget && setMoreOpen(false)}>
+          <div className="phone-more" id="phone-more" role="dialog" aria-modal="true" aria-label="More sections">
+            <div className="phone-more-head"><strong>More</strong><button type="button" className="icon-btn" aria-label="Close" onClick={() => setMoreOpen(false)}><X size={20} aria-hidden="true" /></button></div>
+            {(["monitor", "work", "account"] as NavGroup[]).map((g) => (
+              <div key={g} className="phone-more-group">
+                <span className="app-nav-label">{GROUP_LABEL[g]}</span>
+                {nav.filter((n) => n.group === g && !PHONE_TABS.includes(n.key)).map(({ key, label, icon: Icon }) => (
+                  <button key={key} type="button" className={isOn(key) ? "on" : ""} onClick={() => { setMoreOpen(false); go(key); }}>
+                    <Icon size={18} aria-hidden="true" /> <span>{label}</span>
+                    {key === "alerts" && unread > 0 && <span className="nav-count">{unread}</span>}
+                  </button>
+                ))}
+              </div>
+            ))}
+            <div className="phone-more-group">
+              <span className="app-nav-label">Profile</span>
+              {PROFILE_LINKS.map(({ key, label, icon: Icon }) => (
+                <button key={key} type="button" className={isOn(key) ? "on" : ""} onClick={() => { setMoreOpen(false); go(key); }}><Icon size={18} aria-hidden="true" /> <span>{label}</span></button>
+              ))}
+              {LEGAL_LINKS.map(({ href, label, icon: Icon }) => (
+                <a key={href} className="phone-more-link" href={siteLink(href)} target="_blank" rel="noopener noreferrer"><Icon size={18} aria-hidden="true" /> <span>{label}</span></a>
+              ))}
+              {!demo && <button type="button" onClick={() => void signOutNow()}><LogOut size={18} aria-hidden="true" /> <span>Sign out</span></button>}
+            </div>
+            <button type="button" className="phone-more-plan" onClick={() => { setMoreOpen(false); go("plan"); }}>{PLAN_NAME[me.org.plan] ?? me.org.plan} plan · Manage</button>
+          </div>
+        </div>
+      )}
       <Upsell onPlans={() => go("plan")} />
     </div>
     </NavCtx.Provider>
   );
 }
 
+const PROFILE_LINKS: { key: Section; label: string; icon: LucideIcon }[] = [
+  { key: "settings", label: "Settings", icon: Settings },
+  { key: "plan", label: "Plan and billing", icon: CreditCard },
+  { key: "help", label: "How to use", icon: BookOpen },
+  { key: "about", label: "About", icon: Info },
+];
+const LEGAL_LINKS: { href: string; label: string; icon: LucideIcon }[] = [
+  { href: "/privacy", label: "Privacy policy", icon: Shield },
+  { href: "/terms", label: "Terms of service", icon: ScrollText },
+];
+
+async function signOutNow() {
+  await browserAuth()?.auth.signOut();
+  window.location.href = siteLink("/");
+}
+
+/** The profile button at the foot of the sidebar: account, help, about, legal pages and sign out. */
+function ProfileMenu({ email, demo, isOn, go }: { email: string; demo: boolean; isOn: (k: Section) => boolean; go: (s: Section) => void }) {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", close);
+    return () => window.removeEventListener("keydown", close);
+  }, [open]);
+  const pick = (k: Section) => { setOpen(false); go(k); };
+  return (
+    <div className="profile" onBlur={(e) => !e.currentTarget.contains(e.relatedTarget as Node) && setOpen(false)}>
+      {open && (
+        <div className="profile-menu" id="profile-menu" role="menu" aria-label="Profile">
+          <p className="profile-email">{email || "Example account"}</p>
+          {PROFILE_LINKS.map(({ key, label, icon: Icon }) => (
+            <button key={key} type="button" role="menuitem" className={isOn(key) ? "on" : ""} onClick={() => pick(key)}><Icon size={16} aria-hidden="true" /> {label}</button>
+          ))}
+          <hr />
+          {LEGAL_LINKS.map(({ href, label, icon: Icon }) => (
+            <a key={href} role="menuitem" href={siteLink(href)} target="_blank" rel="noopener noreferrer"><Icon size={16} aria-hidden="true" /> {label} <ExternalLink size={12} aria-hidden="true" className="profile-ext" /></a>
+          ))}
+          {!demo && <><hr /><button type="button" role="menuitem" onClick={() => void signOutNow()}><LogOut size={16} aria-hidden="true" /> Sign out</button></>}
+        </div>
+      )}
+      <button type="button" className="profile-btn" aria-haspopup="menu" aria-expanded={open} aria-controls="profile-menu" onClick={() => setOpen(!open)}>
+        <span className="profile-avatar" aria-hidden="true">{(email || "?").slice(0, 1).toUpperCase()}</span>
+        <span className="profile-name">{email || "Example account"}</span>
+        <ChevronUp size={16} aria-hidden="true" className="profile-chev" />
+      </button>
+    </div>
+  );
+}
+
+function HelpPanel() {
+  const { cfg } = useConfig();
+  return <Guide ttl={cfg?.limits.reportTtlDays} paidTtl={cfg?.limits.paidReportTtlDays} />;
+}
+
+/** Version, build, legal pages and support. */
+function AboutPanel() {
+  const version = process.env.NEXT_PUBLIC_APP_VERSION || "dev";
+  const commit = process.env.NEXT_PUBLIC_APP_COMMIT || "";
+  const built = process.env.NEXT_PUBLIC_APP_BUILT;
+  const legal: [string, string, string][] = [
+    ["/privacy", "Privacy policy", "What we collect, why, and how long we keep it."],
+    ["/terms", "Terms of service", "The rules for using the service, plans and billing."],
+    ["/accessibility", "Accessibility", "How the site meets WCAG 2.2 AA, and how to report a problem."],
+    ["/credits", "Credits", "The open-source software and data we use."],
+  ];
+  return (
+    <section className="dash-section about" aria-label="About">
+      <div className="card about-hero">
+        <LogoMark size={44} />
+        <div>
+          <h2>{BRAND.name}</h2>
+          <p className="muted">{BRAND.tagline}</p>
+        </div>
+      </div>
+      <div className="card">
+        <h3>Version</h3>
+        <dl className="about-facts">
+          <div><dt>Version</dt><dd>{version}</dd></div>
+          {commit && <div><dt>Build</dt><dd className="mono">{commit}</dd></div>}
+          {built && <div><dt>Released</dt><dd>{new Date(built).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })}</dd></div>}
+        </dl>
+      </div>
+      <div className="card">
+        <h3>Legal</h3>
+        <ul className="about-links">
+          {legal.map(([href, label, text]) => (
+            <li key={href}>
+              <a href={siteLink(href)} target="_blank" rel="noopener noreferrer"><strong>{label}</strong> <ExternalLink size={13} aria-hidden="true" /></a>
+              <span className="muted small">{text}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="card about-support">
+        <div><h3>Need help?</h3><p className="muted small">Read the guide, or tell us what you were trying to do.</p></div>
+        <div className="actions">
+          <AppLink className="btn btn-primary btn-sm" to={{ tab: "help" }}><BookOpen size={15} aria-hidden="true" /> How to use</AppLink>
+          <a className="btn btn-sm" href={siteLink(BRAND.contactUrl)} target="_blank" rel="noopener noreferrer">Contact us</a>
+        </div>
+      </div>
+      {BRAND.legalName && <p className="muted small">© {new Date().getFullYear()} {BRAND.legalName}</p>}
+    </section>
+  );
+}
+
 /** Page check, full site report and App Check, run inside the dashboard. */
-function CheckPanel({ mode: start, url, onReport }: { mode: CheckMode; url: string; onReport: (id: string) => void }) {
+const CHECK_HINT: Record<CheckMode, string> = {
+  page: "One page, about 50 checks. Takes about 20 seconds.",
+  full: "Crawls your site, with competitors and fixes if you choose. Takes 1 to 5 minutes.",
+  app: "An App Store or Google Play listing, scored and compared. Takes about 15 seconds.",
+};
+
+function CheckPanel({ mode: start, url: startUrl, sites, onReport }: { mode: CheckMode; url: string; sites: SiteSummary[]; onReport: (id: string) => void }) {
   const [mode, setMode] = useState<CheckMode>(start);
+  // Picking a saved site remounts the form with that address filled in.
+  const [url, setUrl] = useState(startUrl);
+  const [pick, setPick] = useState(0);
   const { cfg, on } = useConfig();
   const tabs: [CheckMode, string, boolean][] = [["page", "Page check", true], ["full", "Full site report", !cfg || on("siteCrawl")], ["app", "App Check", true]];
   return (
@@ -407,8 +586,17 @@ function CheckPanel({ mode: start, url, onReport }: { mode: CheckMode; url: stri
           <button key={k} role="tab" type="button" aria-selected={mode === k} className={mode === k ? "on" : ""} disabled={!ok} onClick={() => setMode(k)}>{label}</button>
         ))}
       </div>
-      {mode === "page" && <Auditor />}
-      {mode === "full" && <ReportForm initialUrl={url} cfg={cfg} on={on} onStarted={onReport} />}
+      <p className="muted small check-hint">{CHECK_HINT[mode]}</p>
+      {mode !== "app" && sites.length > 0 && (
+        <div className="quick-sites" role="group" aria-label="Your websites">
+          <span className="muted small">Your websites:</span>
+          {sites.slice(0, 8).map((s) => (
+            <button key={s.id} type="button" className={`chip ${url === s.url ? "on" : ""}`} aria-pressed={url === s.url} onClick={() => { setUrl(s.url); setPick((n) => n + 1); }}>{s.domain}</button>
+          ))}
+        </div>
+      )}
+      {mode === "page" && <Auditor key={`p-${pick}`} initialUrl={url} />}
+      {mode === "full" && <ReportForm key={`f-${pick}`} initialUrl={url} cfg={cfg} on={on} onStarted={onReport} />}
       {mode === "app" && <AppCheck />}
     </section>
   );
@@ -451,7 +639,7 @@ function SiteCard({ s, active, onSelect }: { s: SiteSummary; active: boolean; on
   return (
     <button type="button" className={`card site-tile ${active ? "on" : ""}`} aria-pressed={active} onClick={onSelect}>
       <div className="site-tile-top">
-        <span className="mono site-domain">{s.domain}</span>
+        <span className="site-domain">{s.domain}</span>
         {s.latest && <StatusPill score={s.latest.overall} />}
       </div>
       {s.latest ? (
@@ -482,7 +670,7 @@ function ScoreChart({ s }: { s: SiteSummary }) {
   return (
     <section className="card dash-card chart-card" aria-label="Score over time">
       <div className="card-head">
-        <div><h2>Score over {pts.length > 1 ? `${pts.length} checks` : "time"}</h2><p className="mono muted small">{s.domain}</p></div>
+        <div><h2>Score over {pts.length > 1 ? `${pts.length} checks` : "time"}</h2><p className="muted small">{s.domain}</p></div>
         <ul className="chart-legend">
           <li className="lg-overall">Overall</li><li className="lg-seo">SEO</li><li className="lg-aeo">AEO</li><li className="lg-geo">GEO</li>
         </ul>
@@ -529,7 +717,7 @@ function AlertItem({ a }: { a: AlertRow }) {
       <div>
         <div className="alert-top"><strong>{a.title}</strong><span className="muted small">{ago(a.created_at)}</span></div>
         {a.detail && <p>{a.detail}</p>}
-        <span className="alert-kind">{{ fail: "Fail", warn: "Warning", pass: "Pass", info: "Info" }[a.kind]}</span>
+        <span className="sr-only">{{ fail: "Problem", warn: "Warning", pass: "Improvement", info: "Information" }[a.kind]}</span>
       </div>
     </li>
   );
@@ -546,7 +734,7 @@ function AlertsCard({ alerts, monitors, onAll }: { alerts: AlertRow[]; monitors:
           {next && (
             <li className="alert-item info">
               <Info size={18} aria-hidden="true" />
-              <div><div className="alert-top"><strong>Next weekly check</strong></div><p>{new Date(next).toLocaleString("en-GB", { weekday: "long", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "UTC" })} UTC, for {monitors.length === 1 ? "1 website" : `all ${monitors.length} websites`}.</p><span className="alert-kind">Info</span></div>
+              <div><div className="alert-top"><strong>Next weekly check</strong></div><p>{new Date(next).toLocaleString("en-GB", { weekday: "long", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "UTC" })} UTC, for {monitors.length === 1 ? "1 website" : `all ${monitors.length} websites`}.</p></div>
             </li>
           )}
         </ul>
@@ -561,11 +749,10 @@ function FixRow({ i, url, assign }: { i: IssueRef; url: string; assign?: React.R
     <li className={`fix-row ${i.status}`}>
       <Icon size={20} aria-hidden="true" />
       <div className="fix-main">
-        <strong>{i.title}</strong>
-        <div className="fix-tags"><span className="mono">{i.category.toUpperCase()}</span><span className="mono">{impact(i.weight)}</span></div>
+        <strong><span className="sr-only">{i.status === "fail" ? "Failed: " : "Warning: "}</span>{i.title}</strong>
+        <div className="fix-tags"><span>{i.category.toUpperCase()}</span><span className={`impact-${i.weight >= 3 ? "high" : i.weight === 2 ? "med" : "low"}`}>{impact(i.weight)}</span></div>
       </div>
       {assign}
-      <span className={`dash-pill ${i.status === "fail" ? "bad" : "ok"}`}>{i.status === "fail" ? <XCircle size={13} aria-hidden="true" /> : <AlertTriangle size={13} aria-hidden="true" />} {i.status === "fail" ? "Fail" : "Warning"}</span>
       <AppLink className="btn btn-sm" to={{ tab: "check", mode: "page", url }}>View fix <ArrowRight size={14} aria-hidden="true" /></AppLink>
     </li>
   );
@@ -605,7 +792,7 @@ function CrawlerTable({ sites }: { sites: SiteSummary[] }) {
         <>
           <div className="table-wrap">
             <table className="crawler-table">
-              <thead><tr><th>Crawler</th>{withBots.map((s) => <th key={s.id} className="mono" title={s.domain}>{shortDomain(s.domain, withBots[0].domain)}</th>)}</tr></thead>
+              <thead><tr><th>Crawler</th>{withBots.map((s) => <th key={s.id} title={s.domain}>{shortDomain(s.domain, withBots[0].domain)}</th>)}</tr></thead>
               <tbody>
                 {bots.map((b) => (
                   <tr key={b}>
@@ -633,7 +820,12 @@ const FIX_STATUS_LABEL = { open: "Open", doing: "In progress", done: "Done" } as
 
 /** Every issue across saved sites, with who's fixing it, its status and a note, and an export for Jira, Linear or a spreadsheet. */
 function AllFixes({ sites, demo }: { sites: SiteSummary[]; demo: boolean }) {
-  const rows = sites.flatMap((s) => s.issues.map((i) => ({ s, i }))).sort((a, b) => (a.i.status === b.i.status ? b.i.weight - a.i.weight : a.i.status === "fail" ? -1 : 1));
+  const byImpact = (a: IssueRef, b: IssueRef) => (a.status === b.status ? b.weight - a.weight : a.status === "fail" ? -1 : 1);
+  // Grouped by site, worst site first; within a site, most important first.
+  const rows = [...sites]
+    .filter((s) => s.issues.length)
+    .sort((a, b) => (a.latest?.overall ?? 101) - (b.latest?.overall ?? 101))
+    .flatMap((s) => [...s.issues].sort(byImpact).map((i) => ({ s, i })));
   const [people, setPeople] = useState<TeamPerson[]>([]);
   const [state, setState] = useState<Record<string, FixState>>({});
   const [canEdit, setCanEdit] = useState(false);
@@ -674,7 +866,7 @@ function AllFixes({ sites, demo }: { sites: SiteSummary[]; demo: boolean }) {
   return (
     <section className="card dash-card" aria-label="All fixes">
       <div className="card-head fixes-head">
-        <p className="muted small">{rows.length} issue{rows.length === 1 ? "" : "s"} across {sites.length} site{sites.length === 1 ? "" : "s"}, most important first{done ? ` · ${done} marked done` : ""}.{people.length < 2 && !demo ? " Invite your team to assign fixes to people." : ""}</p>
+        <p className="muted small">{rows.length} issue{rows.length === 1 ? "" : "s"} across {new Set(rows.map((x) => x.s.id)).size} site{new Set(rows.map((x) => x.s.id)).size === 1 ? "" : "s"}, grouped by site, most important first{done ? ` · ${done} marked done` : ""}.{people.length < 2 && !demo ? " Invite your team to assign fixes to people." : ""}</p>
         <div className="fixes-export" role="group" aria-label="Export fixes">
           <span className="muted small">Export for</span>
           <button type="button" className="btn btn-sm" onClick={() => exportAs("jira")}>Jira</button>
@@ -684,12 +876,18 @@ function AllFixes({ sites, demo }: { sites: SiteSummary[]; demo: boolean }) {
       </div>
       {err && <p className="c-fail small" role="alert">{err}</p>}
       <ul className="fix-list">
-        {rows.map(({ s, i }) => {
+        {rows.map(({ s, i }, n) => {
           const key = `${s.id}:${i.id}`;
           const st = state[key] ?? NO_STATE;
+          const first = n === 0 || rows[n - 1].s.id !== s.id;
           return (
             <Fragment key={key}>
-              <li className="mono muted small fix-site">{s.domain}</li>
+              {first && (
+                <li className="fix-site">
+                  <strong>{s.domain}</strong>
+                  <span className="muted small">{s.issues.length} issue{s.issues.length === 1 ? "" : "s"}{s.latest ? ` · score ${s.latest.overall}` : ""}</span>
+                </li>
+              )}
               <FixRow i={i} url={s.url} assign={demo ? undefined : (
                 <div className="fix-controls">
                   <label className="fix-assign">
@@ -733,7 +931,8 @@ function AlertList({ alerts }: { alerts: AlertRow[] }) {
   return <section className="card dash-card"><ul className="alert-list">{alerts.map((a) => <AlertItem key={a.id} a={a} />)}</ul></section>;
 }
 
-function Reports({ reports }: { reports: ReportSummary[] }) {
+function Reports({ reports: real, demo }: { reports: ReportSummary[]; demo?: boolean }) {
+  const reports = demo && !real.length ? DEMO_REPORTS : real;
   if (!reports.length)
     return <div className="card dash-empty"><h3>No reports yet</h3><p className="muted">Full site reports you run while signed in appear here.</p><AppLink className="btn btn-primary" to={{ tab: "check", mode: "full" }}>Run a full report <ArrowRight size={16} aria-hidden="true" /></AppLink></div>;
   return (
@@ -744,11 +943,11 @@ function Reports({ reports }: { reports: ReportSummary[] }) {
           <tbody>
             {reports.map((r) => (
               <tr key={r.id}>
-                <td className="mono">{r.url.replace(/^https?:\/\//, "")}</td>
+                <td><strong>{r.url.replace(/^https?:\/\//, "").replace(/\/$/, "")}</strong></td>
                 <td>{fmt(r.createdAt)}</td>
-                <td>{r.score ?? "–"}</td>
-                <td>{r.status === "done" ? "Ready" : r.status === "deleted" ? "Expired" : r.status === "error" ? "Failed" : "Running"}</td>
-                <td>{r.status !== "deleted" && <AppLink to={{ tab: "report", id: r.id }}>Open</AppLink>}</td>
+                <td>{r.score != null ? <span className={`score-chip ${statusOf(r.score)}`}>{r.score}</span> : "–"}</td>
+                <td><span className={`dash-pill ${r.status === "done" ? "good" : r.status === "error" ? "bad" : r.status === "deleted" ? "" : "ok"}`}>{r.status === "done" ? "Ready" : r.status === "deleted" ? "Expired" : r.status === "error" ? "Failed" : "Running"}</span></td>
+                <td>{demo ? <a className="btn btn-sm" href="/login">Sign in to open</a> : r.status !== "deleted" && <AppLink className="btn btn-sm" to={{ tab: "report", id: r.id }}>Open <ArrowRight size={14} aria-hidden="true" /></AppLink>}</td>
               </tr>
             ))}
           </tbody>
@@ -806,7 +1005,7 @@ function Websites({ sites, monitors, canEdit, email, reload }: { sites: SiteSumm
                   <div className="site-row-main">
                     {s.latest ? <Ring value={s.latest.overall} size={56} /> : <span className="site-noscore muted small">No score</span>}
                     <div>
-                      <h3 className="mono">{s.domain}</h3>
+                      <h3>{s.domain}</h3>
                       <p className="muted small">{s.latest ? `Checked ${fmt(s.latest.at)}` : "Not checked yet"}{s.clientName ? ` · ${s.clientName}` : ""}</p>
                     </div>
                   </div>

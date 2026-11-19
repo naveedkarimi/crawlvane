@@ -1,4 +1,4 @@
-import type { SiteSummary } from "./accounts";
+import type { ReportSummary, SiteSummary } from "./accounts";
 import type { AlertRow } from "./alerts";
 
 /** Example data for /dashboard?demo=1, so the dashboard can be previewed before sign-in is set up. */
@@ -35,6 +35,14 @@ export const DEMO_SITES: SiteSummary[] = [
     bots: bots(["OAI-SearchBot"]),
     history: weeks([[85, 93, 84, 80], [86, 93, 85, 81], [87, 94, 86, 82], [88, 95, 87, 83], [89, 95, 88, 84], [89, 95, 89, 85], [90, 96, 89, 85], [91, 96, 90, 86]]),
   },
+];
+
+const daysAgo = (n: number) => new Date(Date.now() - n * 86400000).toISOString();
+export const DEMO_REPORTS: ReportSummary[] = [
+  { id: "demo-r1", url: "https://yourbusiness.com", createdAt: daysAgo(1), status: "done", score: 72 },
+  { id: "demo-r2", url: "https://shop.yourbusiness.com", createdAt: daysAgo(5), status: "done", score: 54 },
+  { id: "demo-r3", url: "https://yourbusiness.co.uk", createdAt: daysAgo(5), status: "done", score: 91 },
+  { id: "demo-r4", url: "https://yourbusiness.com", createdAt: daysAgo(30), status: "done", score: 64 },
 ];
 
 export const DEMO_ALERTS: AlertRow[] = [

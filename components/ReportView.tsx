@@ -17,6 +17,8 @@ import { workerScript } from "@/lib/workerTemplate";
 import { coverageCsv } from "@/lib/siteDiagnostics";
 import { topIssues, type ReportDiff } from "@/lib/reportCompare";
 import { cell as csvCell } from "@/lib/issueExport";
+import { BRAND } from "@/lib/brand";
+import { Check, ChevronDown, FileDown, Link2, Search, TrendingDown, TrendingUp } from "lucide-react";
 
 type IssueFilter = "all" | "fail" | "warn";
 type Tab = "overview" | "issues" | "pages" | "diagnostics" | "competitors" | "fixes" | "plan" | "social" | "visibility" | "research";
@@ -29,6 +31,69 @@ const host = (u: string) => {
   }
 };
 
+type Compare = { previous: { id: string; createdAt: string } | null; diff?: ReportDiff | null };
+
+/** "18 Nov 2026, 14:05" in the viewer's locale and time zone. */
+const when = (iso: string) => new Date(iso).toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+const day = (iso: string) => new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+
+/** Which ready-to-paste fix answers an issue, if any. Matches on the check id. */
+function fixFor(issueId: string, fixIds: string[]): string | null {
+  const id = issueId.toLowerCase();
+  const pick = (f: string) => (fixIds.includes(f) ? f : null);
+  if (/llms/.test(id)) return pick("llms");
+  if (/robots|bot|crawler/.test(id)) return pick("robots");
+  if (/sitemap/.test(id)) return pick("sitemap");
+  if (/schema|entity|organization|sameas|json-?ld/.test(id)) return pick("schema");
+  if (/title|description|canonical|og|open-?graph|twitter|viewport|charset|lang|favicon/.test(id)) return pick("head-tags");
+  return null;
+}
+
+/** The report header's sharing and download controls. */
+function ReportActions({ r, name, onPdf }: { r: Report; name: string; onPdf: () => void }) {
+  const [copied, setCopied] = useState(false);
+  const share = async () => {
+    const url = window.location.href;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      window.prompt("Copy this link", url);
+    }
+  };
+  return (
+    <div className="actions report-actions no-print">
+      <button type="button" className="btn btn-primary btn-sm" onClick={onPdf}><FileDown size={16} aria-hidden="true" /> Save as PDF</button>
+      <button type="button" className="btn btn-sm" onClick={share} aria-live="polite">
+        {copied ? <><Check size={16} aria-hidden="true" /> Link copied</> : <><Link2 size={16} aria-hidden="true" /> Copy link</>}
+      </button>
+      <details className="menu">
+        <summary className="btn btn-sm">Download <ChevronDown size={16} aria-hidden="true" /></summary>
+        <div className="menu-list" role="menu">
+          <button type="button" role="menuitem" onClick={(e) => { download(`report-${name}.md`, reportToMarkdown(r), "text/markdown"); (e.currentTarget.closest("details") as HTMLDetailsElement).open = false; }}>Markdown <span className="muted small">for docs and tickets</span></button>
+          <button type="button" role="menuitem" onClick={(e) => { download(`report-${name}.json`, JSON.stringify(r, null, 2), "application/json"); (e.currentTarget.closest("details") as HTMLDetailsElement).open = false; }}>JSON <span className="muted small">for developers</span></button>
+          {r.site && <button type="button" role="menuitem" onClick={(e) => { download(`pages-${name}.csv`, pagesCsv(r.site!.pages), "text/csv"); (e.currentTarget.closest("details") as HTMLDetailsElement).open = false; }}>Pages CSV <span className="muted small">for spreadsheets</span></button>}
+        </div>
+      </details>
+    </div>
+  );
+}
+
+/** A placeholder in the report's shape while it loads. */
+function ReportSkeleton() {
+  return (
+    <div className="report report-skeleton" aria-busy="true" aria-label="Loading report">
+      <div className="card sk-head"><span className="sk sk-ring" /><div><span className="sk sk-line w40" /><span className="sk sk-line w25" /><span className="sk sk-line w60" /></div></div>
+      <div className="cats">{[0, 1, 2].map((i) => <div key={i} className="card cat"><span className="sk sk-ring sm" /><span className="sk sk-line w40" /></div>)}</div>
+      <div className="card"><span className="sk sk-line w25" /><span className="sk sk-line" /><span className="sk sk-line" /><span className="sk sk-line w60" /></div>
+    </div>
+  );
+}
+
+const CAT_LABEL = { seo: "Search engines", aeo: "Answer engines", geo: "AI assistants" } as const;
+const CAT_SHORT = { seo: "SEO", aeo: "AEO", geo: "GEO" } as const;
+
 export default function ReportView({ id }: { id: string }) {
   const pathname = usePathname();
   const [r, setR] = useState<Report | null>(null);
@@ -39,6 +104,8 @@ export default function ReportView({ id }: { id: string }) {
   // Finished reports open straight away; a run you watched plays out to its last line first.
   const [watching, setWatching] = useState(false);
   const [revealed, setRevealed] = useState(false);
+  // Set only for reports the viewer's team ran: the change since their last report of the site.
+  const [cmp, setCmp] = useState<Compare | null>(null);
   const { cfg, on } = useConfig();
   const speed = useSpeedTest(r?.home?.facts.finalUrl ?? r?.site?.origin);
 
@@ -65,6 +132,13 @@ export default function ReportView({ id }: { id: string }) {
     };
   }, [id]);
 
+  const done = r?.status === "done";
+  useEffect(() => {
+    if (!done) return;
+    // Answers only for your team's reports; anyone else (a client with a shared link) gets a 401 or 404.
+    fetch(`/api/me/reports/compare?id=${encodeURIComponent(id)}`).then((x) => (x.ok ? x.json() : null)).then((j) => setCmp(j)).catch(() => {});
+  }, [id, done]);
+
   useEffect(() => {
     const after = () => setPrintAll(false);
     window.addEventListener("afterprint", after);
@@ -78,40 +152,75 @@ export default function ReportView({ id }: { id: string }) {
       { key: "issues", label: `Issues${r.site ? ` (${r.site.issues.length})` : ""}` },
       { key: "pages", label: `Pages${r.site ? ` (${r.site.pagesCrawled})` : ""}` },
     ];
-    if (r.site?.diagnostics) t.push({ key: "diagnostics", label: "Diagnostics" });
-    if (r.competitors?.length) t.push({ key: "competitors", label: "Competitors" });
     if (r.fixes?.length) t.push({ key: "fixes", label: "Fixes" });
     if (r.plan) t.push({ key: "plan", label: "AI plan" });
-    if (r.social || r.socialPosts) t.push({ key: "social", label: "Social" });
+    if (r.competitors?.length) t.push({ key: "competitors", label: "Competitors" });
     if (r.visibility) t.push({ key: "visibility", label: "AI visibility" });
     if (r.research) t.push({ key: "research", label: "Research" });
     return t;
   }, [r]);
 
-  if (err) return <div className="error" style={{ marginTop: 40 }}>{err}</div>;
-  if (!r) return <div className="loading"><div className="spinner" /> Loading report…</div>;
+  if (err) {
+    return (
+      <div className="card report-error" role="alert">
+        <h2>We couldn&apos;t open this report</h2>
+        <p className="muted">{/not found|404/i.test(err) ? "The link may be wrong, or the report was deleted after its storage period ended." : "Something went wrong on our side. Try again in a minute."}</p>
+        <div className="actions"><button type="button" className="btn btn-sm" onClick={() => window.location.reload()}>Try again</button><a className="btn btn-sm" href={fullReportHref(pathname, "")}>Run a new report</a></div>
+      </div>
+    );
+  }
+  if (!r) return <ReportSkeleton />;
 
   const wl = r.input.options.whiteLabel;
   const show = (t: Tab) => printAll || tab === t;
+  const isTeam = cmp !== null;
 
   if (r.status === "queued" || r.status === "running" || (r.status === "done" && watching && !revealed)) {
     return <ReportProgress report={r} onDone={() => setRevealed(true)} />;
   }
   if (r.status === "error") {
     return (
-      <div className="card progress-card">
-        <h2>Report failed</h2>
-        <div className="error">{r.error}</div>
-        <a className="btn" href={fullReportHref(pathname, r.input.url)}>Try again</a>
+      <div className="card progress-card report-error" role="alert">
+        <h2>This report didn&apos;t finish</h2>
+        <p className="muted">We couldn&apos;t crawl {host(r.input.url)}. This usually means the site blocked our crawler, timed out or returned an error.</p>
+        {r.error && <details className="small"><summary>Technical details</summary><p className="mono small">{r.error}</p></details>}
+        <div className="actions"><a className="btn btn-primary btn-sm" href={fullReportHref(pathname, r.input.url)}>Try again</a></div>
       </div>
     );
   }
 
   const s = r.site!;
+  const name = host(s.origin);
   const counts = { fail: s.issues.filter((i) => i.status === "fail").length, warn: s.issues.filter((i) => i.status === "warn").length };
+  const d = cmp?.diff;
+  const fixIds = (r.fixes ?? []).map((f) => f.id);
+  const openFix = (fid: string) => {
+    setTab("fixes");
+    requestAnimationFrame(() => document.getElementById(`fix-${fid}`)?.scrollIntoView({ block: "start", behavior: "smooth" }));
+  };
+  const savePdf = () => {
+    setPrintAll(true);
+    setTimeout(() => window.print(), 200);
+  };
 
   return (
     <div className="report">
+      {/* Print only: a cover page with the branding, the site and the date. */}
+      <div className="print-cover" aria-hidden="true">
+        {wl?.logoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={wl.logoUrl} alt="" />
+        ) : <strong className="print-brand">{wl?.name ?? BRAND.name}</strong>}
+        <p className="print-kicker">Website audit for search engines, answer engines and AI assistants</p>
+        <h1>{name}</h1>
+        <p>{s.pagesCrawled} pages audited · {day(r.createdAt)}</p>
+        <div className="print-scores">
+          <div><strong>{s.scores.overall}</strong><span>Overall</span></div>
+          {(["seo", "aeo", "geo"] as const).map((c) => <div key={c}><strong>{s.scores[c]}</strong><span>{CAT_LABEL[c]}</span></div>)}
+        </div>
+        <p className="print-by">Prepared by {wl?.name ?? BRAND.name}</p>
+      </div>
+
       <div className="card summary report-head" style={wl?.color ? { borderTopColor: wl.color } : undefined}>
         <Ring value={s.scores.overall} size={140} label="site score" />
         <div className="summary-text">
@@ -122,9 +231,16 @@ export default function ReportView({ id }: { id: string }) {
               <span>Prepared by {wl.name}</span>
             </div>
           )}
-          <h2>{host(s.origin)}</h2>
-          <p className="muted small">
-            {s.pagesCrawled} pages audited · {new Date(r.createdAt).toLocaleString()}
+          <h2>{name}</h2>
+          <p className="muted small report-meta">
+            <span>{s.pagesCrawled} pages audited</span>
+            <span><time dateTime={r.createdAt}>{when(r.createdAt)}</time></span>
+            {d && cmp?.previous && (
+              <span className={`delta ${d.scores.overall > 0 ? "up" : d.scores.overall < 0 ? "down" : ""}`}>
+                {d.scores.overall > 0 ? <TrendingUp size={14} aria-hidden="true" /> : d.scores.overall < 0 ? <TrendingDown size={14} aria-hidden="true" /> : null}
+                {d.scores.overall === 0 ? "No change" : signed(d.scores.overall)} since {day(cmp.previous.createdAt)}
+              </span>
+            )}
           </p>
           <ResultCounts
             counts={counts}
@@ -139,20 +255,7 @@ export default function ReportView({ id }: { id: string }) {
               });
             }}
           />
-          <div className="actions no-print">
-            <button
-              className="primary"
-              onClick={() => {
-                setPrintAll(true);
-                setTimeout(() => window.print(), 200);
-              }}
-            >
-              Save as PDF
-            </button>
-            <button onClick={() => download(`report-${host(s.origin)}.md`, reportToMarkdown(r), "text/markdown")}>Markdown</button>
-            <button onClick={() => download(`report-${host(s.origin)}.json`, JSON.stringify(r, null, 2), "application/json")}>JSON</button>
-            <button onClick={() => navigator.clipboard.writeText(window.location.href)}>Copy link</button>
-          </div>
+          <ReportActions r={r} name={name} onPdf={savePdf} />
         </div>
       </div>
 
@@ -161,14 +264,17 @@ export default function ReportView({ id }: { id: string }) {
           <div key={c} className="card cat">
             <Ring value={s.scores[c]} size={72} />
             <div>
-              <strong>{c === "geo" ? "GEO / LLM" : c.toUpperCase()}</strong>
-              <span className="muted small">{c === "seo" ? "Search engines" : c === "aeo" ? "Answer engines" : "AI search & citations"}</span>
+              <strong>{CAT_LABEL[c]}</strong>
+              <span className="muted small">
+                {CAT_SHORT[c]}
+                {d && d.scores[c] !== 0 ? <span className={d.scores[c] > 0 ? "c-pass" : "c-fail"}> · {signed(d.scores[c])}</span> : null}
+              </span>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="tabs scroll no-print" role="tablist">
+      <div className="tabs scroll no-print report-tabs" role="tablist">
         {tabs.map((t) => (
           <button key={t.key} role="tab" aria-selected={tab === t.key} className={tab === t.key ? "on" : ""} onClick={() => setTab(t.key)}>
             {t.label}
@@ -178,8 +284,31 @@ export default function ReportView({ id }: { id: string }) {
 
       {show("overview") && (
         <section>
-          {printAll && <h2 className="print-h">Overview</h2>}
-          {r.site && r.status === "done" && <ExecutiveSummary r={r} />}
+          {printAll && <h2 className="print-h">Summary</h2>}
+          {r.site && r.status === "done" && <ExecutiveSummary r={r} cmp={cmp} />}
+          <div className="card">
+            <div className="card-head">
+              <h3>Top priorities</h3>
+              {s.issues.length > 6 && <button type="button" className="link no-print" onClick={() => setTab("issues")}>All {s.issues.length} issues</button>}
+            </div>
+            <ul className="plain">
+              {s.issues.slice(0, 6).map((i) => {
+                const fid = fixFor(i.id, fixIds);
+                return (
+                  <li key={i.id} className={`check ${i.status}`}>
+                    <Pill status={i.status} />
+                    <div>
+                      <div className="check-title">
+                        {i.title} <span className="tag">{i.count} page{i.count === 1 ? "" : "s"}</span>
+                      </div>
+                      {i.fix && <div className="check-fix">{i.fix}</div>}
+                      {fid && <button type="button" className="link no-print" onClick={() => openFix(fid)}>Get the code</button>}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
           {r.home && on("aiView") && (
             <AiView
               facts={r.home.facts}
@@ -193,25 +322,18 @@ export default function ReportView({ id }: { id: string }) {
           )}
           {r.home && on("pagespeed") && !printAll && <SpeedTest url={r.home.facts.finalUrl} speed={speed} />}
           {r.speed ? <SiteSpeedCard speed={r.speed} /> : null}
-          <div className="card">
-            <h3>Top priorities</h3>
-            <ul className="plain">
-              {s.issues.slice(0, 6).map((i) => (
-                <li key={i.id} className={`check ${i.status}`}>
-                  <Pill status={i.status} />
-                  <div>
-                    <div className="check-title">
-                      {i.title} <span className="tag">{i.count} page{i.count === 1 ? "" : "s"}</span>
-                    </div>
-                    {i.fix && <div className="check-fix">→ {i.fix}</div>}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
           {r.competitors?.length ? <CompetitorScores r={r} /> : null}
-          {cfg && !printAll && (
-            <div className="feature-grid">
+          {(r.social || r.entity?.checked || r.socialPosts) && (
+            <>
+              {printAll && <h2 className="print-h">Social and brand presence</h2>}
+              {r.social && <SocialCard social={r.social} />}
+              {r.entity?.checked && <EntityCard e={r.entity} />}
+              {r.socialPosts && <PostsCard posts={r.socialPosts} />}
+            </>
+          )}
+          {/* Upgrade prompts are for the team that ran the report, never for a client opening a shared or branded link. */}
+          {cfg && isTeam && !wl && !printAll && (
+            <div className="feature-grid no-print">
               {!r.visibility && (
                 <div className="card soon-card">
                   <strong>AI visibility test</strong> {on("aiVisibility") ? <span className="live">Available</span> : <SoonBadge plan="pro" />}
@@ -235,16 +357,15 @@ export default function ReportView({ id }: { id: string }) {
         </section>
       )}
 
-      {show("issues") && <IssuesTab r={r} printAll={printAll} filter={issueFilter} onFilter={setIssueFilter} />}
+      {show("issues") && <IssuesTab r={r} printAll={printAll} filter={issueFilter} onFilter={setIssueFilter} fixIds={fixIds} onOpenFix={openFix} />}
       {show("pages") && <PagesTab r={r} printAll={printAll} />}
-      {show("diagnostics") && r.site?.diagnostics ? <DiagnosticsTab r={r} printAll={printAll} /> : null}
-      {show("competitors") && r.competitors?.length ? <CompetitorsTab r={r} printAll={printAll} /> : null}
+      {show("pages") && r.site?.diagnostics ? <DiagnosticsTab r={r} printAll={printAll} /> : null}
       {show("fixes") && r.fixes?.length ? (
         <section>
           {printAll && <h2 className="print-h">Ready-to-paste fixes</h2>}
           <FixActions r={r} />
           {r.fixes.map((f) => (
-            <div key={f.id} className="card">
+            <div key={f.id} id={`fix-${f.id}`} className="card fix-card">
               <h3>{f.title}</h3>
               <p className="muted small">{f.description}</p>
               <CopyBlock content={f.content} filename={f.filename} />
@@ -253,72 +374,82 @@ export default function ReportView({ id }: { id: string }) {
         </section>
       ) : null}
       {show("plan") && r.plan ? <PlanTab plan={r.plan} printAll={printAll} /> : null}
-      {show("social") && (r.social || r.socialPosts) ? (
-        <section>
-          {printAll && <h2 className="print-h">Social & brand presence</h2>}
-          {r.social && <SocialCard social={r.social} />}
-          {r.entity?.checked && <EntityCard e={r.entity} />}
-          {r.socialPosts && <PostsCard posts={r.socialPosts} />}
-        </section>
-      ) : null}
+      {show("competitors") && r.competitors?.length ? <CompetitorsTab r={r} printAll={printAll} /> : null}
       {show("visibility") && r.visibility ? <VisibilityTab v={r.visibility} printAll={printAll} /> : null}
       {show("research") && r.research ? <ResearchTab rs={r.research} printAll={printAll} /> : null}
+      <p className="print-foot muted small">{wl?.name ?? BRAND.name} · {name} · {day(r.createdAt)}. Scores are readiness signals, not a promise of rankings or AI citations.</p>
     </div>
   );
 }
 
-function IssuesTab({ r, printAll, filter, onFilter }: { r: Report; printAll: boolean; filter: IssueFilter; onFilter: (f: IssueFilter) => void }) {
+function IssuesTab({ r, printAll, filter, onFilter, fixIds, onOpenFix }: { r: Report; printAll: boolean; filter: IssueFilter; onFilter: (f: IssueFilter) => void; fixIds: string[]; onOpenFix: (id: string) => void }) {
   const [cat, setCat] = useState<"all" | "seo" | "aeo" | "geo" | "site">("all");
-  const [open, setOpen] = useState<string | null>(null);
+  const [open, setOpen] = useState<Set<string>>(new Set());
+  const [q, setQ] = useState("");
   const status = printAll ? "all" : filter;
-  const list = r.site!.issues.filter((i) => (cat === "all" || i.category === cat) && (status === "all" || i.status === status));
+  const needle = printAll ? "" : q.trim().toLowerCase();
+  const list = r.site!.issues.filter((i) =>
+    (printAll || cat === "all" || i.category === cat) &&
+    (status === "all" || i.status === status) &&
+    (!needle || i.title.toLowerCase().includes(needle) || (i.fix ?? "").toLowerCase().includes(needle) || i.examples.some((e) => e.toLowerCase().includes(needle))),
+  );
+  const toggle = (id: string) => setOpen((x) => { const n = new Set(x); if (n.has(id)) n.delete(id); else n.add(id); return n; });
   return (
     <section>
       {printAll && <h2 className="print-h">All issues</h2>}
-      <div className="issue-filters no-print" id="report-issues" tabIndex={-1}>
-        <div className="tabs small-tabs">
+      <div className="issue-bar no-print" id="report-issues" tabIndex={-1}>
+        <div className="tabs small-tabs" role="group" aria-label="Filter issues by area">
           {(["all", "site", "seo", "aeo", "geo"] as const).map((c) => (
-            <button key={c} className={cat === c ? "on" : ""} onClick={() => setCat(c)}>
-              {c === "all" ? "All" : c.toUpperCase()}
+            <button key={c} type="button" className={cat === c ? "on" : ""} aria-pressed={cat === c} onClick={() => setCat(c)}>
+              {c === "all" ? "All areas" : c === "site" ? "Site-wide" : c.toUpperCase()}
             </button>
           ))}
         </div>
-        <div className="tabs small-tabs status-tabs" role="group" aria-label="Filter issues by result">
-          {([["all", "All results"], ["fail", "Failed"], ["warn", "Warnings"]] as const).map(([k, label]) => (
-            <button key={k} type="button" className={status === k ? "on" : ""} aria-pressed={status === k} onClick={() => onFilter(k)}>
-              {label}
-            </button>
-          ))}
-        </div>
+        <select className="field field-sm" aria-label="Filter issues by result" value={status} onChange={(e) => onFilter(e.target.value as IssueFilter)}>
+          <option value="all">All results</option>
+          <option value="fail">Failed only</option>
+          <option value="warn">Warnings only</option>
+        </select>
+        <label className="issue-search">
+          <Search size={16} aria-hidden="true" />
+          <span className="sr-only">Search issues</span>
+          <input type="search" className="field field-sm" placeholder="Search issues or pages" value={q} onChange={(e) => setQ(e.target.value)} />
+        </label>
       </div>
       <div className="card">
         <ul className="plain">
-          {list.map((i) => (
-            <li key={i.id} className={`check ${i.status}`}>
-              <Pill status={i.status} />
-              <div style={{ flex: 1 }}>
-                <div className="check-title">
-                  {i.title} <span className="tag">{i.category.toUpperCase()}</span>
-                  <span className="tag">{i.count} page{i.count === 1 ? "" : "s"}</span>
+          {list.map((i) => {
+            const fid = fixFor(i.id, fixIds);
+            const isOpen = printAll || open.has(i.id);
+            return (
+              <li key={i.id} className={`check ${i.status}`}>
+                <Pill status={i.status} />
+                <div style={{ flex: 1 }}>
+                  <div className="check-title">
+                    {i.title} <span className="tag">{i.category === "site" ? "Site-wide" : i.category.toUpperCase()}</span>
+                    <span className="tag">{i.count} page{i.count === 1 ? "" : "s"}</span>
+                  </div>
+                  {i.sample && <div className="check-detail">{i.sample}</div>}
+                  {i.fix && <div className="check-fix">{i.fix}</div>}
+                  <div className="check-links no-print">
+                    {i.examples.length > 0 && (
+                      <button type="button" className="link" aria-expanded={isOpen} onClick={() => toggle(i.id)}>
+                        {isOpen ? "Hide affected pages" : `Show affected pages (${i.examples.length})`}
+                      </button>
+                    )}
+                    {fid && <button type="button" className="link" onClick={() => onOpenFix(fid)}>Get the code</button>}
+                  </div>
+                  {isOpen && i.examples.length > 0 && (
+                    <ul className="examples">
+                      {i.examples.map((e) => <li key={e}>{e}</li>)}
+                    </ul>
+                  )}
                 </div>
-                {i.sample && <div className="check-detail">{i.sample}</div>}
-                {i.fix && <div className="check-fix">→ {i.fix}</div>}
-                {(printAll || open === i.id) ? (
-                  <ul className="examples">
-                    {i.examples.map((e) => (
-                      <li key={e}>{e}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <button className="link no-print" onClick={() => setOpen(i.id)}>
-                    Show affected pages
-                  </button>
-                )}
-              </div>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
-        {list.length === 0 && <p className="muted">No issues in this category.</p>}
+        {list.length === 0 && <p className="muted">{needle ? `No issues match “${q.trim()}”.` : "No issues here. Nice work."}</p>}
       </div>
     </section>
   );
@@ -772,12 +903,7 @@ function DiagnosticsTab({ r, printAll }: { r: Report; printAll: boolean }) {
 const signed = (n: number) => (n > 0 ? `+${n}` : `${n}`);
 
 /** At the top of a report: the 3 biggest issues and, for your team's reports, what changed since the last one. */
-function ExecutiveSummary({ r }: { r: Report }) {
-  const [cmp, setCmp] = useState<{ previous: { id: string; createdAt: string } | null; diff?: ReportDiff | null } | null>(null);
-  useEffect(() => {
-    // Only works for reports your team ran; a shared link to someone else's report just shows the top issues.
-    fetch(`/api/me/reports/compare?id=${encodeURIComponent(r.id)}`).then((x) => (x.ok ? x.json() : null)).then((j) => setCmp(j)).catch(() => {});
-  }, [r.id]);
+function ExecutiveSummary({ r, cmp }: { r: Report; cmp: Compare | null }) {
   const s = r.site!;
   const top = topIssues(s.issues, 3);
   const d = cmp?.diff;

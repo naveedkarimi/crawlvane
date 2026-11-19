@@ -32,6 +32,6 @@ export async function GET(req: Request) {
     })),
     engines: admin || isPublic("aiVisibility") ? availableEngines() : [],
     aiConfigured: !!process.env.ANTHROPIC_API_KEY,
-    limits: { maxPagesDefault: LIMITS.maxPagesDefault, maxPagesHard: LIMITS.maxPagesHard, maxCompetitors: LIMITS.maxCompetitors },
+    limits: { maxPagesDefault: LIMITS.maxPagesDefault, maxPagesHard: LIMITS.maxPagesHard, maxCompetitors: LIMITS.maxCompetitors, reportTtlDays: LIMITS.reportTtlDays, paidReportTtlDays: LIMITS.paidReportTtlDays },
   });
 }

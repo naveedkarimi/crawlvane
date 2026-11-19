@@ -188,11 +188,11 @@ function BadgeCard({ url, score }: { url: string; score: number }) {
  * The page check. On the home page (`redirect`) submitting goes to /check?url=…, which keeps
  * the home page light; on /check it runs the audit behind a step-by-step loader.
  */
-export default function Auditor({ redirect = false }: { redirect?: boolean }) {
+export default function Auditor({ redirect = false, initialUrl }: { redirect?: boolean; initialUrl?: string }) {
   const params = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  const [url, setUrl] = useState(params.get("url") ?? "");
+  const [url, setUrl] = useState(initialUrl || (params.get("url") ?? ""));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<(AuditResult & { social?: SocialPresence }) | null>(null);

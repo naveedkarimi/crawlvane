@@ -49,7 +49,7 @@ export const AUDIENCES = [
   },
   {
     id: "agencies", icon: Building2, title: "Agencies", short: "Audit client sites at scale.",
-    text: "Audit client sites at scale. White-label reports and monitoring are on the way.",
+    text: "Audit client sites at scale, with white-label reports and weekly monitoring.",
     img: "/images/pexels-agency-team.jpg", alt: "An agency team gathered around a laptop reviewing a client site",
   },
 ];

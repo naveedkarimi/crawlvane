@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <main>
-      <section className="hero hero-tool" aria-labelledby="tools-title">
+      <section className="hero hero-tool hero-page" aria-labelledby="tools-title">
         <HeroDecor />
         <div className="container hero-inner">
           <div className="kicker kicker-center">Free tools</div>
