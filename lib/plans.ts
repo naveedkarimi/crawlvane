@@ -8,15 +8,16 @@ export type Plan = {
   features: string[];
   cta: { label: string; href: string };
   featured?: boolean;
-  /** Small print under the price, such as the yearly price or a free trial. */
+  /** Small print under the price, such as a free trial. */
   note?: string;
+  /** The yearly price label, such as "$390", when PRICE_*_YEARLY_LABEL is set. */
+  yearly?: string;
 };
 
-/** "or $390 a year · 14-day free trial", from the settings that are filled in. */
-function priceNote(yearlyLabel?: string): string | undefined {
+/** "14-day free trial" when STRIPE_TRIAL_DAYS is set. */
+function trialNote(): string | undefined {
   const trial = Math.min(60, Math.max(0, Number(process.env.STRIPE_TRIAL_DAYS || 0) || 0));
-  const parts = [yearlyLabel ? `or ${yearlyLabel} a year` : "", trial ? `${trial}-day free trial` : ""].filter(Boolean);
-  return parts.length ? parts.join(" · ") : undefined;
+  return trial ? `${trial}-day free trial` : undefined;
 }
 
 /**
@@ -63,7 +64,8 @@ export function paidPlans(limits: Record<"free" | "pro" | "agency", import("./en
         n(p.apiKeys, "API key"),
       ],
       cta: { label: process.env.STRIPE_TRIAL_DAYS && Number(process.env.STRIPE_TRIAL_DAYS) > 0 ? "Start free trial" : "Choose Pro", href: signUp("pro") },
-      note: priceNote(process.env.PRICE_PRO_YEARLY_LABEL),
+      note: trialNote(),
+      yearly: process.env.PRICE_PRO_YEARLY_LABEL || undefined,
     },
     {
       name: "Agency",
@@ -82,7 +84,8 @@ export function paidPlans(limits: Record<"free" | "pro" | "agency", import("./en
         n(a.apiKeys, "API key"),
       ],
       cta: { label: process.env.STRIPE_TRIAL_DAYS && Number(process.env.STRIPE_TRIAL_DAYS) > 0 ? "Start free trial" : "Choose Agency", href: signUp("agency") },
-      note: priceNote(process.env.PRICE_AGENCY_YEARLY_LABEL),
+      note: trialNote(),
+      yearly: process.env.PRICE_AGENCY_YEARLY_LABEL || undefined,
     },
   ];
 }

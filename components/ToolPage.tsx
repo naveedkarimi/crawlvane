@@ -33,7 +33,7 @@ export default function ToolPage({
   const url = `${BRAND.url}${toolUrl(slug)}`;
   return (
     <main>
-      <section className="hero hero-tool" aria-labelledby="tool-title">
+      <section className="hero hero-tool hero-page" aria-labelledby="tool-title">
         <HeroDecor />
         <div className="container hero-inner">
           <div className="kicker kicker-center">Free tool</div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, Fragment, Suspense, useCallback, useContext, useEffect, useMemo, useState, type MouseEvent, type ReactNode } from "react";
-import { AlertTriangle, ArrowLeft, MoreHorizontal, X, ArrowRight, Bell, Building2, CheckCircle2, CircleMinus, ExternalLink, FileText, Globe, Info, LayoutGrid, MessageSquareText, Plus, RefreshCw, ScanSearch, Settings, Smartphone, Trash2, TrendingDown, TrendingUp, Users, Wrench, XCircle, type LucideIcon, PenLine } from "lucide-react";
+import { AlertTriangle, ArrowLeft, MoreHorizontal, X, BookOpen, ChevronUp, CreditCard, LogOut, ScrollText, Shield, ArrowRight, Bell, Building2, CheckCircle2, CircleMinus, ExternalLink, FileText, Globe, Info, LayoutGrid, MessageSquareText, Plus, RefreshCw, ScanSearch, Settings, Smartphone, Trash2, TrendingDown, TrendingUp, Users, Wrench, XCircle, type LucideIcon, PenLine } from "lucide-react";
 import { takeReferral } from "@/lib/referralClient";
 import GooglePanel from "./GooglePanel";
 import BingPanel from "./BingPanel";
@@ -32,9 +32,10 @@ import Auditor from "./Auditor";
 import ReportForm from "./ReportForm";
 import ReportView from "./ReportView";
 import AppCheck from "./AppCheck";
+import Guide from "./Guide";
 
 interface Me { email: string; org: Org; role: string }
-type Section = "overview" | "check" | "report" | "websites" | "apps" | "visibility" | "content" | "reports" | "fixes" | "alerts" | "team" | "agency" | "plan" | "settings";
+type Section = "overview" | "check" | "report" | "websites" | "apps" | "visibility" | "content" | "reports" | "fixes" | "alerts" | "team" | "agency" | "plan" | "settings" | "help" | "about";
 
 type NavGroup = "main" | "monitor" | "work" | "account";
 const NAV: { key: Section; label: string; icon: LucideIcon; group: NavGroup; short?: string }[] = [
@@ -49,12 +50,11 @@ const NAV: { key: Section; label: string; icon: LucideIcon; group: NavGroup; sho
   { key: "content", label: "Keywords & content", icon: PenLine, group: "work" },
   { key: "team", label: "Team", icon: Users, group: "account" },
   { key: "agency", label: "Agency", icon: Building2, group: "account" },
-  { key: "settings", label: "Settings", icon: Settings, group: "account" },
 ];
 const GROUP_LABEL: Record<NavGroup, string> = { main: "", monitor: "Monitor", work: "Work", account: "Account" };
 /** The phone tab bar: these four, then More for the rest. */
 const PHONE_TABS: Section[] = ["overview", "check", "fixes", "reports"];
-const SECTIONS: Section[] = [...NAV.map((n) => n.key), "plan", "report"];
+const SECTIONS: Section[] = [...NAV.map((n) => n.key), "plan", "report", "settings", "help", "about"];
 type CheckMode = "page" | "full" | "app";
 
 /** Where a link inside the dashboard goes. Everything stays in the app, with real URLs so Back works. */
@@ -276,6 +276,8 @@ export default function Dashboard() {
     agency: ["Agency", "Your branding on client reports, your own report domain, and an audit widget for your website."],
     plan: ["Plan", "Your plan, this month's usage and billing."],
     settings: ["Settings", "Your account, API keys and data."],
+    help: ["How to use", "Every step, from your first check to client reports."],
+    about: ["About", `The ${BRAND.name} version you're using, and the legal pages.`],
   };
   // First-run checklist. Each step is done when the data says so, not when it's clicked.
   const setup = demo ? null : (
@@ -339,6 +341,7 @@ export default function Dashboard() {
           {sitesLimit && <div className="side-bar"><i style={{ width: `${Math.min(100, (sites.length / sitesLimit) * 100)}%` }} /></div>}
           <button type="button" onClick={() => go("plan")}>Manage plan</button>
         </div>
+        <ProfileMenu email={me.email} demo={demo} isOn={isOn} go={go} />
       </aside>
 
       <main id="main" className="app-main">
@@ -403,6 +406,8 @@ export default function Dashboard() {
         {section === "agency" && (demo ? signInOnly("Agency tools") : <section className="dash-section" aria-label="Agency"><BrandingCard /><WidgetsCard /></section>)}
         {section === "plan" && (demo ? signInOnly("Billing") : <PlanPanel isOwner={me.role === "owner"} />)}
         {section === "settings" && (demo ? signInOnly("Settings") : <SettingsPanel me={me} reload={() => window.location.reload()} />)}
+        {section === "help" && <HelpPanel />}
+        {section === "about" && <AboutPanel />}
       </main>
       <nav className="phone-tabs" aria-label="Sections">
         {PHONE_TABS.map((k) => {
@@ -434,6 +439,16 @@ export default function Dashboard() {
                 ))}
               </div>
             ))}
+            <div className="phone-more-group">
+              <span className="app-nav-label">Profile</span>
+              {PROFILE_LINKS.map(({ key, label, icon: Icon }) => (
+                <button key={key} type="button" className={isOn(key) ? "on" : ""} onClick={() => { setMoreOpen(false); go(key); }}><Icon size={18} aria-hidden="true" /> <span>{label}</span></button>
+              ))}
+              {LEGAL_LINKS.map(({ href, label, icon: Icon }) => (
+                <a key={href} className="phone-more-link" href={siteLink(href)} target="_blank" rel="noopener noreferrer"><Icon size={18} aria-hidden="true" /> <span>{label}</span></a>
+              ))}
+              {!demo && <button type="button" onClick={() => void signOutNow()}><LogOut size={18} aria-hidden="true" /> <span>Sign out</span></button>}
+            </div>
             <button type="button" className="phone-more-plan" onClick={() => { setMoreOpen(false); go("plan"); }}>{PLAN_NAME[me.org.plan] ?? me.org.plan} plan · Manage</button>
           </div>
         </div>
@@ -441,6 +456,112 @@ export default function Dashboard() {
       <Upsell onPlans={() => go("plan")} />
     </div>
     </NavCtx.Provider>
+  );
+}
+
+const PROFILE_LINKS: { key: Section; label: string; icon: LucideIcon }[] = [
+  { key: "settings", label: "Settings", icon: Settings },
+  { key: "plan", label: "Plan and billing", icon: CreditCard },
+  { key: "help", label: "How to use", icon: BookOpen },
+  { key: "about", label: "About", icon: Info },
+];
+const LEGAL_LINKS: { href: string; label: string; icon: LucideIcon }[] = [
+  { href: "/privacy", label: "Privacy policy", icon: Shield },
+  { href: "/terms", label: "Terms of service", icon: ScrollText },
+];
+
+async function signOutNow() {
+  await browserAuth()?.auth.signOut();
+  window.location.href = siteLink("/");
+}
+
+/** The profile button at the foot of the sidebar: account, help, about, legal pages and sign out. */
+function ProfileMenu({ email, demo, isOn, go }: { email: string; demo: boolean; isOn: (k: Section) => boolean; go: (s: Section) => void }) {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", close);
+    return () => window.removeEventListener("keydown", close);
+  }, [open]);
+  const pick = (k: Section) => { setOpen(false); go(k); };
+  return (
+    <div className="profile" onBlur={(e) => !e.currentTarget.contains(e.relatedTarget as Node) && setOpen(false)}>
+      {open && (
+        <div className="profile-menu" id="profile-menu" role="menu" aria-label="Profile">
+          <p className="profile-email">{email || "Example account"}</p>
+          {PROFILE_LINKS.map(({ key, label, icon: Icon }) => (
+            <button key={key} type="button" role="menuitem" className={isOn(key) ? "on" : ""} onClick={() => pick(key)}><Icon size={16} aria-hidden="true" /> {label}</button>
+          ))}
+          <hr />
+          {LEGAL_LINKS.map(({ href, label, icon: Icon }) => (
+            <a key={href} role="menuitem" href={siteLink(href)} target="_blank" rel="noopener noreferrer"><Icon size={16} aria-hidden="true" /> {label} <ExternalLink size={12} aria-hidden="true" className="profile-ext" /></a>
+          ))}
+          {!demo && <><hr /><button type="button" role="menuitem" onClick={() => void signOutNow()}><LogOut size={16} aria-hidden="true" /> Sign out</button></>}
+        </div>
+      )}
+      <button type="button" className="profile-btn" aria-haspopup="menu" aria-expanded={open} aria-controls="profile-menu" onClick={() => setOpen(!open)}>
+        <span className="profile-avatar" aria-hidden="true">{(email || "?").slice(0, 1).toUpperCase()}</span>
+        <span className="profile-name">{email || "Example account"}</span>
+        <ChevronUp size={16} aria-hidden="true" className="profile-chev" />
+      </button>
+    </div>
+  );
+}
+
+function HelpPanel() {
+  const { cfg } = useConfig();
+  return <Guide ttl={cfg?.limits.reportTtlDays} paidTtl={cfg?.limits.paidReportTtlDays} />;
+}
+
+/** Version, build, legal pages and support. */
+function AboutPanel() {
+  const version = process.env.NEXT_PUBLIC_APP_VERSION || "dev";
+  const commit = process.env.NEXT_PUBLIC_APP_COMMIT || "";
+  const built = process.env.NEXT_PUBLIC_APP_BUILT;
+  const legal: [string, string, string][] = [
+    ["/privacy", "Privacy policy", "What we collect, why, and how long we keep it."],
+    ["/terms", "Terms of service", "The rules for using the service, plans and billing."],
+    ["/accessibility", "Accessibility", "How the site meets WCAG 2.2 AA, and how to report a problem."],
+    ["/credits", "Credits", "The open-source software and data we use."],
+  ];
+  return (
+    <section className="dash-section about" aria-label="About">
+      <div className="card about-hero">
+        <LogoMark size={44} />
+        <div>
+          <h2>{BRAND.name}</h2>
+          <p className="muted">{BRAND.tagline}</p>
+        </div>
+      </div>
+      <div className="card">
+        <h3>Version</h3>
+        <dl className="about-facts">
+          <div><dt>Version</dt><dd>{version}</dd></div>
+          {commit && <div><dt>Build</dt><dd className="mono">{commit}</dd></div>}
+          {built && <div><dt>Released</dt><dd>{new Date(built).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })}</dd></div>}
+        </dl>
+      </div>
+      <div className="card">
+        <h3>Legal</h3>
+        <ul className="about-links">
+          {legal.map(([href, label, text]) => (
+            <li key={href}>
+              <a href={siteLink(href)} target="_blank" rel="noopener noreferrer"><strong>{label}</strong> <ExternalLink size={13} aria-hidden="true" /></a>
+              <span className="muted small">{text}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="card about-support">
+        <div><h3>Need help?</h3><p className="muted small">Read the guide, or tell us what you were trying to do.</p></div>
+        <div className="actions">
+          <AppLink className="btn btn-primary btn-sm" to={{ tab: "help" }}><BookOpen size={15} aria-hidden="true" /> How to use</AppLink>
+          <a className="btn btn-sm" href={siteLink(BRAND.contactUrl)} target="_blank" rel="noopener noreferrer">Contact us</a>
+        </div>
+      </div>
+      {BRAND.legalName && <p className="muted small">© {new Date().getFullYear()} {BRAND.legalName}</p>}
+    </section>
   );
 }
 

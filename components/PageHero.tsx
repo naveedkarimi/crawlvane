@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 import HeroDecor from "./HeroDecor";
 
 /**
- * The page heading used everywhere except the home page: pale blue background, floating
- * details, centred label and title, and a wavy bottom edge. Same look as the Free tools page.
+ * The page heading used everywhere except the home page and the free tools: navy like the home
+ * hero, with its network pattern, floating details, a centred label and title, and a wavy bottom edge.
  */
 export default function PageHero({
   kicker,
@@ -19,7 +19,7 @@ export default function PageHero({
   className?: string;
 }) {
   return (
-    <section className={`hero hero-tool ${className}`.trim()} aria-labelledby={id}>
+    <section className={`hero hero-tool hero-page ${className}`.trim()} aria-labelledby={id}>
       <HeroDecor />
       <div className="container hero-inner">
         {kicker && <div className="kicker kicker-center">{kicker}</div>}

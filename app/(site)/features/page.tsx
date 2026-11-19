@@ -43,9 +43,9 @@ export default function FeaturesPage() {
         </div>
       </section>
 
-      <HowItWorks ctaHref="/#audit" />
+      <HowItWorks ctaHref="/#audit" muted />
 
-      <section className="section section-muted" id="who" aria-labelledby="who-title">
+      <section className="section" id="who" aria-labelledby="who-title">
         <div className="container">
           <div className="section-head">
             <div className="kicker kicker-center">Who it&apos;s for</div>
@@ -65,7 +65,7 @@ export default function FeaturesPage() {
           </div>
         </div>
       </section>
-      <section className="section" aria-labelledby="features-faq">
+      <section className="section section-muted" aria-labelledby="features-faq">
         <div className="container faq-layout">
           <div className="section-head left">
             <div className="kicker">FAQ</div>

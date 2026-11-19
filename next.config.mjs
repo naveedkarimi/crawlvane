@@ -1,4 +1,17 @@
 import { fileURLToPath } from "node:url";
+import { readFileSync } from "node:fs";
+import { execSync } from "node:child_process";
+
+// Shown in the dashboard under About: the version from package.json, the commit and when it was built.
+const pkg = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8"));
+let commit = process.env.APP_COMMIT ?? "";
+if (!commit) {
+  try {
+    commit = execSync("git rev-parse --short HEAD", { stdio: ["ignore", "pipe", "ignore"] }).toString().trim();
+  } catch {
+    /* not a git checkout, such as the cPanel package */
+  }
+}
 
 // NEXT_PUBLIC_ values ship to every visitor's browser, so a secret key here would be public.
 const browserKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() ?? "";
@@ -19,6 +32,7 @@ const nextConfig = {
   // Self-contained build for cPanel / any Node host (see docs/app/DEPLOY-CPANEL.md)
   output: "standalone",
   poweredByHeader: false,
+  env: { NEXT_PUBLIC_APP_VERSION: pkg.version, NEXT_PUBLIC_APP_COMMIT: commit, NEXT_PUBLIC_APP_BUILT: new Date().toISOString() },
   async headers() {
     return [
       {

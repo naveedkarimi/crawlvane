@@ -71,7 +71,7 @@ export interface AppConfig {
   features: FeatureState[];
   engines: string[];
   aiConfigured: boolean;
-  limits: { maxPagesDefault: number; maxPagesHard: number; maxCompetitors: number };
+  limits: { maxPagesDefault: number; maxPagesHard: number; maxCompetitors: number; reportTtlDays?: number; paidReportTtlDays?: number };
 }
 
 export function useConfig() {

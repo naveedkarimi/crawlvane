@@ -8,9 +8,9 @@ const steps = [
 ];
 
 /** The four-step "How it works" section, on the home page and the Features page. */
-export default function HowItWorks({ ctaHref = "#audit" }: { ctaHref?: string }) {
+export default function HowItWorks({ ctaHref = "#audit", muted = false }: { ctaHref?: string; muted?: boolean }) {
   return (
-    <section className="section section-dark how-section" id="how" aria-labelledby="how-title">
+    <section className={`section how-section${muted ? " section-muted" : ""}`} id="how" aria-labelledby="how-title">
       <div className="container">
         <div className="section-head">
           <div className="kicker kicker-center">How it works</div>
@@ -30,7 +30,7 @@ export default function HowItWorks({ ctaHref = "#audit" }: { ctaHref?: string })
             );
           })}
         </ol>
-        <div className="center-actions"><a className="btn btn-light" href={ctaHref}>Try it on your site <ArrowRight size={16} /></a></div>
+        <div className="center-actions"><a className="btn btn-primary" href={ctaHref}>Try it on your site <ArrowRight size={16} /></a></div>
       </div>
     </section>
   );
