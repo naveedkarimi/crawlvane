@@ -110,7 +110,7 @@ ${c.name} and ${BRAND.name} both ${c.common}, but they start from different plac
 | | ${BRAND.name} | ${c.name} |
 |---|---|---|
 | What it is | Site audit for SEO, AEO and GEO, with ready-to-paste fixes and AI visibility tracking | ${c.what} |
-| Price | Free during launch. Paid plans aren't priced yet | ${c.prices} |
+| Price | Free plan, plus paid Pro and Agency plans | ${c.prices} |
 | Free option | Free audit, no sign-up for a page check | ${c.trial} |
 | AI engines | ChatGPT, Claude, Perplexity and Gemini (each needs its provider key) | ${c.engines} |
 | Fixes | Writes robots.txt, llms.txt, schema and meta tags for your site | ${c.fixes} |

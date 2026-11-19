@@ -5,7 +5,9 @@ import Home from "@/components/Home";
 import HowItWorks from "@/components/HowItWorks";
 import type { Metadata } from "next";
 import { BRAND, contactLink } from "@/lib/brand";
-import { plans } from "@/lib/plans";
+import { paidPlans } from "@/lib/plans";
+import { PLAN_LIMITS } from "@/lib/entitlements";
+import { appUrl } from "@/lib/hosts";
 import AuditCount from "@/components/AuditCount";
 
 export const metadata: Metadata = {
@@ -31,7 +33,7 @@ const faqs = [
   },
   {
     q: "Is it free?",
-    a: "Yes. Every live feature is free during launch: page checks, full-site crawls, competitor comparison, ready-to-paste fixes and the AI fix plan. Paid Pro and Agency plans with monitoring and white-label reports come later.",
+    a: "There is a free plan. Page checks need no account, and a free account adds a saved site with score history and a weekly check, a few full site reports a month and some AI credits. Pro and Agency are paid plans for more sites, weekly monitoring, AI visibility tracking and white-label client reports.",
   },
   {
     q: "How is the score calculated?",
@@ -77,8 +79,6 @@ const example = {
     { label: "AI search", value: 93 },
   ],
 };
-
-/** Small hand-drawn rays beside the hero headline. Decorative only. */
 
 export default function Page() {
   return (
@@ -229,21 +229,20 @@ export default function Page() {
         <div className="container">
           <div className="section-head">
             <div className="kicker kicker-center">Pricing</div>
-            <h2 id="pricing-title">Free while we launch.</h2>
-            <p className="lead">Every live feature costs nothing today. Pro and Agency add tracking over time and client reporting.</p>
+            <h2 id="pricing-title">Start free. Upgrade when you grow.</h2>
+            <p className="lead">The free plan covers page checks and one saved site. Pro and Agency add tracking over time and client reporting.</p>
             <AuditCount />
           </div>
           <div className="price-cols">
-            {plans.map((p) => (
+            {paidPlans(PLAN_LIMITS, appUrl).map((p) => (
               <article key={p.name} className={p.featured ? "featured" : ""}>
                 <div className="price-head">
                   <h3>{p.name}</h3>
-                  {p.status === "live" && <span className="badge badge-live">Available now</span>}
                 </div>
                 <p className="price-line"><strong>{p.price}</strong>{p.period && <span> {p.period}</span>}</p>
                 <p>{p.blurb}</p>
                 <ul>
-                  {p.features.slice(p.name === "Launch" ? 0 : 1, 4).map((f) => <li key={f}><Check size={15} aria-hidden="true" /> {f}</li>)}
+                  {p.features.slice(0, 4).map((f) => <li key={f}><Check size={15} aria-hidden="true" /> {f}</li>)}
                 </ul>
                 <a className={`btn ${p.featured ? "btn-light" : "btn-outline-light"} btn-block plan-cta`} href={p.cta.href}>
                   {p.cta.label} <span className="cta-circle" aria-hidden="true"><ArrowRight size={14} /></span>

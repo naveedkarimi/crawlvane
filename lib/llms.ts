@@ -14,12 +14,12 @@ Key facts:
 - Reads robots.txt for 19 search and AI crawlers and keeps AI search bots separate from AI training bots.
 - Generates robots.txt, llms.txt, Organization and WebSite JSON-LD, a starter sitemap and head tags.
 - Full-site crawl up to 300 pages, competitor comparison up to 3 sites, AI-written fix plan.
-- Free during launch. Pro and Agency plans (monitoring, AI visibility tracking, white-label reports) are planned.
+- Free plan with no card needed. Paid Pro and Agency plans add monitoring, AI visibility tracking and white-label reports.
 - Scores are readiness signals, not ranking or citation guarantees.
 
 ## Product
 - [Free audit](${BRAND.url}/): Enter a URL for a page check or a full site report.
-- [Pricing](${BRAND.url}/pricing): Free launch plan and planned Pro and Agency plans.
+- [Pricing](${BRAND.url}/pricing): Free, Pro and Agency plans.
 - [Full details for AI assistants](${BRAND.url}/llms-full.txt): Features, scoring method and FAQ in one file.
 
 ## Free tools
@@ -50,7 +50,7 @@ Googlebot, Bingbot, OAI-SearchBot, ChatGPT-User, GPTBot, Claude-SearchBot, Claud
 ## How the score works
 Each check is weighted 1 to 3 by impact. A pass earns the full weight, a warning half and a fail nothing. Info items are not scored. Overall score = SEO 45% + AI search 30% + answer readiness 25%. The score is capped when something blocks the page: noindex, Googlebot blocked, content that only appears with JavaScript, or AI search bots blocked.
 
-## Features available now (free during launch)
+## Features
 1. Page check: about 50 checks on one URL in about 20 seconds.
 2. AI crawler access map for 19 bots.
 3. Core Web Vitals from Google PageSpeed (lab and real-user data).
@@ -61,7 +61,7 @@ Each check is weighted 1 to 3 by impact. A pass earns the full weight, a warning
 8. AI fix plan: up to 10 prioritised actions with why, how and effort.
 9. Shareable report links kept for 30 days, with PDF, Markdown and JSON downloads.
 
-## Planned paid plans
+## Paid plans
 - Pro: saved sites, weekly monitoring with email alerts, AI visibility test across ChatGPT, Claude, Perplexity and Gemini, niche research, social posts, JavaScript rendering.
 - Agency: everything in Pro for more sites, white-label reports, an embeddable audit widget, team seats, bulk audits and API access.
 - Done for you: fixed-price implementation of the fixes in a report.
@@ -78,7 +78,7 @@ That is a business decision. Training crawlers (GPTBot, ClaudeBot, Google-Extend
 Google says Google Search doesn't use llms.txt and that having one neither helps nor harms your visibility there. It can still give other AI tools a clean map of your key pages, so ${BRAND.name} reports it without scoring it.
 
 ### Is ${BRAND.name} free?
-Yes. Every live feature is free during launch. Quick page checks will stay free when paid plans arrive.
+There is a free plan. Page checks need no account, and a free account saves a site with score history. Pro and Agency are paid plans for more sites, monitoring, AI visibility tracking and client reports.
 
 ## Limits
 - Sites behind Cloudflare or other bot protection may block the crawler; the report says so.

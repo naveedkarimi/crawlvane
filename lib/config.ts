@@ -85,8 +85,7 @@ export function featureEnabled(key: FeatureKey, req?: Request): boolean {
 }
 
 /**
- * Pricing hook. Everything is FREE for now. When payments are added, check the
- * user's plan here against FEATURE_PLAN[key]. Until then this always allows.
+ * The plan each feature belongs to. lib/entitlements.ts enforces it once PAYWALL_ENABLED is on.
  */
 export const FEATURE_PLAN: Record<FeatureKey, "free" | "pro" | "agency"> = {
   appCheck: "free",

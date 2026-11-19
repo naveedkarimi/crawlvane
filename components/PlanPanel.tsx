@@ -61,7 +61,6 @@ export default function PlanPanel({ isOwner }: { isOwner: boolean }) {
             <p className="muted small">Current plan</p>
             <h3>{PLAN_NAME[u.plan]}</h3>
           </div>
-          {!u.paywall && <span className="plan-badge">Everything is free during launch</span>}
         </div>
         <div className="meters">
           <Meter label="Saved sites" used={u.used.sites} limit={u.limits.sites} />

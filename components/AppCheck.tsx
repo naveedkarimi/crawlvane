@@ -170,7 +170,7 @@ function Premium({ listing: l, premium }: { listing: AppListing; premium: boolea
           <li><strong>Competitor comparison:</strong> your listing next to up to 3 rivals, in either store.</li>
           <li><strong>Weekly monitoring:</strong> an email when your rating drops or a competitor updates.</li>
         </ul>
-        <a className="btn btn-primary" href="/pricing#waitlist">Get told when it opens <ArrowRight size={16} aria-hidden="true" /></a>
+        <a className="btn btn-primary" href="/pricing">See the Pro plan <ArrowRight size={16} aria-hidden="true" /></a>
       </div>
     );
 

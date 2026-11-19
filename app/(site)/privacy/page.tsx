@@ -24,7 +24,7 @@ ${BRAND.legalName ? `${BRAND.name} is run by ${BRAND.legalName}${BRAND.legalAddr
 
 **Page checks.** A single page check is processed and returned to your browser. We don't save the full result on our server. We use your browser's local storage (not cookies) to keep a short history of the pages you checked, with scores and the issues you marked as fixed, so it can show before-and-after results. It never leaves your device, and you can clear it by clearing this site's data in your browser.
 
-**Forms.** When you join the waitlist, ask us to fix your site or use the contact form, we store your email address, what you wrote, the website (if you gave one) and the page you sent it from, so we can reply. The "How does AI describe my business?" tool asks for your email too, and any free tool can email you its result if you ask. We store your email with the tool and the website you checked, send the result once, and may email you related tips, with an unsubscribe link in every email.
+**Forms.** When you ask us to fix your site or use the contact form, we store your email address, what you wrote, the website (if you gave one) and the page you sent it from, so we can reply. The "How does AI describe my business?" tool asks for your email too, and any free tool can email you its result if you ask. We store your email with the tool and the website you checked, send the result once, and may email you related tips, with an unsubscribe link in every email.
 
 **Newsletter.** If you subscribe, we store your email address, the page you signed up from and the date, so we can send you SEO and AI search tips. Every email has an unsubscribe link.
 
@@ -117,7 +117,7 @@ Each service handles data under its own privacy policy.
 | Running the audits and tools you ask for, your account, team and paid plan | Providing the service you request (Art. 6(1)(b)) |
 | Keeping payment records | Our legal obligations, such as tax and accounting rules (Art. 6(1)(c)) |
 | Replying to forms and quote requests | Steps you ask us to take (Art. 6(1)(b)) |
-| Waitlist and newsletter emails | Your consent (Art. 6(1)(a)), which you can withdraw at any time |
+| Newsletter emails, and waitlist sign-ups from before the paid plans opened | Your consent (Art. 6(1)(a)), which you can withdraw at any time |
 | Rate limits, security, preventing abuse and server logs | Our legitimate interest in keeping the service safe and available (Art. 6(1)(f)) |
 | Usage statistics and cookie-free analytics | Our legitimate interest in understanding and improving the product (Art. 6(1)(f)) |
 | Agency widgets | Processing on the agency's behalf (Art. 28). The agency is responsible for the legal basis |
